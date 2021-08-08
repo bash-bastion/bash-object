@@ -54,12 +54,21 @@ Let's take a look at the most basic case
 }
 ```
 
-It will be stored in the following way. `type=associative_array` is stored (instead of inferring from type) is because that would be slower (subshell creation)
+It will be stored in the following way
 
-```sh
+The key will be the respective key on the respective parent object
+The value will be the following
+
+- Each property of the object is stored, deliminated by the null character
+- This is called a virtual object
+```txt
+# \0key=value;key1=value2;&refff\0type=string;&refff\0
+```
+
+<!-- ```sh
 assert [ "${OBJECT[stars]}" = 'type=associative_array;#__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>' ]
 assert [ "${__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>[cool]}" = 'Wolf 359' ]
-```
+``` -->
 
 TODO: fileNameAtCallSite should perhaps be modified and make it per-package
 
