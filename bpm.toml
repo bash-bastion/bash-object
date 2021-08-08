@@ -1,0 +1,3 @@
+binDirs = [ 'pkg/bin' ]
+
+dependencies = [ 'ztombol/bats-support@004e707638eedd62e0481e8cdc9223ad471f12ee', 'ztombol/bats-assert@9f88b4207da750093baabc4e3f41bf68f0dd3630', 'hyperupcall/bash-args@v0.6.1' ]
