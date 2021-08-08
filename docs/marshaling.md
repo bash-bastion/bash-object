@@ -69,7 +69,7 @@ More specifically, given a consumer of the library
 # consumer.sh
 declare -A innerArr=([cool]='Wolf 359')
 
-bash_object.do-object-set 'OBJECT' 'associative_array' 'stars' "${innerArr[@]}"
+bash_object.do-object-set 'OBJECT' 'associative_array' '.stars' "${innerArr[@]}"
 
 # 'innerArr' has now been copied into an associate array (in the global context) called (remember, numbers are _random_)
 # '__bash_object_OBJECT_cool_4093202_consumersh_5232020'
