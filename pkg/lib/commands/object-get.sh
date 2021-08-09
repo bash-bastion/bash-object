@@ -3,72 +3,98 @@
 bash_object.do-object-get() {
 	REPLY=
 
-	local root_object_name="$1"
-	local filter="$2"
+	local final_value_type="$1"
+	local root_object_name="$2"
+	local filter="$3"
 
-	# For the first iteration of the below for loop, the object will be set to
-	# the root object. If there are any nested subobjects, then the object_name
-	# will be reset
-	local object_name="$root_object_name"
-	local -n object="$root_object_name"
-
-	# shellcheck disable=SC1007
-	local metadata_string= new_object_name= d_type=
-	local -a metadata_array=()
+	local current_object_name="$root_object_name"
+	local -n current_object="$current_object_name" # make 'current_object' a reference to the '$current_object_name' variable
 
 	bash_object.filter_parse "$filter"
-	# for key in "${REPLIES[@]}"; do
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
-		key="${REPLIES[$i]}"
-		# 'key_value' is either
-		#   1. An actual string
-		#   2. A reference to another variable (associative / indexed arrays) (in the form of a string)
-		#   3. An index or associative array
-		local key_value="${object["$key"]}"
+		local key="${REPLIES[$i]}"
+		if [ ${current_object["$key"]+x} ]; then
+			local key_value="${current_object["$key"]}"
+		else
+			echo 'Error: KEY NOT IN OBJECT'
+			exit 1
+		fi
 
-		# key_value is a string
-		if [ "${key_value::5}" == '!'\'\`\"'!' ]; then
-			key_value="${key_value:5}"
-			metadata_string="${key_value%%&*}"
-			new_object_name="${key_value#*&}"
+		# cat >&3 <<-EOF
+		#   1. key: '$key'
+		#   1. key_value: '$key_value'
+		# EOF
 
-			# Corresponds to 'type' in metadata
-			d_type=
+		# If the 'key_value' is a virtual object, it must start with a two character sequence
+		if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+			key_value="${key_value#??}"
+			virtual_item="$key_value"
 
-			# TODO :( ?
-			readarray -d\; metadata_array < <(printf '%s' "$metadata_string")
-			for md in "${metadata_array[@]}"; do
-				if [ -z "$md" ]; then
+
+			# echo "    2. virtual_item: '$virtual_item'" >&3
+
+			local virtual_metadatas="${key_value%%&*}" # type=string;attr=smthn;
+			local virtual_ref="${key_value#*&}" # __bash_object_383028
+
+			# cat >&3 <<-EOF
+			#     2. virtual_metadatas: '$virtual_metadatas'
+			#     2. virtual_ref: '$virtual_ref'
+			# EOF
+
+			local vmd_dtype=
+
+			while IFS= read -rd \; vmd; do
+				if [ -z "$vmd" ]; then
 					continue
 				fi
 
-				md="${md%;}"
+				vmd="${vmd%;}"
+				vmd_key="${vmd%%=*}"
+				vmd_value="${vmd#*=}"
 
-				# Right now, 'md' looks like: 'type=string'
-				md_key="${md%%=*}"
-				md_value="${md#*=}"
+				# cat >&3 <<-EOF
+				#       3. vmd '$vmd'
+				#       3. vmd_key '$vmd_key'
+				#       3. vmd_value '$vmd_value'
+				# EOF
 
-				case "$md_key" in
-					type) d_type="$md_value" ;;
+				case "$vmd_key" in
+					type) vmd_dtype="$vmd_value" ;;
 				esac
-			done
+			done <<< "$virtual_metadatas"
 
-			# TODO: Validate something with d_type
+			current_object_name="$virtual_ref"
+			local -n current_object="$current_object_name"
 
-			object_name="$new_object_name"
-			local -n object="$new_object_name"
+			# cat >&3 <<-EOF
+			#         4. current_object_name: '$current_object_name'
+			# EOF
 
+			# echo aaa $i ${#REPLIES[@]} >&3
 			if ((i == ${#REPLIES[@]}-1)); then
-				value_type="$(declare -p "$object_name")"
-				 case "$value_type" in
+				value_type="$(declare -p "$current_object_name")"
+				# echo vcvv "$value_type" >&3
+				case "$value_type" in
 					'declare -A '*|'declare -a '*)
-						REPLY=("${object[@]}")
+						REPLY=("${current_object[@]}")
 						break
 					;;
 				esac
+				# echo found here >&3
+				# for h in "${!REPLIES[@]}"; do
+				# 	echo "--key  : $h"
+				# 	echo "--value: ${REPLIES[$h]}"
+				# done >&3
+
+				# REPLY=("${current_objet[@]}")
+				# continue
 			fi
 		else
 			REPLY="$key_value"
+			# TODO: test if we try to access a "property" of this string. in other words,
+			# we expected to find an object, but it really is a string
+
+			# If the string does not represent a reference, then it is a normal string
 			break
 		fi
 	done
