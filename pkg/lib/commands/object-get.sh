@@ -7,7 +7,7 @@ bash_object.do-object-get() {
 	local filter="$2"
 
 	local current_object_name="$root_object_name"
-	local -n current_object="$current_object_name" # make 'current_object' a reference to the '$current_object_name' variable
+	local -n current_object="$current_object_name"
 
 	bash_object.filter_parse "$filter"
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
@@ -24,16 +24,15 @@ bash_object.do-object-get() {
 		#   1. key_value: '$key_value'
 		# EOF
 
-		# If the 'key_value' is a virtual object, it must start with a two character sequence
+		# If the 'key_value' is a virtual object, it start with the two
+		# character sequence
 		if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-			key_value="${key_value#??}"
-			virtual_item="$key_value"
-
+			virtual_item="${key_value#??}"
 
 			# echo "    2. virtual_item: '$virtual_item'" >&3
 
-			local virtual_metadatas="${key_value%%&*}" # type=string;attr=smthn;
-			local virtual_ref="${key_value#*&}" # __bash_object_383028
+			local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
+			local virtual_ref="${virtual_item#*&}" # __bash_object_383028
 
 			# cat >&3 <<-EOF
 			#     2. virtual_metadatas: '$virtual_metadatas'
@@ -78,6 +77,7 @@ bash_object.do-object-get() {
 				esac
 			fi
 		else
+			# shellcheck disable=SC2178
 			REPLY="$key_value"
 			# TODO: test if we try to access a "property" of this string. in other words,
 			# we expected to find an object, but it really is a string

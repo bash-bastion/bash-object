@@ -2,12 +2,21 @@
 
 load './util/init.sh'
 
-@test "properly gets 1" {
+@test "properly gets top level string" {
 	declare -A OBJ=([my_key]='my_value')
 
 	bash_object.do-object-get 'OBJ' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
+
+@test "properly gets top level array" {
+	declare -a global_aa_1=([cat_goes]='WOOF')
+	declare -A OBJ=([my_key]='my_value')
+
+	bash_object.do-object-get 'OBJ' '.my_key'
+	assert [ "$REPLY" = 'my_value' ]
+}
+
 
 @test "properly gets 2" {
 	declare -A global_aa_1=([cat_goes]='WOOF')
