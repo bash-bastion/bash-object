@@ -55,7 +55,7 @@ load './util/init.sh'
 	run bash_object.parse_filter -a '.[""'
 
 	assert_failure
-	assert_line -p "Expected a closing bracket after the closing quotation mark"
+	assert_line -p "Error: bash-object: Key cannot be empty"
 }
 
 @test "advanced errors on incomplete 4" {
@@ -69,22 +69,22 @@ load './util/init.sh'
 	run bash_object.parse_filter -a '.["top"].[""'
 
 	assert_failure
-	assert_line -p "Expected a closing bracket after the closing quotation mark"
+	assert_line -p "Key cannot be empty"
 }
 
-# @test "advanced errors on empty key" {
-# 	run bash_object.parse_filter -a '.[""]'
+@test "advanced errors on empty key" {
+	run bash_object.parse_filter -a '.[""]'
 
-# 	assert_failure
-# 	assert_line -p "Key cannot be empty"
-# }
+	assert_failure
+	assert_line -p "Key cannot be empty"
+}
 
-# @test "advanced errors on empty key as subkey" {
-# 	run bash_object.parse_filter -a '.["subkey"].[""]'
+@test "advanced errors on empty key as subkey" {
+	run bash_object.parse_filter -a '.["subkey"].[""]'
 
-# 	assert_failure
-# 	assert_line -p "Key cannot be empty"
-# }
+	assert_failure
+	assert_line -p "Key cannot be empty"
+}
 
 @test "advanced errors on empty number key" {
 	run bash_object.parse_filter -a '.[]'

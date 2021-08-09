@@ -47,7 +47,8 @@ bash_object.parse_filter() {
 		declare mode='MODE_DEFAULT'
 		declare -i PARSER_COLUMN_NUMBER=0
 
-		# Append dot so parsing does not fail at end, expecting a dot
+		# Append dot so parsing does not fail at end
+		# This makes parsing a lot easier, since it always expects a dot after a ']'
 		filter="${filter}."
 
 		# Reply represents an accessor (e.g. 'sub_key')
@@ -56,16 +57,7 @@ bash_object.parse_filter() {
 		while IFS= read -rN1 char; do
 			PARSER_COLUMN_NUMBER+=1
 
-			echo "-- $mode: '$char'" >&3
-
-			# if [ "$char" = $'\n' ]; then
-			# 	case "$mode" in
-			# 		MODE_EXPECTING_BRACKET|MODE_EXPECTING_OPENING_STRING_OR_NUMBER|MODE_EXPECTING_STRING)
-			# 			printf '%s\n' 'Filter is not complete'
-			# 			return 2
-			# 			;;
-			# 	esac
-			# fi
+			# echo "-- $mode: '$char'" >&3
 
 			case "$mode" in
 			MODE_DEFAULT)
@@ -119,6 +111,11 @@ bash_object.parse_filter() {
 				if [ "$char" = \\ ]; then
 					mode='MODE_STRING_ESCAPE_SEQUENCE'
 				elif [ "$char" = \" ]; then
+					if [ -z "$reply" ]; then
+						printf '%s\n' "Error: bash-object: Key cannot be empty"
+						return 2
+					fi
+
 					REPLIES+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				elif [ "$char" = $'\n' ]; then
