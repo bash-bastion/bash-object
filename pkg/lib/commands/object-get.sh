@@ -73,7 +73,7 @@ bash_object.do-object-get() {
 			if ((i == ${#REPLIES[@]}-1)); then
 				echo "$vmd_dtype" >&3
 				case "$vmd_dtype" in
-					associative_array|indexed_array)
+					object|array)
 						REPLY=("${current_object[@]}")
 						break
 						;;

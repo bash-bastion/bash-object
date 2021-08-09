@@ -11,7 +11,7 @@ load './util/init.sh'
 
 @test "properly gets 2" {
 	declare -A global_aa_1=([cat_goes]='WOOF')
-	declare -A OBJ=([my_pet]=$'\x1C\x1Dtype=associative_array;&global_aa_1')
+	declare -A OBJ=([my_pet]=$'\x1C\x1Dtype=object;&global_aa_1')
 
 	bash_object.do-object-get 'string' 'OBJ' '.my_pet.cat_goes'
 	assert [ "$REPLY" = 'WOOF' ]
@@ -19,8 +19,8 @@ load './util/init.sh'
 
 # { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 3" {
-	declare -A inner_associative_array=([cool]='Wolf 359')
-	declare -A OBJ=([stars]=$'\x1C\x1Dtype=associative_array;&inner_associative_array')
+	declare -A inner_object=([cool]='Wolf 359')
+	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
 	bash_object.do-object-get 'string' 'OBJ' '.stars.cool'
 	assert [ "$REPLY" = 'Wolf 359' ]
@@ -28,8 +28,8 @@ load './util/init.sh'
 
 # # { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 4" {
-	declare -A inner_associative_array=([cool]='Wolf 359')
-	declare -A OBJ=([stars]=$'\x1C\x1Dtype=associative_array;&inner_associative_array')
+	declare -A inner_object=([cool]='Wolf 359')
+	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
 	bash_object.do-object-get 'string' 'OBJ' '.stars'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
@@ -38,8 +38,8 @@ load './util/init.sh'
 # # { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 5" {
 	# TODO: remove 'type=string' from tests
-	declare -a inner_indexed_array=('Alpha Centauri A' 'Proxima Centauri')
-	declare -A OBJ=([nearby]=$'\x1C\x1Dtype=associative_array;&inner_indexed_array')
+	declare -a inner_array=('Alpha Centauri A' 'Proxima Centauri')
+	declare -A OBJ=([nearby]=$'\x1C\x1Dtype=object;&inner_array')
 
 	bash_object.do-object-get 'string' 'OBJ' '.nearby'
 	assert [ "${#REPLY[@]}" -eq 2 ]

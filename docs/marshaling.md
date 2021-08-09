@@ -66,7 +66,7 @@ The value will be the following
 ```
 
 <!-- ```sh
-assert [ "${OBJECT[stars]}" = 'type=associative_array;#__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>' ]
+assert [ "${OBJECT[stars]}" = 'type=object;#__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>' ]
 assert [ "${__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>[cool]}" = 'Wolf 359' ]
 ``` -->
 
@@ -78,7 +78,7 @@ More specifically, given a consumer of the library
 # consumer.sh
 declare -A innerArr=([cool]='Wolf 359')
 
-bash_object.do-object-set 'OBJECT' 'associative_array' '.stars' "${innerArr[@]}"
+bash_object.do-object-set 'OBJECT' 'object' '.stars' "${innerArr[@]}"
 
 # 'innerArr' has now been copied into an associate array (in the global context) called (remember, numbers are _random_)
 # '__bash_object_OBJECT_cool_4093202_consumersh_5232020'
@@ -91,4 +91,4 @@ echo "$REPLY"
 # => Wolf 359
 ```
 
-In both cases, the 'associative_array' is optional and can be inferred from the passed arguments. However, passing it gives extra validation that the data is of the correct type. It is recommended to pass the type whenever doing operatings to prevent unexpected results
+In both cases, the 'object' is optional and can be inferred from the passed arguments. However, passing it gives extra validation that the data is of the correct type. It is recommended to pass the type whenever doing operatings to prevent unexpected results
