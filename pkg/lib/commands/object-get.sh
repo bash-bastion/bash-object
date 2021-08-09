@@ -3,9 +3,8 @@
 bash_object.do-object-get() {
 	REPLY=
 
-	local final_value_type="$1"
-	local root_object_name="$2"
-	local filter="$3"
+	local root_object_name="$1"
+	local filter="$2"
 
 	local current_object_name="$root_object_name"
 	local -n current_object="$current_object_name" # make 'current_object' a reference to the '$current_object_name' variable
@@ -71,7 +70,6 @@ bash_object.do-object-get() {
 			# EOF
 
 			if ((i == ${#REPLIES[@]}-1)); then
-				echo "$vmd_dtype" >&3
 				case "$vmd_dtype" in
 					object|array)
 						REPLY=("${current_object[@]}")
