@@ -74,6 +74,13 @@ load './util/init.sh'
 	assert [ "${REPLIES[0]}" = 'one' ]
 }
 
+@test "errors when no dot present" {
+	run bash_object.filter_parse -a '.["one"]["two"]'
+
+	assert_failure
+	assert_line -p "Each part in a filter must be deliminated by a dot"
+}
+
 @test "correctly parses advanced 2" {
 	bash_object.filter_parse -a '.["esca\\p\"\]e"]'
 
@@ -88,7 +95,6 @@ load './util/init.sh'
 	assert [ "${REPLIES[0]}" = 'aone' ]
 	assert [ "${REPLIES[1]}" = 'atwo' ]
 }
-
 
 @test "correctly parses advanced 3" {
 	bash_object.filter_parse -a '.[3]'

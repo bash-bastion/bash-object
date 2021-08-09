@@ -1,5 +1,12 @@
 # shellcheck shell=bash
 
+# TODO: Error handling
+# TODO: print column and 'mode' in error
+
+# @description Convert a user string into an array representing successive
+# object / array access
+# @exitcode 1 Miscellaneous error
+# @exitcode 2 Parsing error
 bash_object.filter_parse() {
 	local flag_parser_type=
 
@@ -23,7 +30,7 @@ bash_object.filter_parse() {
 	if [ "$flag_parser_type" = 'simple' ]; then
 		if [ "${filter::1}" != . ]; then
 			printf '%s\n' "Error: bash-object: Filter must begin with a dot"
-			return 1
+			return 2
 		fi
 
 		local old_ifs="$IFS"; IFS=.
@@ -40,40 +47,42 @@ bash_object.filter_parse() {
 		declare mode='MODE_DEFAULT'
 		declare -i PARSER_COLUMN_NUMBER=0
 
+		filter="${filter}."
+
 		# Reply represents an accessor (e.g. 'sub_key')
 		local reply=
 
 		while IFS= read -rN1 char; do
 			PARSER_COLUMN_NUMBER+=1
-			echo "-- $mode > '$char'" >&3
+
+			# echo "-- $mode > '$char'" >&3
+
 			case "$mode" in
 			MODE_DEFAULT)
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
 					printf '%s\n' "Error: bash-object: Filter must begin with a dot"
-					return 1
+					return 2
 				fi
 				;;
-			MODE_DEFAULT_2)
-				# if [ "$is_at_end" = 'yes' ]; then
-					# continue
-				# fi
-
+			MODE_BEFORE_DOT)
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					:
-					# printf '%s\n' "Error: bash-object: Each part in a filter must be deliminated by a dot"
-					# return 1
+					printf '%s\n' "Error: bash-object: Each part in a filter must be deliminated by a dot"
+					return 2
 				fi
 				;;
 			MODE_EXPECTING_BRACKET)
 				if [ "$char" = \[ ]; then
 					mode='MODE_EXPECTING_OPENING_STRING_OR_NUMBER'
+				elif [ "$char" = $'\n' ]; then
+					# The newline here is appended by this while loop's here string
+					return
 				else
 					printf '%s\n' "Error: bash-object: A dot MUST be followed by an opening bracket in this mode"
-					return 1
+					return 2
 				fi
 				;;
 			MODE_EXPECTING_OPENING_STRING_OR_NUMBER)
@@ -89,7 +98,7 @@ bash_object.filter_parse() {
 						;;
 					*)
 						printf '%s\n' "Error: bash-object: A number or opening quote must follow an open bracket"
-						exit 1
+						return 2
 						;;
 					esac
 				fi
@@ -99,7 +108,7 @@ bash_object.filter_parse() {
 					mode='MODE_STRING_ESCAPE_SEQUENCE'
 				elif [ "$char" = \" ]; then
 					REPLIES+=("$reply")
-					mode='EXPECTING_CLOSING_BRACKET'
+					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				else
 					reply+="$char"
 				fi
@@ -111,7 +120,7 @@ bash_object.filter_parse() {
 					']') reply+=']' ;;
 					*)
 						printf '%s\n' "Error: bash-object: Escape sequence of '$char' not valid"
-						exit 1
+						return 2
 						;;
 				esac
 				mode='MODE_EXPECTING_STRING'
@@ -119,8 +128,7 @@ bash_object.filter_parse() {
 			MODE_EXPECTING_READ_NUMBER)
 				if [ "$char" = ']' ]; then
 					REPLIES+=("$reply")
-					mode='MODE_DEFAULT_2'
-					is_at_end='yes'
+					mode='MODE_BEFORE_DOT'
 				else
 					case "$char" in
 					0|1|2|3|4|5|6|7|8|9)
@@ -128,24 +136,23 @@ bash_object.filter_parse() {
 						;;
 					*)
 						printf '%s\n' "Error: bash-object: Expecting number, found '$char'"
-						exit 1
+						return 2
 						;;
 					esac
 				fi
 				;;
-			EXPECTING_CLOSING_BRACKET)
+			MODE_EXPECTING_CLOSING_BRACKET)
 				if [ "$char" = ']' ]; then
-					mode='MODE_DEFAULT_2'
-					is_at_end='yes'
+					mode='MODE_BEFORE_DOT'
 				else
 					printf '%s\n' "Error: bash-object: Expected a closing bracket after the closing quotation mark"
-					exit 1
+					return 2
 				fi
 				;;
 			esac
 		done <<< "$filter"
 	else
 		printf '%s\n' "bash-object: Must choose simple or advanced; no current default established"
-		return 1
+		return 2
 	fi
 }
