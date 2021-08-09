@@ -9,7 +9,7 @@ bash_object.do-object-get() {
 	local current_object_name="$root_object_name"
 	local -n current_object="$current_object_name"
 
-	bash_object.filter_parse "$filter"
+	bash_object.parse_filter -s "$filter"
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
 		if [ ${current_object["$key"]+x} ]; then
