@@ -7,19 +7,19 @@
 # object / array access
 # @exitcode 1 Miscellaneous error
 # @exitcode 2 Parsing error
-bash_object.filter_parse() {
+bash_object.parse_filter() {
 	local flag_parser_type=
 
 	for arg; do
 		case "$arg" in
-			-s|--simple)
-				flag_parser_type='simple'
-				shift
-				;;
-			-a|--advanced)
-				flag_parser_type='advanced'
-				shift
-				;;
+		-s|--simple)
+			flag_parser_type='simple'
+			shift
+			;;
+		-a|--advanced)
+			flag_parser_type='advanced'
+			shift
+			;;
 		esac
 	done
 
@@ -47,6 +47,7 @@ bash_object.filter_parse() {
 		declare mode='MODE_DEFAULT'
 		declare -i PARSER_COLUMN_NUMBER=0
 
+		# Append dot so parsing does not fail at end, expecting a dot
 		filter="${filter}."
 
 		# Reply represents an accessor (e.g. 'sub_key')
@@ -55,7 +56,16 @@ bash_object.filter_parse() {
 		while IFS= read -rN1 char; do
 			PARSER_COLUMN_NUMBER+=1
 
-			# echo "-- $mode > '$char'" >&3
+			echo "-- $mode: '$char'" >&3
+
+			# if [ "$char" = $'\n' ]; then
+			# 	case "$mode" in
+			# 		MODE_EXPECTING_BRACKET|MODE_EXPECTING_OPENING_STRING_OR_NUMBER|MODE_EXPECTING_STRING)
+			# 			printf '%s\n' 'Filter is not complete'
+			# 			return 2
+			# 			;;
+			# 	esac
+			# fi
 
 			case "$mode" in
 			MODE_DEFAULT)
@@ -78,7 +88,6 @@ bash_object.filter_parse() {
 				if [ "$char" = \[ ]; then
 					mode='MODE_EXPECTING_OPENING_STRING_OR_NUMBER'
 				elif [ "$char" = $'\n' ]; then
-					# The newline here is appended by this while loop's here string
 					return
 				else
 					printf '%s\n' "Error: bash-object: A dot MUST be followed by an opening bracket in this mode"
@@ -90,6 +99,9 @@ bash_object.filter_parse() {
 
 				if [ "$char" = \" ]; then
 					mode='MODE_EXPECTING_STRING'
+				elif [ "$char" = ']' ]; then
+					printf '%s\n' "Error: bash-object: Key cannot be empty"
+					return 2
 				else
 					case "$char" in
 					0|1|2|3|4|5|6|7|8|9)
@@ -109,6 +121,9 @@ bash_object.filter_parse() {
 				elif [ "$char" = \" ]; then
 					REPLIES+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
+				elif [ "$char" = $'\n' ]; then
+					printf '%s\n' 'Filter is not complete'
+					return 2
 				else
 					reply+="$char"
 				fi
@@ -150,6 +165,13 @@ bash_object.filter_parse() {
 				fi
 				;;
 			esac
+
+			# case "$mode" in
+			# 	MODE_DEFAULT|MODE_BEFORE_DOT) :;;
+			# 	*)
+			# 		printf '%s\n' 'Error: bash-object: Filter is not complete'
+			# 		return 2
+			# esac
 		done <<< "$filter"
 	else
 		printf '%s\n' "bash-object: Must choose simple or advanced; no current default established"
