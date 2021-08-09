@@ -20,3 +20,17 @@ load './util/init.sh'
 	bash_object.do-object-get 'OBJ' '.my_key.nested'
 	assert [ "$REPLY" = 'my_value' ]
 }
+
+# @test "properly sets 3" {
+# 	declare -A OBJ=()
+
+# 	bash_object.do-object-set 'OBJ' '.my_key.nested.YAY' 'fortran_is_cool'
+# 	echo ---- divider >&3
+# 	bash_object.do-object-set 'OBJ' '.my_key.other' 'success'
+
+# 	bash_object.do-object-get 'OBJ' '.my_key.nested.YAY'
+# 	assert [ "$REPLY" = 'fortran_is_cool' ]
+
+# 	bash_object.do-object-get 'OBJ' '.my_key.other'
+# 	assert [ "$REPLY" = 'success' ]
+# }

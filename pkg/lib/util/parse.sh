@@ -57,7 +57,9 @@ bash_object.parse_filter() {
 		while IFS= read -rN1 char; do
 			PARSER_COLUMN_NUMBER+=1
 
-			# echo "-- $mode: '$char'" >&3
+			if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+				echo "-- $mode: '$char'" >&3
+			fi
 
 			case "$mode" in
 			MODE_DEFAULT)
@@ -162,13 +164,6 @@ bash_object.parse_filter() {
 				fi
 				;;
 			esac
-
-			# case "$mode" in
-			# 	MODE_DEFAULT|MODE_BEFORE_DOT) :;;
-			# 	*)
-			# 		printf '%s\n' 'Error: bash-object: Filter is not complete'
-			# 		return 2
-			# esac
 		done <<< "$filter"
 	else
 		printf '%s\n' "bash-object: Must choose simple or advanced; no current default established"

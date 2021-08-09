@@ -7,68 +7,133 @@ bash_object.do-object-set() {
 	local filter="$2"
 	local final_value="$3"
 
-	# For the first iteration of the below for loop, the object will be set to
-	# the root object. If there are any nested subobjects, then the object_name
-	# will be reset
-	local object_name="$root_object_name"
-	local -n object="$root_object_name"
+	local current_object_name="$root_object_name"
+	local -n current_object="$current_object_name"
 
-
-	bash_object.filter_parse "$filter"
-
-	# Array of keys to 'apply' in the loop. Apply means we "follow the accessor" to
-	# receive the underlying value
-	local -a key_history=()
-
-	local key=
+	bash_object.parse_filter -s "$filter"
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
-		echo ------ >&3
-		key="${REPLIES[$i]}"
-		key_history+=("$key")
-
-		echo a key: "$key" >&3
-		# We continuously create subkeys, until we hit the last element in 'REPLIES'
-		# when that occurs, we set the final value, since we arrived at the final accessor
-		for ((j=0; j<${#key_history[@]}; j++)); do
-			local history_item="${key_history[$j]}"
-
-			# If we are at the end of the 'filter'
-			echo rr $((j+1)) ${#REPLIES[@]} >&3
-			if ((j+1 == ${#REPLIES[@]})); then
-				echo key_history "${key_history[@]}" >&3
-				for l in "${!object[@]}"; do
-					echo "key  : $l"
-					echo "value: ${object[$l]}"
-				done >&3
-				# TODO: make work for nested objects
-				object["$history_item"]="$final_value"
+		local key="${REPLIES[$i]}"
+		# if key exists in object
+		# TODO: test for overrides
+		# if [ ${current_object["$key"]+x} ]; then
+			:
+			# local key_value="${current_object["$key"]}"
+		# else
+			# --------------- SET
+			# construct the object
+			# echo 'Error: KEY NOT IN OBJECT'
+			# exit 1
+			# if last leg
+			echo aaaaaa $i $((${#REPLIES[@]}-1)) >&3
+			if ((i == ${#REPLIES[@]}-1)); then
+				echo "fooooo '$key'" >&3
+				current_object["$key"]="$final_value"
+				# return
+				# local key_value="${current_object["$key"]}"
 			else
-				# declare -A global_aa_1=([nested]='WOOF')
-				declare -A OBJ=([my_key]="!'\`\"!type=string;&global_aa_1")
+				# reference
+				# declare -A inner_object=([cool]='Wolf 359')
+				# declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-				# object_name="global_aa_1"
-				local -n object="global_aa_1"
-				# echo "AT ENDGAME '$history_item'" >&3
-				# new_object_name="__bash_object_${key}_${SRANDOM}_fileNameAtCallSite_$SRANDOM"
-				# declare -A "$new_object_name"
+				# construct the virtual object
+				echo "ddd set '$key'" >&3
+				local jj=i+1
+				succeeding_key="${REPLIES[$jj]}"
+				# The 'placeholder' is supposed to be set on the next iteration in the branch directly above this
+				# local new_object_name="__bash_object_$RANDOM_$RANDOM"
 				# local -n new_object="$new_object_name"
 
-				# if [ ${array[key]+x} ]; then
-				# 	# exists
-				# 	:
-				# else
-				# 	:
-				# fi
-				# # TODO: This overwrites previous entries due to a limitation of the storage
-				# new_object["$history_item"]=
+				declare -gA rename_this_inner_object=(["$succeeding_key"]='__placeholder__')
+				# new_object["$succeeding_key"]='__placeholder__'
+				# eval "declare -gA $new_object_name=([$succeeding_key]='__placeholder__')"
+				# local -n new_object="$new_object_name"
 
-				# # Now, make sure this new object can be found from the original object
-				# # The value is empty because there are more accessors
-				# object["$key"]="!'\`\"!type=string;&$new_object_name"
-				# object_name="$new_object_name"
+				current_object["$key"]=$'\x1C\x1Dtype=object;&rename_this_inner_object'
+				# new_object["$key"]=$'\x1C\x1Dtype=object;&'"$new_object_name"
 
-				# echo finallllllllll "${OBJ[my_key]}" >&3
+
+
+				local current_object_name="$new_object_name"
+				# declare -n current_object="$current_object_name"
+
+				declare current_object_name=rename_this_inner_object
+				declare -n current_object="$current_object_name"
+				echo set ----- >&3
+				for ss in "${!current_object[@]}"; do
+					echo "key  : $ss"
+					echo "value: ${current_object[$ss]}"
+				done >&3
+				continue
 			fi
-		done
+		# fi
+
+		# cat >&3 <<-EOF
+		#   1. key: '$key'
+		#   1. key_value: '$key_value'
+		# EOF
+
+		# If the 'key_value' is a virtual object, it start with the two
+		# character sequence
+		if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+			virtual_item="${key_value#??}"
+
+			# echo "    2. virtual_item: '$virtual_item'" >&3
+
+			local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
+			local virtual_ref="${virtual_item#*&}" # __bash_object_383028
+
+			# cat >&3 <<-EOF
+			#     2. virtual_metadatas: '$virtual_metadatas'
+			#     2. virtual_ref: '$virtual_ref'
+			# EOF
+
+			local vmd_dtype=
+
+			while IFS= read -rd \; vmd; do
+				if [ -z "$vmd" ]; then
+					continue
+				fi
+
+				vmd="${vmd%;}"
+				vmd_key="${vmd%%=*}"
+				vmd_value="${vmd#*=}"
+
+				# cat >&3 <<-EOF
+				#       3. vmd '$vmd'
+				#       3. vmd_key '$vmd_key'
+				#       3. vmd_value '$vmd_value'
+				# EOF
+
+				case "$vmd_key" in
+					type) vmd_dtype="$vmd_value" ;;
+				esac
+			done <<< "$virtual_metadatas"
+
+			current_object_name="$virtual_ref"
+			local -n current_object="$current_object_name"
+
+			# cat >&3 <<-EOF
+			#         4. current_object_name: '$current_object_name'
+			# EOF
+
+			# if we are on the last leg
+			if ((i == ${#REPLIES[@]}-1)); then
+				case "$vmd_dtype" in
+					object|array)
+						# TODO: not valid for associative arrays?
+						REPLY=("${current_object[@]}")
+						break
+						;;
+				esac
+			fi
+		else
+			# shellcheck disable=SC2178
+			REPLY="$key_value"
+			# TODO: test if we try to access a "property" of this string. in other words,
+			# we expected to find an object, but it really is a string
+
+			# If the string does not represent a reference, then it is a normal string
+			break
+		fi
 	done
 }

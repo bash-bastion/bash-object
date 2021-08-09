@@ -15,6 +15,15 @@ bash_object.do-object-get() {
 		if [ ${current_object["$key"]+x} ]; then
 			local key_value="${current_object["$key"]}"
 		else
+			# echo gett ----- >&3
+			# for ss in "${!OBJ[@]}"; do
+			# 	echo "key  : $ss"
+			# 	echo "value: ${OBJ[$ss]}"
+			# done >&3
+
+
+			# echo "ddd get '$key'" >&3
+
 			echo 'Error: KEY NOT IN OBJECT'
 			exit 1
 		fi

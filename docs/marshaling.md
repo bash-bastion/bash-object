@@ -64,6 +64,7 @@ The value will be the following
 ```txt
 # \0key=value;key1=value2;&refff\0type=string;&refff\0
 ```
+# TODO: add root object to string
 
 <!-- ```sh
 assert [ "${OBJECT[stars]}" = 'type=object;#__bash_object_<objectName>_<keyName>_<randomNumber>_<fileNameAtCallSite>_<randomNumber>' ]
