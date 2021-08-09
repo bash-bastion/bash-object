@@ -17,7 +17,6 @@ load './util/init.sh'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
-
 @test "properly gets 2" {
 	declare -A global_aa_1=([cat_goes]='WOOF')
 	declare -A OBJ=([my_pet]=$'\x1C\x1Dtype=object;&global_aa_1')

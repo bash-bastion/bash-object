@@ -71,6 +71,7 @@ bash_object.do-object-get() {
 			if ((i == ${#REPLIES[@]}-1)); then
 				case "$vmd_dtype" in
 					object|array)
+						# TODO: not valid for associative arrays?
 						REPLY=("${current_object[@]}")
 						break
 						;;
