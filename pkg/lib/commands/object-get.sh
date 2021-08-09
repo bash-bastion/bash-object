@@ -70,24 +70,14 @@ bash_object.do-object-get() {
 			#         4. current_object_name: '$current_object_name'
 			# EOF
 
-			# echo aaa $i ${#REPLIES[@]} >&3
 			if ((i == ${#REPLIES[@]}-1)); then
-				value_type="$(declare -p "$current_object_name")"
-				# echo vcvv "$value_type" >&3
-				case "$value_type" in
-					'declare -A '*|'declare -a '*)
+				echo "$vmd_dtype" >&3
+				case "$vmd_dtype" in
+					associative_array|indexed_array)
 						REPLY=("${current_object[@]}")
 						break
-					;;
+						;;
 				esac
-				# echo found here >&3
-				# for h in "${!REPLIES[@]}"; do
-				# 	echo "--key  : $h"
-				# 	echo "--value: ${REPLIES[$h]}"
-				# done >&3
-
-				# REPLY=("${current_objet[@]}")
-				# continue
 			fi
 		else
 			REPLY="$key_value"
