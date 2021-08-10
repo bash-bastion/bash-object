@@ -149,12 +149,7 @@ bash_object.traverse() {
 			# If an object or array is the last element of the query,
 			# it is resolved above and this branch is not executed
 
-			if [ "$final_value_type" = string ]; then
-				REPLY="$key_value"
-			else
-				printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
-				return 1
-			fi
+			REPLY="$key_value"
 		fi
 	done
 }
