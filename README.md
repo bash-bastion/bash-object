@@ -1,43 +1,52 @@
 # bash-object
 
-Bash library for imperatively constructing and deconstructing data structures in pure Bash
+The _first_ Bash library for imperatively constructing heterogenously hierarchical data structures
 
-This is meant to be a low level API providing primitives for libraries. My own `bash-toml` and `bash-json` Bash parsers will use this library
+This is meant to be a low level API providing primitives for other libraries.
 
-## Summary
+In the coming days, I will release never seen before parsers written in Bash called [bash-toml](https://github.com/hyperupcall/bash-toml) and [bash-json](https://github.com/hyperupcall/bash-json) that use this library
+
+## Exhibition
 
 ```sh
+# How to represent the following in Bash?
 # {
-#   "alfa": {
-#     "bravo": {
-#       "charlie": {
-#         "delta": {
-#           "echo": "final_value"
-#         }
+#   "zulu": {
+#     "yankee": {
+#       "xray": {
+#         "whiskey": "victor",
+#         "foxtrot": ["omicron", "pi", "rho", "sigma"]
 #       }
 #     }
 #   }
 # }
 
-# Imperatively declaring the above JSON
-# TODO: Update this when 'do-object-set' is implemented
-declare -A obj_echo=([echo]="final_value")
-declare -A obj_delta=([delta]="!'\`\"!type=string;&obj_echo")
-declare -A obj_charlie=([charlie]="!'\`\"!type=string;&obj_delta")
-declare -A obj_bravo=([bravo]="!'\`\"!type=string;&obj_charlie")
-declare -A OBJ=([alfa]="!'\`\"!type=string;&obj_bravo")
+declare -A root_object=()
+declare -A zulu_object([yankee]=)
+declare -A yankee_object=([xray]=)
+declare -A xray_object([whiskey]=victor [foxtrot]=)
+declare -A foxtrot_array=(omicron pi rho sigma)
 
-bash_object.traverse get object 'OBJ' '.alfa.bravo.charlie.delta.echo'
-assert [ "$REPLY" = 'final_value' ]
+bobject set-object root_object '.zulu' zulu_object
+bobject set-object root_object '.zulu.yankee' yankee_object
+bobject set-object root_object '.zulu.yankee.xray' xray_object
+bobject set-string root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+
+bobject get-string '.zulu.yankee.xray.whiskey'
+assert [ "$REPLY" = victor ]
+
+bobject get-array '.zulu.yankee.xray.victor'
+assert [ ${#REPLY} -eq 4 ]
+
+bobject get-string '.["zulu"].["yankee"].["xray"].["victor"].[2]'
+assert [ "$REPLY" = 'rho' ]
 ```
 
 ## Installation
 
-STATUS: IN DEVELOPMENT!
+STATUS: IN DEVELOPMENT! (right now, there are _many_ known bugs)
 
 ```sh
-# With bpm (recommended)
+# With bpm (highly recommended)
 bpm --global install hyperupcall/bash-object
-
-# With Git
 ```
