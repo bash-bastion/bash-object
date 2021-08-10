@@ -40,14 +40,19 @@ bash_object.traverse() {
 		fi
 
 		if [ "$action" = 'get' ]; then
+			# We only want to actually get a value if we are on the last
+			# element of the query
+			# if ((i+1 == ${#REPLIES[@]})); then
 			if [ ${current_object["$key"]+x} ]; then
 				local key_value="${current_object["$key"]}"
 			else
 				echo 'Error: KEY NOT IN OBJECT'
 				exit 1
 			fi
+			# fi
 		elif [ "$action" = 'set' ]; then
-			# if last leg
+			# If we are on the last element of the query, we now set the final
+			# variable using '$final_value'
 			if ((i+1 == ${#REPLIES[@]})); then
 				current_object["$key"]="$final_value"
 			else
@@ -72,24 +77,24 @@ bash_object.traverse() {
 			EOF
 		fi
 
-		# If the 'key_value' is a virtual object, it start with the two
+		# If the 'key_value' is a virtual object, it starts with the two
 		# character sequence
 		if [ "${key_value::2}" = $'\x1C\x1D' ]; then
 			virtual_item="${key_value#??}"
-
 			local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
-			local virtual_ref="${virtual_item#*&}" # __bash_object_383028
+			local current_object_name="${virtual_item#*&}" # __bash_object_383028
+			local -n current_object="$current_object_name"
 
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 				cat >&3 <<-EOF
-					2. virtual_item: '$virtual_item'"
-					2. virtual_metadatas: '$virtual_metadatas'
-					2. virtual_ref: '$virtual_ref'
+				   2. virtual_item: '$virtual_item'"
+				   2. virtual_metadatas: '$virtual_metadatas'
+				   2. current_object_name: '$current_object_name'
 				EOF
 			fi
 
+			# Parse info about the virtual object
 			local vmd_dtype=
-
 			while IFS= read -rd \; vmd; do
 				if [ -z "$vmd" ]; then
 					continue
@@ -111,15 +116,6 @@ bash_object.traverse() {
 					type) vmd_dtype="$vmd_value" ;;
 				esac
 			done <<< "$virtual_metadatas"
-
-			current_object_name="$virtual_ref"
-			local -n current_object="$current_object_name"
-
-			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				cat >&3 <<-EOF
-						4. current_object_name: '$current_object_name'
-				EOF
-			fi
 
 			# If we are on the last element of the query, it means we are supposed
 			# to return an object or array
