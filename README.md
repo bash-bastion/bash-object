@@ -25,7 +25,7 @@ declare -A root_object=()
 declare -A zulu_object([yankee]=)
 declare -A yankee_object=([xray]=)
 declare -A xray_object([whiskey]=victor [foxtrot]=)
-declare -A foxtrot_array=(omicron pi rho sigma)
+declare -a foxtrot_array=(omicron pi rho sigma)
 
 bobject set-object root_object '.zulu' zulu_object
 bobject set-object root_object '.zulu.yankee' yankee_object
