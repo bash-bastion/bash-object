@@ -2,86 +2,68 @@
 
 bash_object.traverse() {
 	REPLY=
-
 	local action="$1"
 	local final_value_type="$2"
-	shift; shift
+	shift 2
 
 	local root_object_name="$1"
 	local filter="$2"
 	local final_value="$3" # Only used for 'set'
 
+	# Start traversing at the root object
 	local current_object_name="$root_object_name"
-	local -n current_object="$current_object_name"
+	local -n current_object="$root_object_name"
 
+	# TODO: -s flag
 	bash_object.parse_filter -s "$filter"
-
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
+
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+			cat >&3 <<-EOF
+			  0. ----- -----
+			  0. i+1: '$((i+1))'
+			  0. \${#REPLIES[@]}: ${#REPLIES[@]}
+			  0. current_object_name: '$current_object_name'
+			  current_object=(
+			EOF
+			for debug_key in "${!current_object[@]}"; do
+				cat >&3 <<-EOF
+				   [$debug_key]='${current_object["$debug_key"]}'
+				EOF
+			done >&3
+			cat >&3 <<-EOF
+			  )
+			EOF
+		fi
 
 		if [ "$action" = 'get' ]; then
 			if [ ${current_object["$key"]+x} ]; then
 				local key_value="${current_object["$key"]}"
 			else
-				# echo gett ----- >&3
-				# for ss in "${!OBJ[@]}"; do
-				# 	echo "key  : $ss"
-				# 	echo "value: ${OBJ[$ss]}"
-				# done >&3
-
 				echo 'Error: KEY NOT IN OBJECT'
 				exit 1
 			fi
 		elif [ "$action" = 'set' ]; then
-			# --------------- SET
-			# construct the object
-			# echo 'Error: KEY NOT IN OBJECT'
-			# exit 1
 			# if last leg
-			echo aaaaaa $i $((${#REPLIES[@]}-1)) >&3
-			if ((i == ${#REPLIES[@]}-1)); then
-				echo "fooooo '$key'" >&3
+			if ((i+1 == ${#REPLIES[@]})); then
 				current_object["$key"]="$final_value"
-				# return
-				# local key_value="${current_object["$key"]}"
 			else
-				# reference
-				# declare -A inner_object=([cool]='Wolf 359')
-				# declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
-
-				# construct the virtual object
-				echo "ddd set '$key'" >&3
 				local jj=i+1
 				succeeding_key="${REPLIES[$jj]}"
-				# The 'placeholder' is supposed to be set on the next iteration in the branch directly above this
-				# local new_object_name="__bash_object_$RANDOM_$RANDOM"
-				# local -n new_object="$new_object_name"
-
 				declare -gA rename_this_inner_object=(["$succeeding_key"]='__placeholder__')
-				# new_object["$succeeding_key"]='__placeholder__'
-				# eval "declare -gA $new_object_name=([$succeeding_key]='__placeholder__')"
-				# local -n new_object="$new_object_name"
-
 				current_object["$key"]=$'\x1C\x1Dtype=object;&rename_this_inner_object'
-				# new_object["$key"]=$'\x1C\x1Dtype=object;&'"$new_object_name"
-
-
 
 				local current_object_name="$new_object_name"
-				# declare -n current_object="$current_object_name"
 
 				declare current_object_name=rename_this_inner_object
 				declare -n current_object="$current_object_name"
-				echo set ----- >&3
-				for ss in "${!current_object[@]}"; do
-					echo "key  : $ss"
-					echo "value: ${current_object[$ss]}"
-				done >&3
+
 				continue
 			fi
 		fi
 
-		if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 			cat >&3 <<-EOF
 				  1. key: '$key'
 				  1. key_value: '$key_value'
@@ -96,7 +78,7 @@ bash_object.traverse() {
 		local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
 		local virtual_ref="${virtual_item#*&}" # __bash_object_383028
 
-		if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 			cat >&3 <<-EOF
 			    2. virtual_item: '$virtual_item'"
 			    2. virtual_metadatas: '$virtual_metadatas'
@@ -115,7 +97,7 @@ bash_object.traverse() {
 			vmd_key="${vmd%%=*}"
 			vmd_value="${vmd#*=}"
 
-			if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 				cat >&3 <<-EOF
 				      3. vmd '$vmd'
 				      3. vmd_key '$vmd_key'
@@ -131,7 +113,7 @@ bash_object.traverse() {
 		current_object_name="$virtual_ref"
 		local -n current_object="$current_object_name"
 
-		if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 			cat >&3 <<-EOF
 			        4. current_object_name: '$current_object_name'
 			EOF

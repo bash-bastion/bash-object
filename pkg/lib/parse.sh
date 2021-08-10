@@ -57,7 +57,7 @@ bash_object.parse_filter() {
 		while IFS= read -rN1 char; do
 			PARSER_COLUMN_NUMBER+=1
 
-			if [ -n "${TRACE_BASH_OBJECT+x}" ]; then
+			if [ -n "${TRACE_BASH_OBJECT_PARSE+x}" ]; then
 				echo "-- $mode: '$char'" >&3
 			fi
 
