@@ -3,8 +3,8 @@
 bash_object.traverse() {
 	local action="$1"
 	local type="$2"
-	shift
-	shift
+	shift; shift
+
 	if [ "$action" = 'get' ]; then
 		REPLY=
 
