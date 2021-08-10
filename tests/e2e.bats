@@ -54,11 +54,20 @@ load './util/init.sh'
 	done
 }
 
-@test "get-string" {
+@test "get-string simple parser" {
 	declare -A OBJ=()
 
 	bobject set-string 'OBJ' '.zulu.yankee' 'MEOW'
 	bobject get-string 'OBJ' '.zulu.yankee'
+
+	assert [ "$REPLY" = 'MEOW' ]
+}
+
+@test "get-string advanced parser" {
+	declare -A OBJ=()
+
+	bobject set-string 'OBJ' '.["zulu"].["yankee"]' 'MEOW'
+	bobject get-string 'OBJ' '.["zulu"].["yankee"]'
 
 	assert [ "$REPLY" = 'MEOW' ]
 }

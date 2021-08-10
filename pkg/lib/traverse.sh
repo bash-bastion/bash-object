@@ -14,8 +14,10 @@ bash_object.traverse() {
 	local current_object_name="$root_object_name"
 	local -n current_object="$root_object_name"
 
-	# TODO: -s flag
-	bash_object.parse_filter -s "$filter"
+	case "$filter" in
+		*']'*) bash_object.parse_filter --advanced "$filter" ;;
+		*) bash_object.parse_filter --simple "$filter" ;;
+	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
 
