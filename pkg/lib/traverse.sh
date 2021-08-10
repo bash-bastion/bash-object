@@ -131,13 +131,15 @@ bash_object.traverse() {
 			esac
 		fi
 	else
-		# shellcheck disable=SC2178
-		REPLY="$key_value"
-		# TODO: test if we try to access a "property" of this string. in other words,
-		# we expected to find an object, but it really is a string
+		# If an object or array is the last element of the query,
+		# it is resolved above and this branch is not executed
 
-		# If the string does not represent a reference, then it is a normal string
-		break
+		if [ "$final_value_type" = string ]; then
+			REPLY="$key_value"
+		else
+			printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
+			exit 1
+		fi
 	fi
 	done
 }

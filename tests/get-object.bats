@@ -5,7 +5,7 @@ load './util/init.sh'
 @test "properly gets top level string" {
 	declare -A OBJ=([my_key]='my_value')
 
-	bash_object.traverse get object 'OBJ' '.my_key'
+	bash_object.traverse get string 'OBJ' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -13,7 +13,7 @@ load './util/init.sh'
 	declare -a global_aa_1=([cat_goes]='WOOF')
 	declare -A OBJ=([my_key]='my_value')
 
-	bash_object.traverse get object 'OBJ' '.my_key'
+	bash_object.traverse get string 'OBJ' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -21,7 +21,7 @@ load './util/init.sh'
 	declare -A global_aa_1=([cat_goes]='WOOF')
 	declare -A OBJ=([my_pet]=$'\x1C\x1Dtype=object;&global_aa_1')
 
-	bash_object.traverse get object 'OBJ' '.my_pet.cat_goes'
+	bash_object.traverse get string 'OBJ' '.my_pet.cat_goes'
 	assert [ "$REPLY" = 'WOOF' ]
 }
 
@@ -30,7 +30,7 @@ load './util/init.sh'
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-	bash_object.traverse get object 'OBJ' '.stars.cool'
+	bash_object.traverse get string 'OBJ' '.stars.cool'
 	assert [ "$REPLY" = 'Wolf 359' ]
 }
 
@@ -39,7 +39,7 @@ load './util/init.sh'
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-	bash_object.traverse get object 'OBJ' '.stars'
+	bash_object.traverse get string 'OBJ' '.stars'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
 }
 
@@ -63,6 +63,6 @@ load './util/init.sh'
 	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
 	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
-	bash_object.traverse get object 'OBJ' '.alfa.bravo.charlie.delta.echo'
+	bash_object.traverse get string 'OBJ' '.alfa.bravo.charlie.delta.echo'
 	assert [ "$REPLY" = 'final_value' ]
 }

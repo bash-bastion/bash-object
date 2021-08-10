@@ -5,19 +5,19 @@ load './util/init.sh'
 @test "properly sets 1" {
 	declare -A OBJ=()
 
-	bash_object.traverse set object 'OBJ' '.my_key' 'my_value'
+	bash_object.traverse set string 'OBJ' '.my_key' 'my_value'
 	assert [ "${OBJ[my_key]}" = 'my_value' ]
 
-	bash_object.traverse get object 'OBJ' '.my_key'
+	bash_object.traverse get string 'OBJ' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
 @test "properly sets 2" {
 	declare -A OBJ=()
 
-	bash_object.traverse set object 'OBJ' '.my_key.nested' 'my_value'
+	bash_object.traverse set string 'OBJ' '.my_key.nested' 'my_value'
 
-	bash_object.traverse get object 'OBJ' '.my_key.nested'
+	bash_object.traverse get string 'OBJ' '.my_key.nested'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
