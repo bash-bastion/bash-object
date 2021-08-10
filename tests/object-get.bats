@@ -57,11 +57,11 @@ load './util/init.sh'
 
 # # { "alfa": { "bravo": { "charlie": { "delta": { "echo": "final_value" } } } } }
 @test "properly gets 6" {
-	declare -A obj_echo=([echo]="final_value")
-	declare -A obj_delta=([delta]=$'\x1C\x1Dtype=object;&obj_echo')
-	declare -A obj_charlie=([charlie]=$'\x1C\x1Dtype=object;&obj_delta')
-	declare -A obj_bravo=([bravo]=$'\x1C\x1Dtype=object;&obj_charlie')
-	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_bravo')
+	declare -A obj_delta=([echo]="final_value")
+	declare -A obj_charlie=([delta]=$'\x1C\x1Dtype=object;&obj_delta')
+	declare -A obj_bravo=([charlie]=$'\x1C\x1Dtype=object;&obj_charlie')
+	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
+	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
 	bash_object.traverse get object 'OBJ' '.alfa.bravo.charlie.delta.echo'
 	assert [ "$REPLY" = 'final_value' ]
