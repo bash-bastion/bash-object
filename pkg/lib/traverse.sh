@@ -131,12 +131,19 @@ bash_object.traverse() {
 				fi
 
 				case "$vmd_dtype" in
-					object|array)
-						# TODO: not valid for associative arrays?
+					object)
 						REPLY=("${current_object[@]}")
-						break
+						;;
+					array)
+						# TODO: Perf: Use 'REPLY=("${current_object[@]}")'?
+						local key=
+						for key in "${!current_object[@]}"; do
+							REPLY["$key"]="${current_object["$key"]}"
+						done
 						;;
 				esac
+
+				break
 			fi
 		else
 			# If an object or array is the last element of the query,
