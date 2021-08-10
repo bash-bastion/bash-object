@@ -58,4 +58,4 @@ else
 fi
 
 # shellcheck disable=SC1091
-source "$BASH_OBJECT_LIB_DIR/cmd/object.sh"
+source "$BASH_OBJECT_LIB_DIR/cmd/bobject.sh"

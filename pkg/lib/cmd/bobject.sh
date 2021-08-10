@@ -10,11 +10,23 @@ bobject() {
 	shift
 
 	case "$subcmd" in
-		set)
+		get-string)
+			bash_object.do-object-get "$@"
+			;;
+		get-array)
+			bash_object.do-object-get "$@"
+			;;
+		get-object)
+			bash_object.do-object-get "$@"
+			;;
+		set-string)
 			bash_object.do-object-set "$@"
 			;;
-		get)
-			bash_object.do-object-get "$@"
+		set-array)
+			bash_object.do-object-set "$@"
+			;;
+		set-object)
+			bash_object.do-object-set "$@"
 			;;
 		*)
 			echo "Incorrect subcommand"

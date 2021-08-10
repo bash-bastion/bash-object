@@ -14,6 +14,7 @@ for f in "$ROOT_DIR"/pkg/lib/{commands,util}/?*.sh; do
 	# shellcheck disable=SC1090
 	source "$f"
 done
+source 'bobject'
 
 setup() {
 	unset TOML
