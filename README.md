@@ -27,7 +27,7 @@ declare -A obj_charlie=([charlie]="!'\`\"!type=string;&obj_delta")
 declare -A obj_bravo=([bravo]="!'\`\"!type=string;&obj_charlie")
 declare -A OBJ=([alfa]="!'\`\"!type=string;&obj_bravo")
 
-bash_object.traverse 'object-get' 'OBJ' '.alfa.bravo.charlie.delta.echo'
+bash_object.traverse get object 'OBJ' '.alfa.bravo.charlie.delta.echo'
 assert [ "$REPLY" = 'final_value' ]
 ```
 

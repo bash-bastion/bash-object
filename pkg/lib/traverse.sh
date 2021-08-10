@@ -2,8 +2,10 @@
 
 bash_object.traverse() {
 	local action="$1"
+	local type="$2"
 	shift
-	if [ "$action" = 'object-get' ]; then
+	shift
+	if [ "$action" = 'get' ]; then
 		REPLY=
 
 		local root_object_name="$1"
@@ -99,7 +101,7 @@ bash_object.traverse() {
 				break
 			fi
 		done
-	elif [ "$action" = 'object-set' ]; then
+	elif [ "$action" = 'set' ]; then
 		REPLY=
 
 		local root_object_name="$1"

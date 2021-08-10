@@ -10,7 +10,7 @@ ROOT_DIR="$(realpath "${BASH_SOURCE[0]}")"
 ROOT_DIR="${ROOT_DIR%/*}"; ROOT_DIR="${ROOT_DIR%/*}"; ROOT_DIR="${ROOT_DIR%/*}"
 
 export PATH="$ROOT_DIR/pkg/bin:$PATH"
-for f in "$ROOT_DIR"/pkg/lib/{commands,util}/?*.sh; do
+for f in "$ROOT_DIR"/pkg/lib/{,util}/?*.sh; do
 	# shellcheck disable=SC1090
 	source "$f"
 done

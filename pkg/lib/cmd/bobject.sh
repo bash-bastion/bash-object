@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 source "$BASH_OBJECT_LIB_DIR/util/util.sh"
-for f in "$BASH_OBJECT_LIB_DIR"/{,commands/,util/}?*.sh; do
+for f in "$BASH_OBJECT_LIB_DIR"/{,util/}?*.sh; do
 	source "$f"
 done
 
@@ -11,22 +11,22 @@ bobject() {
 
 	case "$subcmd" in
 		get-string)
-			bash_object.traverse 'object-get' "$@"
+			bash_object.traverse get string "$@"
 			;;
 		get-array)
-			bash_object.traverse 'object-get' "$@"
+			bash_object.traverse get array "$@"
 			;;
 		get-object)
-			bash_object.traverse 'object-get' "$@"
+			bash_object.traverse get object "$@"
 			;;
 		set-string)
-			bash_object.traverse 'object-set' "$@"
+			bash_object.traverse set string "$@"
 			;;
 		set-array)
-			bash_object.traverse 'object-set' "$@"
+			bash_object.traverse set array "$@"
 			;;
 		set-object)
-			bash_object.traverse 'object-set' "$@"
+			bash_object.traverse set object "$@"
 			;;
 		*)
 			echo "Incorrect subcommand"

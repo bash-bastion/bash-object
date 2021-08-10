@@ -79,7 +79,7 @@ More specifically, given a consumer of the library
 # consumer.sh
 declare -A innerArr=([cool]='Wolf 359')
 
-bash_object.traverse 'object-set' 'OBJECT' 'object' '.stars' "${innerArr[@]}"
+bash_object.traverse set object 'OBJECT' 'object' '.stars' "${innerArr[@]}"
 
 # 'innerArr' has now been copied into an associate array (in the global context) called (remember, numbers are _random_)
 # '__bash_object_OBJECT_cool_4093202_consumersh_5232020'
@@ -87,7 +87,7 @@ bash_object.traverse 'object-set' 'OBJECT' 'object' '.stars' "${innerArr[@]}"
 unset innerArr
 
 # We can now access the array
-bash_object.traverse 'object-get' 'OBJECT' 'string' '.stars.cool'
+bash_object.traverse get object 'OBJECT' 'string' '.stars.cool'
 echo "$REPLY"
 # => Wolf 359
 ```
