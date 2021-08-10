@@ -26,6 +26,7 @@ bash_object.traverse() {
 			  0. ----- -----
 			  0. i+1: '$((i+1))'
 			  0. \${#REPLIES[@]}: ${#REPLIES[@]}
+			  0. key: '$key'
 			  0. current_object_name: '$current_object_name'
 			  current_object=(
 			EOF
@@ -39,42 +40,43 @@ bash_object.traverse() {
 			EOF
 		fi
 
-		if [ "$action" = 'get' ]; then
-			# We only want to actually get a value if we are on the last
-			# element of the query
-			# if ((i+1 == ${#REPLIES[@]})); then
-			if [ ${current_object["$key"]+x} ]; then
+		# Get the subkey we are supposed to get with the query element
+		# If the subkey doesn't exist, create it if we are in 'set' mode,
+		# and throw error if we are in 'get' mode
+		if [ ${current_object["$key"]+x} ]; then
+			if [ "$action" = 'get' ]; then
+				# Set the key value; we will be using this when testing if
+				# 'key_value' is a virtual object
 				local key_value="${current_object["$key"]}"
-			else
+			elif [ "$action" = 'set' ]; then
+				if ((i+1 == ${#REPLIES[@]})); then
+					current_object["$key"]="$final_value"
+				else
+					:
+				fi
+			fi
+		else
+			if [ "$action" = 'get' ]; then
 				echo 'Error: KEY NOT IN OBJECT'
 				exit 1
+			elif [ "$action" = 'set' ]; then
+				if ((i+1 == ${#REPLIES[@]})); then
+					current_object["$key"]="$final_value"
+				else
+					local jj=i+1
+					succeeding_key="${REPLIES[$jj]}"
+					# No value
+					declare -gA rename_this_inner_object=(["$succeeding_key"]=)
+					current_object["$key"]=$'\x1C\x1Dtype=object;&rename_this_inner_object'
+
+					local current_object_name="$new_object_name"
+
+					declare current_object_name='rename_this_inner_object'
+					declare -n current_object="$current_object_name"
+
+					continue
+				fi
 			fi
-			# fi
-		elif [ "$action" = 'set' ]; then
-			# If we are on the last element of the query, we now set the final
-			# variable using '$final_value'
-			if ((i+1 == ${#REPLIES[@]})); then
-				current_object["$key"]="$final_value"
-			else
-				local jj=i+1
-				succeeding_key="${REPLIES[$jj]}"
-				declare -gA rename_this_inner_object=(["$succeeding_key"]='__placeholder__')
-				current_object["$key"]=$'\x1C\x1Dtype=object;&rename_this_inner_object'
-
-				local current_object_name="$new_object_name"
-
-				declare current_object_name=rename_this_inner_object
-				declare -n current_object="$current_object_name"
-
-				continue
-			fi
-		fi
-
-		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			cat >&3 <<-EOF
-				  1. key: '$key'
-				  1. key_value: '$key_value'
-			EOF
 		fi
 
 		# If the 'key_value' is a virtual object, it starts with the two
@@ -160,11 +162,18 @@ bash_object.traverse() {
 				break
 			fi
 		else
+			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+				cat >&3 <<-EOF
+					  9. current_object_name: '$current_object_name'
+					  9. key: '$key'
+					  9. key_value: '$key_value'
+				EOF
+			fi
+
 			# If an object or array is the last element of the query,
 			# it is resolved above and this branch is not executed
 
 			if [ "$action" = 'get' ]; then
-				# Set 'REPLY' to '$key_value', but only if user wanted to get a string
 				if [ "$final_value_type" = object ]; then
 					printf '%s\n' "Error: 'A query for type '$final_value_type' was given, but a string was found"
 					return 1
