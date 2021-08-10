@@ -39,7 +39,7 @@ load './util/init.sh'
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-	bash_object.traverse get string 'OBJ' '.stars'
+	bash_object.traverse get object 'OBJ' '.stars'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
 }
 

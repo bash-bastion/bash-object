@@ -72,74 +72,82 @@ bash_object.traverse() {
 			EOF
 		fi
 
-	# If the 'key_value' is a virtual object, it start with the two
-	# character sequence
-	if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-		virtual_item="${key_value#??}"
+		# If the 'key_value' is a virtual object, it start with the two
+		# character sequence
+		if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+			virtual_item="${key_value#??}"
 
-		local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
-		local virtual_ref="${virtual_item#*&}" # __bash_object_383028
-
-		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			cat >&3 <<-EOF
-			    2. virtual_item: '$virtual_item'"
-			    2. virtual_metadatas: '$virtual_metadatas'
-			    2. virtual_ref: '$virtual_ref'
-			EOF
-		fi
-
-		local vmd_dtype=
-
-		while IFS= read -rd \; vmd; do
-			if [ -z "$vmd" ]; then
-				continue
-			fi
-
-			vmd="${vmd%;}"
-			vmd_key="${vmd%%=*}"
-			vmd_value="${vmd#*=}"
+			local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
+			local virtual_ref="${virtual_item#*&}" # __bash_object_383028
 
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 				cat >&3 <<-EOF
-				      3. vmd '$vmd'
-				      3. vmd_key '$vmd_key'
-				      3. vmd_value '$vmd_value'
+					2. virtual_item: '$virtual_item'"
+					2. virtual_metadatas: '$virtual_metadatas'
+					2. virtual_ref: '$virtual_ref'
 				EOF
 			fi
 
-			case "$vmd_key" in
-				type) vmd_dtype="$vmd_value" ;;
-			esac
-		done <<< "$virtual_metadatas"
+			local vmd_dtype=
 
-		current_object_name="$virtual_ref"
-		local -n current_object="$current_object_name"
+			while IFS= read -rd \; vmd; do
+				if [ -z "$vmd" ]; then
+					continue
+				fi
 
-		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			cat >&3 <<-EOF
-			        4. current_object_name: '$current_object_name'
-			EOF
-		fi
+				vmd="${vmd%;}"
+				vmd_key="${vmd%%=*}"
+				vmd_value="${vmd#*=}"
 
-		if ((i == ${#REPLIES[@]}-1)); then
-			case "$vmd_dtype" in
-				object|array)
-					# TODO: not valid for associative arrays?
-					REPLY=("${current_object[@]}")
-					break
-					;;
-			esac
-		fi
-	else
-		# If an object or array is the last element of the query,
-		# it is resolved above and this branch is not executed
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					cat >&3 <<-EOF
+						3. vmd '$vmd'
+						3. vmd_key '$vmd_key'
+						3. vmd_value '$vmd_value'
+					EOF
+				fi
 
-		if [ "$final_value_type" = string ]; then
-			REPLY="$key_value"
+				case "$vmd_key" in
+					type) vmd_dtype="$vmd_value" ;;
+				esac
+			done <<< "$virtual_metadatas"
+
+			current_object_name="$virtual_ref"
+			local -n current_object="$current_object_name"
+
+			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+				cat >&3 <<-EOF
+						4. current_object_name: '$current_object_name'
+				EOF
+			fi
+
+			# If we are on the last element of the query, it means we are supposed
+			# to return an object or array
+			if ((i+1 == ${#REPLIES[@]})); then
+				# Make sure the user actually wants an object or array returned
+				if [ "$final_value_type" = string ]; then
+					printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
+					return 1
+				fi
+
+				case "$vmd_dtype" in
+					object|array)
+						# TODO: not valid for associative arrays?
+						REPLY=("${current_object[@]}")
+						break
+						;;
+				esac
+			fi
 		else
-			printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
-			exit 1
+			# If an object or array is the last element of the query,
+			# it is resolved above and this branch is not executed
+
+			if [ "$final_value_type" = string ]; then
+				REPLY="$key_value"
+			else
+				printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
+				return 1
+			fi
 		fi
-	fi
 	done
 }
