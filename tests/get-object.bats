@@ -2,6 +2,46 @@
 
 load './util/init.sh'
 
+@test "errors if final type is 'string' when expecting type 'object' 1" {
+	declare -A OBJECT=([my_key]='string_value')
+
+	run bash_object.traverse get object OBJECT '.my_key'
+
+	assert_failure
+	assert_line -p "A query for type 'object' was given, but a string was found"
+}
+
+@test "errors if final type is 'string' when expecting type 'object' 2" {
+	declare -A SUB_OBJECT=([nested]='string_value')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+
+	run bash_object.traverse get object OBJECT '.my_key.nested'
+
+	assert_failure
+	assert_line -p "A query for type 'object' was given, but a string was found"
+}
+
+@test "errors if final type is 'array' when expecting type 'object' 1" {
+	declare -a SUB_ARRAY=(omicron pi rho)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse get object OBJECT '.my_key'
+
+	assert_failure
+	assert_line -p "A query for type 'object' was given, but an array was found"
+}
+
+@test "errors if final type is 'array' when expecting type 'object' 2" {
+	declare -a SUB_SUB_ARRAY=(omicron pi rho)
+	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
+
+	run bash_object.traverse get object OBJECT '.my_key.nested'
+
+	assert_failure
+	assert_line -p "A query for type 'object' was given, but an array was found"
+}
+
 # # { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 4" {
 	declare -A inner_object=([cool]='Wolf 359')

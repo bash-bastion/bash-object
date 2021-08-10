@@ -124,15 +124,21 @@ bash_object.traverse() {
 			# If we are on the last element of the query, it means we are supposed
 			# to return an object or array
 			if ((i+1 == ${#REPLIES[@]})); then
-				# Make sure the user actually wants an object or array returned
-				if [ "$final_value_type" = string ]; then
-					printf '%s\n' "Error: 'A query for a string was given, but either an object or array was found"
-					return 1
-				fi
-
-				case "$vmd_dtype" in
+				if [ "$final_value_type" = object ]; then
+					case "$vmd_dtype" in
 					object)
 						REPLY=("${current_object[@]}")
+						;;
+					array)
+						printf '%s\n' "Error: 'A query for type 'object' was given, but an array was found"
+						return 1
+						;;
+					esac
+				elif [ "$final_value_type" = array ]; then
+					case "$vmd_dtype" in
+					object)
+						printf '%s\n' "Error: 'A query for type 'object' was given, but an object was found"
+						return 1
 						;;
 					array)
 						# TODO: Perf: Use 'REPLY=("${current_object[@]}")'?
@@ -141,7 +147,19 @@ bash_object.traverse() {
 							REPLY["$key"]="${current_object["$key"]}"
 						done
 						;;
-				esac
+					esac
+				elif [ "$final_value_type" = string ]; then
+					case "$vmd_dtype" in
+					object)
+						printf '%s\n' "Error: 'A query for type 'string' was given, but an object was found"
+						return 1
+						;;
+					array)
+						printf '%s\n' "Error: 'A query for type 'string' was given, but an array was found"
+						return 1
+						;;
+					esac
+				fi
 
 				break
 			fi
@@ -149,7 +167,20 @@ bash_object.traverse() {
 			# If an object or array is the last element of the query,
 			# it is resolved above and this branch is not executed
 
-			REPLY="$key_value"
+			if [ "$action" = 'get' ]; then
+				# Set 'REPLY' to '$key_value', but only if user wanted to get a string
+				if [ "$final_value_type" = object ]; then
+					printf '%s\n' "Error: 'A query for type '$final_value_type' was given, but a string was found"
+					return 1
+				elif [ "$final_value_type" = array ]; then
+					printf '%s\n' "Error: 'A query for type '$final_value_type' was given, but a string was found"
+					return 1
+				elif [ "$final_value_type" = string ]; then
+					REPLY="$key_value"
+				fi
+			elif [ "$action" = 'set' ]; then
+				:
+			fi
 		fi
 	done
 }

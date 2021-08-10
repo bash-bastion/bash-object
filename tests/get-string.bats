@@ -2,27 +2,17 @@
 
 load './util/init.sh'
 
-@test "errors if final value type (object) is not of type string" {
+@test "errors if final type is 'object' when expecting type 'string' 1" {
 	declare -A SUB_OBJECT=([omicron]='pi')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	run bash_object.traverse get string OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p 'A query for a string was given, but either an object or array was found'
+	assert_line -p "A query for type 'string' was given, but an object was found"
 }
 
-@test "errors if final value type (array) is not of type string" {
-	declare -a SUB_ARRAY=(omicron pi rho)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_ARRAY')
-
-	run bash_object.traverse get string OBJECT '.my_key'
-
-	assert_failure
-	assert_line -p 'A query for a string was given, but either an object or array was found'
-}
-
-@test "errors if nested final value type (object) is not of type string" {
+@test "errors if final type is 'object' when expecting type 'string' 2" {
 	declare -A SUB_SUB_OBJECT=([omicron]='pi')
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
@@ -30,18 +20,28 @@ load './util/init.sh'
 	run bash_object.traverse get string OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p 'A query for a string was given, but either an object or array was found'
+	assert_line -p "A query for type 'string' was given, but an object was found"
 }
 
-@test "errors if nested final value type (array) is not of type string" {
+@test "errors if final type is 'array' when expecting type 'string' 1" {
+	declare -a SUB_ARRAY=(omicron pi rho)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse get string OBJECT '.my_key'
+
+	assert_failure
+	assert_line -p "A query for type 'string' was given, but an array was found"
+}
+
+@test "errors if final type is 'array' when expecting type 'string' 2" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
-	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=object;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 
 	run bash_object.traverse get string OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p 'A query for a string was given, but either an object or array was found'
+	assert_line -p "A query for type 'string' was given, but an array was found"
 }
 
 @test "properly gets string in root" {
