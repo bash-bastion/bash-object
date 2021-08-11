@@ -30,7 +30,7 @@ declare -a foxtrot_array=(omicron pi rho sigma)
 bobject set-object root_object '.zulu' zulu_object
 bobject set-object root_object '.zulu.yankee' yankee_object
 bobject set-object root_object '.zulu.yankee.xray' xray_object
-bobject set-string root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+bobject set-array root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
 bobject get-string '.zulu.yankee.xray.whiskey'
 assert [ "$REPLY" = victor ]
@@ -39,7 +39,7 @@ bobject get-array '.zulu.yankee.xray.victor'
 assert [ ${#REPLY} -eq 4 ]
 
 bobject get-string '.["zulu"].["yankee"].["xray"].["victor"].[2]'
-assert [ "$REPLY" = 'rho' ]
+assert [ "$REPLY" = rho ]
 ```
 
 ## Installation
@@ -48,5 +48,5 @@ STATUS: IN DEVELOPMENT! (right now, there are _many_ known bugs)
 
 ```sh
 # With bpm (highly recommended)
-bpm --global install hyperupcall/bash-object
+bpm add hyperupcall/bash-object
 ```

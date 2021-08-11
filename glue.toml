@@ -1,14 +1,14 @@
-using = ["Bash", "Docker"]
-project = "bash-args"
-description = "A cute little Bash library for blazing fast argument parsing"
+using = ["Bash"]
+project = "bash-object"
+description = "Bash library for object oriented data"
 license = 'Apache-2.0'
 
 
-gitRepoName = 'bash-args'
+gitRepoName = 'bash-object'
 distroPackageName = 'glue'
 
 name = "Edwin Kofler"
 email = "edwin@kofler.dev"
 
 gitRemoteUser = 'eankeen'
-gitRemoteRepo = 'bash-args'
+gitRemoteRepo = 'bash-object'
