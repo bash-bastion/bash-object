@@ -1,6 +1,5 @@
 # shellcheck shell=bash
 
-source "$BASH_OBJECT_LIB_DIR/util/util.sh"
 for f in "$BASH_OBJECT_LIB_DIR"/{,util/}?*.sh; do
 	source "$f"
 done

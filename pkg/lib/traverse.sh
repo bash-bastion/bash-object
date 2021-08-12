@@ -2,13 +2,31 @@
 
 bash_object.traverse() {
 	REPLY=
+	local flag_variable=
+
+	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+		stdtrace.log 0 "CALL: bash_object.traverse: $*"
+	fi
+
+	# shellcheck disable=SC1007
+	local currentArg= nextArg=
+	for ((i=0; i<$#; i++)); do
+		currentArg="${!i}"
+		nextArg=$((i+1)); nextArg="${!nextArg}"
+
+		case "$currentArg" in
+			--variable)
+				flag_variable="$nextArg"
+				shift 2
+				;;
+		esac
+	done
+
 	local action="$1"
 	local final_value_type="$2"
-	shift 2
-
-	local root_object_name="$1"
-	local filter="$2"
-	local final_value="$3" # Only used for 'set'
+	local root_object_name="$3"
+	local filter="$4"
+	local final_value="${5:-}" # Only used for 'set'
 
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
@@ -22,61 +40,87 @@ bash_object.traverse() {
 		local key="${REPLIES[$i]}"
 
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			cat >&3 <<-EOF
-			  0. ----- -----
-			  0. i+1: '$((i+1))'
-			  0. \${#REPLIES[@]}: ${#REPLIES[@]}
-			  0. key: '$key'
-			  0. current_object_name: '$current_object_name'
-			  current_object=(
-			EOF
+			stdtrace.log 0 "loop iteration start"
+			stdtrace.log 0 "i+1: '$((i+1))'"
+			stdtrace.log 0 "\${#REPLIES[@]}: ${#REPLIES[@]}"
+			stdtrace.log 0 "key: '$key'"
+			stdtrace.log 0 "current_object_name: '$current_object_name'"
+			stdtrace.log 0 "current_object=("
 			for debug_key in "${!current_object[@]}"; do
-				cat >&3 <<-EOF
-				   [$debug_key]='${current_object["$debug_key"]}'
-				EOF
-			done >&3
-			cat >&3 <<-EOF
-			  )
-			EOF
+				stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
+			done
+			stdtrace.log 0 ")"
+			stdtrace.log 0 "final_value: '$final_value'"
 		fi
 
-		# Get the subkey we are supposed to get with the query element
+		# In 'get' mode, the object is already supposed to have the proper hierarchy. If
+		# it does, then 'get' the subkey we are supposed to get with the query element
 		# If the subkey doesn't exist, create it if we are in 'set' mode,
 		# and throw error if we are in 'get' mode
-		if [ ${current_object["$key"]+x} ]; then
-			if [ "$action" = 'get' ]; then
-				# Set the key value; we will be using this when testing if
-				# 'key_value' is a virtual object
+
+		if [ "$action" = 'get' ]; then
+			if [ ${current_object["$key"]+x} ]; then
+				# Set the key_value; we will be using this variable in this
+				# loop iteration when testing if 'key_value' is a virtual object
 				local key_value="${current_object["$key"]}"
-			elif [ "$action" = 'set' ]; then
-				if ((i+1 == ${#REPLIES[@]})); then
-					current_object["$key"]="$final_value"
-				else
-					:
+
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 1 "key_value: '$key_value'"
 				fi
-			fi
-		else
-			if [ "$action" = 'get' ]; then
-				echo 'Error: KEY NOT IN OBJECT'
+			else
+				echo "Error: Key '$key' is not in object '$current_object_name'"
 				exit 1
-			elif [ "$action" = 'set' ]; then
-				if ((i+1 == ${#REPLIES[@]})); then
-					current_object["$key"]="$final_value"
-				else
-					local jj=i+1
-					succeeding_key="${REPLIES[$jj]}"
-					# No value
-					declare -gA rename_this_inner_object=(["$succeeding_key"]=)
-					current_object["$key"]=$'\x1C\x1Dtype=object;&rename_this_inner_object'
-
-					local current_object_name="$new_object_name"
-
-					declare current_object_name='rename_this_inner_object'
-					declare -n current_object="$current_object_name"
-
-					continue
-				fi
 			fi
+		elif [ "$action" = 'set' ]; then
+			# When setting a value,
+			if ((i+1 == ${#REPLIES[@]})); then
+				# TODO: object, arrays
+				current_object["$key"]="$final_value"
+
+				# continue
+			else
+				# The variable is 'new_current_object_name', but it also could
+				# be the name of a new _array_
+				local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+
+				# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
+
+				if ! eval "declare -gA $new_current_object_name=()"; then
+					printf '%s\n' 'Error: bash-object: eval declare failed'
+					exit 1
+				fi
+				# local -n new_current_object="$new_current_object_name"
+
+				current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
+
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 1 "current_object_name: '$current_object_name'"
+					stdtrace.log 1 "current_object=("
+					for debug_key in "${!current_object[@]}"; do
+						stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
+					done
+					stdtrace.log 1 ")"
+					stdtrace.log 1 "final_value: '$final_value'"
+				fi
+
+				current_object_name="$new_current_object_name"
+				# shellcheck disable=SC2178
+				local -n current_object="$new_current_object_name"
+
+				# Either the object or array has been created. We skip to
+				# the next element in the query
+				continue
+			fi
+		fi
+
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+			stdtrace.log 0 "key: '$key'"
+			stdtrace.log 0 "current_object_name: '$current_object_name'"
+			stdtrace.log 0 "current_object=("
+			for debug_key in "${!current_object[@]}"; do
+				stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
+			done
+			stdtrace.log 0 ")"
 		fi
 
 		# If the 'key_value' is a virtual object, it starts with the two
@@ -88,11 +132,10 @@ bash_object.traverse() {
 			local -n current_object="$current_object_name"
 
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				cat >&3 <<-EOF
-				   2. virtual_item: '$virtual_item'"
-				   2. virtual_metadatas: '$virtual_metadatas'
-				   2. current_object_name: '$current_object_name'
-				EOF
+				stdtrace.log 1 "block: virtual object"
+				stdtrace.log 1 "virtual_item: '$virtual_item'"
+				stdtrace.log 1 "virtual_metadatas: '$virtual_metadatas'"
+				stdtrace.log 1 "current_object_name: '$current_object_name'"
 			fi
 
 			# Parse info about the virtual object
@@ -107,11 +150,9 @@ bash_object.traverse() {
 				vmd_value="${vmd#*=}"
 
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					cat >&3 <<-EOF
-						3. vmd '$vmd'
-						3. vmd_key '$vmd_key'
-						3. vmd_value '$vmd_value'
-					EOF
+					stdtrace.log 2 "vmd: '$vmd'"
+					stdtrace.log 3 "vmd_key: '$vmd_key'"
+					stdtrace.log 3 "vmd_value: '$vmd_value'"
 				fi
 
 				case "$vmd_key" in
@@ -159,19 +200,19 @@ bash_object.traverse() {
 					esac
 				fi
 
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 1 "end block"
+				fi
+
 				break
+			else
+				# If we are on anything but the last element of the query, then continue to next item
+				:
 			fi
 		else
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				cat >&3 <<-EOF
-					  9. current_object_name: '$current_object_name'
-					  9. key: '$key'
-					  9. key_value: '$key_value'
-				EOF
+				stdtrace.log 1 "block: string"
 			fi
-
-			# If an object or array is the last element of the query,
-			# it is resolved above and this branch is not executed
 
 			if [ "$action" = 'get' ]; then
 				if [ "$final_value_type" = object ]; then
@@ -184,8 +225,23 @@ bash_object.traverse() {
 					REPLY="$key_value"
 				fi
 			elif [ "$action" = 'set' ]; then
-				:
+				current_object["$key"]="$final_value"
 			fi
+
+			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+				stdtrace.log 1 "current_object_name: '$current_object_name'"
+				stdtrace.log 1 "current_object=("
+				for debug_key in "${!current_object[@]}"; do
+					stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
+				done
+				stdtrace.log 1 ")"
+				stdtrace.log 1 "final_value: '$final_value'"
+				stdtrace.log 1 "end block"
+			fi
+		fi
+
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+			stdtrace.log 0 "loop iteration end"
 		fi
 	done
 }

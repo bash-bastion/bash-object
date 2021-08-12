@@ -12,25 +12,16 @@ load './util/init.sh'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
-@test "properly sets 2" {
-	declare -A OBJ=()
-
-	bash_object.traverse set string 'OBJ' '.my_key.nested' 'my_value'
-
-	bash_object.traverse get string 'OBJ' '.my_key.nested'
-	assert [ "$REPLY" = 'my_value' ]
-}
-
-# @test "properly sets 3" {
+# @test "properly sets 2" {
 # 	declare -A OBJ=()
 
-# 	bash_object.traverse set object 'OBJ' '.my_key.nested.YAY' 'fortran_is_cool'
-# 	echo ---- divider >&3
-# 	bash_object.traverse set object 'OBJ' '.my_key.other' 'success'
+# 	bash_object.traverse set string 'OBJ' '.xray.yankee.zulu' 'boson'
 
-# 	bash_object.traverse get object 'OBJ' '.my_key.nested.YAY'
-# 	assert [ "$REPLY" = 'fortran_is_cool' ]
+# 	bash_object.traverse set string 'OBJ' '.xray.yankee' 'lithography'
 
-# 	bash_object.traverse get object 'OBJ' '.my_key.other'
-# 	assert [ "$REPLY" = 'success' ]
+# 	bash_object.traverse get string 'OBJ' '.xray.yankee.zulu'
+# 	assert [ "$REPLY" = 'boson' ]
+
+# 	bash_object.traverse get string 'OBJ' '.xray.yankee'
+# 	assert [ "$REPLY" = 'lithography' ]
 # }
