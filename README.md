@@ -22,9 +22,9 @@ In the coming days, I will release never seen before parsers written in Bash cal
 # }
 
 declare -A root_object=()
-declare -A zulu_object([yankee]=)
+declare -A zulu_object=([yankee]=)
 declare -A yankee_object=([xray]=)
-declare -A xray_object([whiskey]=victor [foxtrot]=)
+declare -A xray_object=([whiskey]=victor [foxtrot]=)
 declare -a foxtrot_array=(omicron pi rho sigma)
 
 bobject set-object root_object '.zulu' zulu_object
@@ -32,19 +32,22 @@ bobject set-object root_object '.zulu.yankee' yankee_object
 bobject set-object root_object '.zulu.yankee.xray' xray_object
 bobject set-array root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
-bobject get-string '.zulu.yankee.xray.whiskey'
+bobject get-object root_object '.zulu.yankee.xray'
+assert [ "${REPLY[whiskey]}" = victor ]
+
+bobject get-string root_object '.zulu.yankee.xray.whiskey'
 assert [ "$REPLY" = victor ]
 
-bobject get-array '.zulu.yankee.xray.victor'
+bobject get-array root_object '.zulu.yankee.xray.victor'
 assert [ ${#REPLY} -eq 4 ]
 
-bobject get-string '.["zulu"].["yankee"].["xray"].["victor"].[2]'
+bobject get-string root_object '.["zulu"].["yankee"].["xray"].["victor"].[2]'
 assert [ "$REPLY" = rho ]
 ```
 
 ## Installation
 
-STATUS: IN DEVELOPMENT! (right now, there are _many_ known bugs)
+STATUS: IN DEVELOPMENT!
 
 ```sh
 # With bpm (highly recommended)
