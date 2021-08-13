@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 bash_object.traverse-get() {
-	REPLY=
+	unset REPLY
 
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
@@ -26,9 +26,16 @@ bash_object.traverse-get() {
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
+		local is_index_of_array='no'
+
 		filter_stack+=("$key")
 
 		bash_object.trace_loop
+
+		if [ "${key::1}" = $'\x1C' ]; then
+			key="${key#?}"
+			is_index_of_array='yes'
+		fi
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
@@ -54,9 +61,27 @@ bash_object.traverse-get() {
 				local -n current_object="$current_object_name"
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					# Do nothing, we have already set 'current_object'
+					# TODO: test these internal invalid errors
+					# Do nothing (assuming the type is correct), we have already set 'current_object'
 					# for the next iteration
-					:
+					case "$vmd_dtype" in
+					object)
+						if [ "$is_index_of_array" = yes ]; then
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
+							return
+						fi
+						;;
+					array)
+						if [ "$is_index_of_array" = no ]; then
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
+							return
+						fi
+						;;
+					*)
+						bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+						return
+						;;
+					esac
 				elif ((i+1 == ${#REPLIES[@]})); then
 					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
@@ -80,6 +105,7 @@ bash_object.traverse-get() {
 							return
 							;;
 						array)
+							declare -ga REPLY=()
 							local key=
 							for key in "${!current_object[@]}"; do
 								REPLY["$key"]="${current_object["$key"]}"
@@ -136,7 +162,7 @@ bash_object.traverse-get() {
 
 			bash_object.trace_current_object
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				stdtrace.log 1 "END BLOCK"
+				stdtrace.log 0 "END BLOCK"
 			fi
 		fi
 	done

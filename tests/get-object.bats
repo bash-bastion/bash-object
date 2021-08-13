@@ -46,7 +46,7 @@ load './util/init.sh'
 	assert_line -p 'Queried for object, but found array'
 }
 
-# # { "stars": { "cool": "Wolf 359" } }
+# { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 4" {
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
@@ -55,7 +55,7 @@ load './util/init.sh'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
 }
 
-# # { "stars": { "cool": "Wolf 359" } }
+# { "stars": { "cool": "Wolf 359" } }
 @test "properly gets 5" {
 	declare -a inner_array=('Alpha Centauri A' 'Proxima Centauri')
 	declare -A OBJ=([nearby]=$'\x1C\x1Dtype=object;&inner_array')

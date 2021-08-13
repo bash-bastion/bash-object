@@ -45,3 +45,41 @@ load './util/init.sh'
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found object'
 }
+
+@test "correctly gets array" {
+	declare -a SUB_ARRAY=(omicron pi rho)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	bash_object.traverse-get array OBJECT '.my_key'
+
+	assert [ ${#REPLY[@]} -eq 3 ]
+	assert [ "${REPLY[0]}" = omicron ]
+	assert [ "${REPLY[1]}" = pi ]
+	assert [ "${REPLY[2]}" = rho ]
+}
+
+@test "correctly gets array in subobject" {
+	declare -a SUB_SUB_ARRAY=(pi rho sigma)
+	declare -A SUB_OBJECT=([subkey]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+
+	bash_object.traverse-get array OBJECT '.my_key.subkey'
+
+	assert [ ${#REPLY[@]} -eq 3 ]
+	assert [ "${REPLY[0]}" = pi ]
+	assert [ "${REPLY[1]}" = rho ]
+	assert [ "${REPLY[2]}" = sigma ]
+}
+
+@test "correctly gets array in subarray" {
+	declare -a SUB_SUB_ARRAY=(omicron pi rho)
+	declare -a SUB_ARRAY=('foo' 'bar' $'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	bash_object.traverse-get array OBJECT '.["my_key"].[2]'
+
+	assert [ ${#REPLY[@]} -eq 3 ]
+	assert [ "${REPLY[0]}" = omicron ]
+	assert [ "${REPLY[1]}" = pi ]
+	assert [ "${REPLY[2]}" = rho ]
+}
