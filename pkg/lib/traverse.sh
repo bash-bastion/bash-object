@@ -84,6 +84,7 @@ bash_object.traverse() {
 					bash_object.parse_virtual_object "$virtual_item"
 					local current_object_name="$REPLY1"
 					local vmd_dtype="$REPLY2"
+
 					local -n current_object="$current_object_name"
 
 					# If we are not on the last element of the query, then do nothing. We have
@@ -203,7 +204,16 @@ bash_object.traverse() {
 				local key_value="${current_object["$key"]}"
 
 				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-					:
+					virtual_item="${key_value#??}"
+
+					bash_object.parse_virtual_object "$virtual_item"
+					local current_object_name="$REPLY1"
+					local vmd_dtype="$REPLY2"
+
+					local -n current_object="$current_object_name"
+
+					# TODO: arrays, objects
+					current_object["$key"]="$final_value"
 				else
 					# TODO: throw error
 					:
