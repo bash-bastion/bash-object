@@ -134,7 +134,7 @@ bash_object.traverse() {
 						elif [ "$final_value_type" = array ]; then
 							case "$vmd_dtype" in
 							object)
-								printf '%s\n' "Error: 'A query for type 'object' was given, but an object was found"
+								printf '%s\n' "Error: 'A query for type 'array' was given, but an object was found"
 								return 1
 								;;
 							array)
