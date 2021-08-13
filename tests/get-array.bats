@@ -82,4 +82,9 @@ load './util/init.sh'
 	assert [ "${REPLY[0]}" = omicron ]
 	assert [ "${REPLY[1]}" = pi ]
 	assert [ "${REPLY[2]}" = rho ]
+
+
+	bash_object.traverse-get array OBJECT '.["my_key"].[2].[0]'
+
+	assert [ "$REPLY" = omicron ]
 }

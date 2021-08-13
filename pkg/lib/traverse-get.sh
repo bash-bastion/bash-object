@@ -64,24 +64,25 @@ bash_object.traverse-get() {
 					# TODO: test these internal invalid errors
 					# Do nothing (assuming the type is correct), we have already set 'current_object'
 					# for the next iteration
-					case "$vmd_dtype" in
-					object)
-						if [ "$is_index_of_array" = yes ]; then
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
-							return
-						fi
-						;;
-					array)
-						if [ "$is_index_of_array" = no ]; then
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
-							return
-						fi
-						;;
-					*)
-						bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
-						return
-						;;
-					esac
+					:
+					# case "$vmd_dtype" in
+					# object)
+					# 	if [ "$is_index_of_array" = yes ]; then
+					# 		bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
+					# 		return
+					# 	fi
+					# 	;;
+					# array)
+					# 	if [ "$is_index_of_array" = no ]; then
+					# 		bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
+					# 		return
+					# 	fi
+					# 	;;
+					# *)
+					# 	bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+					# 	return
+					# 	;;
+					# esac
 				elif ((i+1 == ${#REPLIES[@]})); then
 					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
