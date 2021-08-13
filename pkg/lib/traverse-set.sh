@@ -42,7 +42,7 @@ bash_object.traverse-set() {
 				# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
 				if ! eval "declare -gA $new_current_object_name=()"; then
 					printf '%s\n' 'Error: bash-object: eval declare failed'
-					exit 1
+					return 1
 				fi
 
 				current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
@@ -80,7 +80,7 @@ bash_object.traverse-set() {
 				else
 					# TODO: throw error
 					echo "phi" >&3
-					exit 1
+					# return 1
 				fi
 				:
 			elif ((i+1 == ${#REPLIES[@]})); then
@@ -115,11 +115,11 @@ bash_object.traverse-set() {
 						object)
 							# TODO: test this
 							echo "Error: Cannot set string on object"
-							exit 1
+							return 1
 							;;
 						array)
 							echo "Error: Cannot set string on array"
-							exit 1
+							return 1
 							;;
 						esac
 					fi
@@ -127,7 +127,7 @@ bash_object.traverse-set() {
 				else
 					# TODO: throw error
 					echo "omicron" >&3
-					exit 1
+					return 1
 				fi
 			fi
 		fi

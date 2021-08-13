@@ -12,7 +12,7 @@ bobject() {
 		get-string)
 			if (($# != 2)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-get string "$@"
@@ -20,7 +20,7 @@ bobject() {
 		get-array)
 			if (($# != 2)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-get array "$@"
@@ -28,7 +28,7 @@ bobject() {
 		get-object)
 			if (($# != 2)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-get object "$@"
@@ -36,7 +36,7 @@ bobject() {
 		set-string)
 			if (($# != 3)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-set string "$@"
@@ -44,7 +44,7 @@ bobject() {
 		set-array)
 			if (($# != 3)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-set array "$@"
@@ -52,13 +52,13 @@ bobject() {
 		set-object)
 			if (($# != 3)); then
 				printf '%s\n' "bash-object: Error: Incorrect arguments for subcommand '$subcmd'"
-				exit 1
+				return 1
 			fi
 
 			bash_object.traverse-set object "$@"
 			;;
 		*)
 			printf '%s\n' "bash-object: Error: Subcommand '$subcmd' not recognized"
-			exit 1
+			return 1
 	esac
 }

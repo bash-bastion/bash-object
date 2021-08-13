@@ -54,7 +54,7 @@ elif [ -d "$REPLY/lib" ]; then
 	BASH_OBJECT_LIB_DIR="$REPLY/lib"
 else
 	echo "Error: Could not determine \$BASH_OBJECT_LIB_DIR"
-	exit 1
+	return 1
 fi
 
 # shellcheck disable=SC1091

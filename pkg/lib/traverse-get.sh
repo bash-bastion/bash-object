@@ -40,7 +40,7 @@ bash_object.traverse-get() {
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
 			echo "Error: Key '$key' is not in object '$current_object_name'"
-			exit 1
+			return 1
 		else
 		# If 'key' is a member of an object, or index of array
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
@@ -145,7 +145,7 @@ bash_object.traverse-get() {
 				if ((i+1 < ${#REPLIES[@]})); then
 					# TODO
 					echo "mu" >&3
-					exit 2
+					# return 2
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
