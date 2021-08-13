@@ -6,6 +6,7 @@ bash_object.traverse() {
 	local flag_variable=
 
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+		stdtrace.log 0 ''
 		stdtrace.log 0 "CALL: bash_object.traverse: $*"
 	fi
 
@@ -33,15 +34,17 @@ bash_object.traverse() {
 	local current_object_name="$root_object_name"
 	local -n current_object="$root_object_name"
 
+	local -a filter_stack=() # A stack of all the evaluated filter elements
 	case "$filter" in
 		*']'*) bash_object.parse_filter --advanced "$filter" ;;
 		*) bash_object.parse_filter --simple "$filter" ;;
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
+		filter_stack+=("$key")
 
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			stdtrace.log 0 "loop iteration start"
+			stdtrace.log 0 "-- START LOOP ITERATION"
 			stdtrace.log 0 "i+1: '$((i+1))'"
 			stdtrace.log 0 "\${#REPLIES[@]}: ${#REPLIES[@]}"
 			stdtrace.log 0 "key: '$key'"
@@ -51,7 +54,6 @@ bash_object.traverse() {
 				stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
 			done
 			stdtrace.log 0 ")"
-			stdtrace.log 0 "final_value: '$final_value'"
 		fi
 
 		if [ "$action" = 'get' ]; then
@@ -61,19 +63,18 @@ bash_object.traverse() {
 				local key_value="${current_object["$key"]}"
 
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					stdtrace.log 0 "key: '$key'"
-					stdtrace.log 0 "key_value: '$key_value'"
-					stdtrace.log 0 "current_object_name: '$current_object_name'"
-					stdtrace.log 0 "current_object=("
+					stdtrace.log 1 "key: '$key'"
+					stdtrace.log 1 "key_value: '$key_value'"
+					stdtrace.log 1 "current_object_name: '$current_object_name'"
+					stdtrace.log 1 "current_object=("
 					for debug_key in "${!current_object[@]}"; do
-						stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
+						stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
 					done
-					stdtrace.log 0 ")"
+					stdtrace.log 1 ")"
 				fi
 
-				# If the 'key_value' is a virtual object, it starts with the two
-				# byte sequence. This means we will be setting either an object
-				# or an array
+				# If the 'key_value' is a virtual object, it starts with the byte sequence
+				# This means we will be setting either an object or an array
 				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
 					virtual_item="${key_value#??}"
 					local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
@@ -81,10 +82,10 @@ bash_object.traverse() {
 					local -n current_object="$current_object_name"
 
 					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-						stdtrace.log 1 "block: virtual object"
-						stdtrace.log 1 "virtual_item: '$virtual_item'"
-						stdtrace.log 1 "virtual_metadatas: '$virtual_metadatas'"
-						stdtrace.log 1 "current_object_name: '$current_object_name'"
+						stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
+						stdtrace.log 2 "virtual_item: '$virtual_item'"
+						stdtrace.log 2 "virtual_metadatas: '$virtual_metadatas'"
+						stdtrace.log 2 "current_object_name: '$current_object_name'"
 					fi
 
 					# Parse info about the virtual object
@@ -159,41 +160,28 @@ bash_object.traverse() {
 						:
 					fi
 				else
-					# We will be setting a string
 					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-						stdtrace.log 1 "block: string"
+						stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
 					fi
 
-					if [ "$action" = 'get' ]; then
-						if [ "$final_value_type" = object ]; then
-							printf '%s\n' "Error: 'A query for type '$final_value_type' was given, but a string was found"
-							return 1
-						elif [ "$final_value_type" = array ]; then
-							printf '%s\n' "Error: 'A query for type '$final_value_type' was given, but a string was found"
-							return 1
-						elif [ "$final_value_type" = string ]; then
-							REPLY="$key_value"
-						fi
-					elif [ "$action" = 'set' ]; then
-						current_object["$key"]="$final_value"
-					fi
-
-					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-						stdtrace.log 1 "current_object_name: '$current_object_name'"
-						stdtrace.log 1 "current_object=("
-						for debug_key in "${!current_object[@]}"; do
-							stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
-						done
-						stdtrace.log 1 ")"
-						stdtrace.log 1 "final_value: '$final_value'"
-						stdtrace.log 1 "end block"
-					fi
+					# TODO: test if current_object["$key"]} is really a string
+					# if its NOT, throw an error, as the hierarchy was expected
+					# to be shallow, but it's really deep
+					REPLY="${current_object["$key"]}"
 				fi
 
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					stdtrace.log 0 "loop iteration end"
+					stdtrace.log 1 "current_object_name: '$current_object_name'"
+					stdtrace.log 1 "current_object=("
+					for debug_key in "${!current_object[@]}"; do
+						stdtrace.log 1 "   [$debug_key]='${current_object["$debug_key"]}'"
+					done
+					stdtrace.log 1 ")"
+					stdtrace.log 1 "final_value: '$final_value'"
+					stdtrace.log 1 "END BLOCK"
 				fi
 			# If the key does not a member of the object
+			# TODO: put this near the top
 			else
 				echo "Error: Key '$key' is not in object '$current_object_name'"
 				exit 1
@@ -201,13 +189,8 @@ bash_object.traverse() {
 
 
 		elif [ "$action" = 'set' ]; then
-			# When setting a value,
-			if ((i+1 == ${#REPLIES[@]})); then
-				# TODO: object, arrays
-				current_object["$key"]="$final_value"
-
-				continue
-			else
+			# If we are before the last element in the query
+			if ((i+1 < ${#REPLIES[@]})); then
 				# The variable is 'new_current_object_name', but it also could
 				# be the name of a new _array_
 				local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
@@ -222,23 +205,23 @@ bash_object.traverse() {
 
 				current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
 
-				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					stdtrace.log 1 "current_object_name: '$current_object_name'"
-					stdtrace.log 1 "current_object=("
-					for debug_key in "${!current_object[@]}"; do
-						stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
-					done
-					stdtrace.log 1 ")"
-					stdtrace.log 1 "final_value: '$final_value'"
-				fi
-
 				current_object_name="$new_current_object_name"
 				# shellcheck disable=SC2178
 				local -n current_object="$new_current_object_name"
+			# If we are at the last element in the query
+			elif ((i+1 == ${#REPLIES[@]})); then
+				# TODO: object, arrays
+				current_object["$key"]="$final_value"
+			fi
 
-				# Either the object or array has been created. We skip to
-				# the next element in the query
-				continue
+			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+				stdtrace.log 1 'AFTER OPERATION'
+				stdtrace.log 1 "current_object_name: '$current_object_name'"
+				stdtrace.log 1 "current_object=("
+				for debug_key in "${!current_object[@]}"; do
+					stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
+				done
+				stdtrace.log 1 ")"
 			fi
 		fi
 	done

@@ -16,12 +16,11 @@ load './util/init.sh'
 # 	declare -A OBJ=()
 
 # 	bash_object.traverse set string 'OBJ' '.xray.yankee.zulu' 'boson'
-
 # 	bash_object.traverse set string 'OBJ' '.xray.yankee' 'lithography'
 
 # 	bash_object.traverse get string 'OBJ' '.xray.yankee.zulu'
 # 	assert [ "$REPLY" = 'boson' ]
 
-# 	bash_object.traverse get string 'OBJ' '.xray.yankee'
-# 	assert [ "$REPLY" = 'lithography' ]
+# 	# bash_object.traverse get string 'OBJ' '.xray.yankee'
+# 	# assert [ "$REPLY" = 'lithography' ]
 # }
