@@ -12,15 +12,15 @@ load './util/init.sh'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
-# @test "properly sets 2" {
-# 	declare -A OBJ=()
+@test "properly sets 2" {
+	declare -A OBJ=()
 
-# 	bash_object.traverse set string 'OBJ' '.xray.yankee.zulu' 'boson'
-# 	bash_object.traverse set string 'OBJ' '.xray.yankee' 'lithography'
+	bash_object.traverse set string 'OBJ' '.xray.yankee.zulu' 'boson'
+	bash_object.traverse set string 'OBJ' '.xray.yankee.alfa' 'lithography'
 
-# 	bash_object.traverse get string 'OBJ' '.xray.yankee.zulu'
-# 	assert [ "$REPLY" = 'boson' ]
+	bash_object.traverse get string 'OBJ' '.xray.yankee.zulu'
+	assert [ "$REPLY" = 'boson' ]
 
-# 	# bash_object.traverse get string 'OBJ' '.xray.yankee'
-# 	# assert [ "$REPLY" = 'lithography' ]
-# }
+	bash_object.traverse get string 'OBJ' '.xray.yankee.alfa'
+	assert [ "$REPLY" = 'lithography' ]
+}

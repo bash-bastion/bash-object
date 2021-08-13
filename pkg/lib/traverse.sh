@@ -80,38 +80,11 @@ bash_object.traverse() {
 				# This means we will be setting either an object or an array
 				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
 					virtual_item="${key_value#??}"
-					local virtual_metadatas="${virtual_item%%&*}" # type=string;attr=smthn;
-					local current_object_name="${virtual_item#*&}" # __bash_object_383028
+
+					bash_object.parse_virtual_object "$virtual_item"
+					local current_object_name="$REPLY1"
+					local vmd_dtype="$REPLY2"
 					local -n current_object="$current_object_name"
-
-					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-						stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
-						stdtrace.log 2 "virtual_item: '$virtual_item'"
-						stdtrace.log 2 "virtual_metadatas: '$virtual_metadatas'"
-						stdtrace.log 2 "current_object_name: '$current_object_name'"
-					fi
-
-					# Parse info about the virtual object
-					local vmd_dtype=
-					while IFS= read -rd \; vmd; do
-						if [ -z "$vmd" ]; then
-							continue
-						fi
-
-						vmd="${vmd%;}"
-						vmd_key="${vmd%%=*}"
-						vmd_value="${vmd#*=}"
-
-						if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-							stdtrace.log 2 "vmd: '$vmd'"
-							stdtrace.log 3 "vmd_key: '$vmd_key'"
-							stdtrace.log 3 "vmd_value: '$vmd_value'"
-						fi
-
-						case "$vmd_key" in
-							type) vmd_dtype="$vmd_value" ;;
-						esac
-					done <<< "$virtual_metadatas"
 
 					# If we are not on the last element of the query, then do nothing. We have
 					# already set 'current_object_name' and 'current_object', so at the next loop
@@ -159,16 +132,15 @@ bash_object.traverse() {
 						fi
 					fi
 				else
-					# If we are getting a single string
+					# If we are getting a string
 
 					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 						stdtrace.log 2 "BLOCK: STRING"
 					fi
 
-					# If we are less than the last element in the query, and the object
-					# member has a type of 'string', throw an error. This means the
-					# user expected an object to have a key with type 'object', but the
-					# type really is 'string'
+					# If we are less than the last element in the query, and the object member has a type
+					# of 'string', throw an error. This means the user expected an object to have a key
+					# with type 'object', but the type really is 'string'
 					if ((i+1 < ${#REPLIES[@]})); then
 						:
 					elif ((i+1 == ${#REPLIES[@]})); then
@@ -199,29 +171,43 @@ bash_object.traverse() {
 
 
 		elif [ "$action" = 'set' ]; then
-			# If we are before the last element in the query
-			if ((i+1 < ${#REPLIES[@]})); then
-				# The variable is 'new_current_object_name', but it also could
-				# be the name of a new _array_
-				local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+			# If 'key' is not a member of object, create the object, and set it
+			if [ -z "${current_object["$key"]+x}" ]; then
+				# If we are before the last element in the query, then set
+				if ((i+1 < ${#REPLIES[@]})); then
+					# The variable is 'new_current_object_name', but it also could
+					# be the name of a new _array_
+					local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
 
-				# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
+					# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
 
-				if ! eval "declare -gA $new_current_object_name=()"; then
-					printf '%s\n' 'Error: bash-object: eval declare failed'
-					exit 1
+					if ! eval "declare -gA $new_current_object_name=()"; then
+						printf '%s\n' 'Error: bash-object: eval declare failed'
+						exit 1
+					fi
+					# local -n new_current_object="$new_current_object_name"
+
+					current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
+
+					current_object_name="$new_current_object_name"
+					# shellcheck disable=SC2178
+					local -n current_object="$new_current_object_name"
+				# If we are at the last element in the query
+				elif ((i+1 == ${#REPLIES[@]})); then
+					# TODO: object, arrays
+					current_object["$key"]="$final_value"
 				fi
-				# local -n new_current_object="$new_current_object_name"
+			# If 'key' is already a member of object, use it if it's a virtual object. If
+			# it's not a virtual object, then a throw an error
+			else
+				local key_value="${current_object["$key"]}"
 
-				current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
-
-				current_object_name="$new_current_object_name"
-				# shellcheck disable=SC2178
-				local -n current_object="$new_current_object_name"
-			# If we are at the last element in the query
-			elif ((i+1 == ${#REPLIES[@]})); then
-				# TODO: object, arrays
-				current_object["$key"]="$final_value"
+				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+					:
+				else
+					# TODO: throw error
+					:
+				fi
 			fi
 
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then

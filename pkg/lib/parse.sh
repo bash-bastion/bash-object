@@ -170,3 +170,43 @@ bash_object.parse_filter() {
 		return 2
 	fi
 }
+
+# @description Parse a virtual object into its components
+bash_object.parse_virtual_object() {
+	REPLY1=; REPLY2=
+	local virtual_object="$1"
+
+	local virtual_metadatas="${virtual_object%%&*}" # type=string;attr=smthn;
+	local virtual_object_name="${virtual_object#*&}" # __bash_object_383028
+
+	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+		stdtrace.log 2 "virtual_object: '$virtual_object'"
+		stdtrace.log 2 "virtual_metadatas: '$virtual_metadatas'"
+		stdtrace.log 2 "virtual_object_name: '$virtual_object_name'"
+	fi
+
+	# Parse info about the virtual object
+	local vmd_dtype=
+	while IFS= read -rd \; vmd; do
+		if [ -z "$vmd" ]; then
+			continue
+		fi
+
+		vmd="${vmd%;}"
+		vmd_key="${vmd%%=*}"
+		vmd_value="${vmd#*=}"
+
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+			stdtrace.log 2 "vmd: '$vmd'"
+			stdtrace.log 3 "vmd_key: '$vmd_key'"
+			stdtrace.log 3 "vmd_value: '$vmd_value'"
+		fi
+
+		case "$vmd_key" in
+			type) vmd_dtype="$vmd_value" ;;
+		esac
+	done <<< "$virtual_metadatas"
+
+	REPLY1="$virtual_object_name"
+	REPLY2="$vmd_dtype"
+}
