@@ -3,7 +3,7 @@
 load './util/init.sh'
 
 @test "errors if final type is 'string' when expecting type 'object' 1" {
-	declare -A OBJECT=([my_key]='string_value')
+	declare -A OBJECT=([my_key]='string_value2')
 
 	run bash_object.traverse get object OBJECT '.my_key'
 

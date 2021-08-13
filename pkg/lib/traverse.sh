@@ -57,9 +57,12 @@ bash_object.traverse() {
 		fi
 
 		if [ "$action" = 'get' ]; then
-			# If the key is a member of the object, then access it, and recurse into
-			# the indirection by 1
-			if [ ${current_object["$key"]+x} ]; then
+			# If 'key' is not a member of object, error
+			if [ -z "${current_object["$key"]+x}" ]; then
+				echo "Error: Key '$key' is not in object '$current_object_name'"
+				exit 1
+			# If 'key' is a member of object, then we check to see if it's an object, array, or string
+			else
 				local key_value="${current_object["$key"]}"
 
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
@@ -110,9 +113,14 @@ bash_object.traverse() {
 						esac
 					done <<< "$virtual_metadatas"
 
-					# If we are on the last element of the query, it means we are supposed
-					# to return an object or array
-					if ((i+1 == ${#REPLIES[@]})); then
+					# If we are not on the last element of the query, then do nothing. We have
+					# already set 'current_object_name' and 'current_object', so at the next loop
+					# iteration, the just-"dereferenced" virtual object will be evaluated
+					if ((i+1 < ${#REPLIES[@]})); then
+						:
+					# If we are the last element, then we actually perform the get operation. Set
+					# REPLY (and go to next loop)
+					elif ((i+1 == ${#REPLIES[@]})); then
 						if [ "$final_value_type" = object ]; then
 							case "$vmd_dtype" in
 							object)
@@ -149,25 +157,32 @@ bash_object.traverse() {
 								;;
 							esac
 						fi
-
-						if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-							stdtrace.log 1 "end block"
-						fi
-
-						break
-					else
-						# If we are on anything but the last element of the query, then continue to next item
-						:
 					fi
 				else
+					# If we are getting a single string
+
 					if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-						stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
+						stdtrace.log 2 "BLOCK: STRING"
 					fi
 
-					# TODO: test if current_object["$key"]} is really a string
-					# if its NOT, throw an error, as the hierarchy was expected
-					# to be shallow, but it's really deep
-					REPLY="${current_object["$key"]}"
+					# If we are less than the last element in the query, and the object
+					# member has a type of 'string', throw an error. This means the
+					# user expected an object to have a key with type 'object', but the
+					# type really is 'string'
+					if ((i+1 < ${#REPLIES[@]})); then
+						:
+					elif ((i+1 == ${#REPLIES[@]})); then
+						local value="${current_object["$key"]}"
+						if [ "$final_value_type" = object ]; then
+							printf '%s\n' "Error: bash-object: A query for type 'object' was given, but a string was found"
+							exit 1
+						elif [ "$final_value_type" = array ]; then
+							printf '%s\n' "Error: bash-object: A query for type 'array' was given, but a string was found"
+							exit 1
+						elif [ "$final_value_type" = string ]; then
+							REPLY="$value"
+						fi
+					fi
 				fi
 
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
@@ -178,13 +193,8 @@ bash_object.traverse() {
 					done
 					stdtrace.log 1 ")"
 					stdtrace.log 1 "final_value: '$final_value'"
-					stdtrace.log 1 "END BLOCK"
+					stdtrace.log 1 "END BLOCK 2"
 				fi
-			# If the key does not a member of the object
-			# TODO: put this near the top
-			else
-				echo "Error: Key '$key' is not in object '$current_object_name'"
-				exit 1
 			fi
 
 
