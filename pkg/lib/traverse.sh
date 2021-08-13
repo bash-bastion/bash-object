@@ -1,6 +1,5 @@
 # shellcheck shell=bash
 
-
 bash_object.traverse() {
 	REPLY=
 	local flag_variable=
@@ -23,6 +22,8 @@ bash_object.traverse() {
 				;;
 		esac
 	done
+
+	# TODO: errors if vmd_dtype, final_value_type is not one of the known ones
 
 	local action="$1"
 	local final_value_type="$2"
@@ -201,22 +202,77 @@ bash_object.traverse() {
 			# If 'key' is already a member of object, use it if it's a virtual object. If
 			# it's not a virtual object, then a throw an error
 			else
-				local key_value="${current_object["$key"]}"
+				if ((i+1 < ${#REPLIES[@]})); then
+					local key_value="${current_object["$key"]}"
 
-				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-					virtual_item="${key_value#??}"
+					if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+						virtual_item="${key_value#??}"
 
-					bash_object.parse_virtual_object "$virtual_item"
-					local current_object_name="$REPLY1"
-					local vmd_dtype="$REPLY2"
+						bash_object.parse_virtual_object "$virtual_item"
+						local current_object_name="$REPLY1"
+						local vmd_dtype="$REPLY2"
 
-					local -n current_object="$current_object_name"
+						local -n current_object="$current_object_name"
 
-					# TODO: arrays, objects
-					current_object["$key"]="$final_value"
-				else
-					# TODO: throw error
+						# Get the next value (number, string), and construct the next
+						# element accordingly
+						case "$vmd_dtype" in
+							object)
+								;;
+							array) ;;
+						esac
+					else
+						# TODO: throw error
+						echo "phi" >&3
+						exit 1
+					fi
 					:
+				elif ((i+1 == ${#REPLIES[@]})); then
+					local key_value="${current_object["$key"]}"
+
+					if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+						virtual_item="${key_value#??}"
+
+						bash_object.parse_virtual_object "$virtual_item"
+						local current_object_name="$REPLY1"
+						local vmd_dtype="$REPLY2"
+
+						local -n current_object="$current_object_name"
+
+						if [ "$final_value_type" = object ]; then
+							case "$vmd_dtype" in
+							object)
+
+								;;
+							array)
+								;;
+							esac
+						elif [ "$final_value_type" = array ]; then
+							case "$vmd_dtype" in
+							object)
+								;;
+							array)
+								;;
+							esac
+						elif [ "$final_value_type" = string ]; then
+							case "$vmd_dtype" in
+							object)
+								# TODO: test this
+								echo "Error: Cannot set string on object"
+								exit 1
+								;;
+							array)
+								echo "Error: Cannot set string on array"
+								exit 1
+								;;
+							esac
+						fi
+						current_object["$key"]="$final_value"
+					else
+						# TODO: throw error
+						echo "omicron" >&3
+						exit 1
+					fi
 				fi
 			fi
 
