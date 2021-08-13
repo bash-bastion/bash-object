@@ -46,22 +46,38 @@ load './util/init.sh'
 	assert_line -p 'Queried for object, but found array'
 }
 
-# { "stars": { "cool": "Wolf 359" } }
-@test "properly gets 4" {
+@test "correctly gets object" {
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
 	bash_object.traverse-get object 'OBJ' '.stars'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
+
+	bash_object.traverse-get string 'OBJ' '.stars.cool'
+	assert [ "$REPLY" = 'Wolf 359' ]
 }
 
-# { "stars": { "cool": "Wolf 359" } }
-@test "properly gets 5" {
-	declare -a inner_array=('Alpha Centauri A' 'Proxima Centauri')
-	declare -A OBJ=([nearby]=$'\x1C\x1Dtype=object;&inner_array')
 
-	bash_object.traverse-get object 'OBJ' '.nearby'
-	assert [ "${#REPLY[@]}" -eq 2 ]
-	assert [ "${REPLY[0]}" = 'Alpha Centauri A' ]
-	assert [ "${REPLY[1]}" = 'Proxima Centauri' ]
+@test "correctly gets object in subobject" {
+	declare -A SUB_SUB_OBJECT=([omicron]='pi')
+	declare -A SUB_OBJECT=([delta]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJ=([gamma]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+
+	bash_object.traverse-get object 'OBJ' '.gamma.delta'
+	assert [ "${REPLY[omicron]}" = pi ]
+
+	bash_object.traverse-get string 'OBJ' '.gamma.delta.omicron'
+	assert [ "$REPLY" = pi ]
+}
+
+@test "correctly gets object in subarray" {
+	declare -A SUB_SUB_OBJECT=([pi]='rho')
+	declare -a SUB_ARRAY=('foo' 'bar' $'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJ=([omicron]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	bash_object.traverse-get object 'OBJ' '.["omicron"].[2]'
+	assert [ "${REPLY[pi]}" = rho ]
+
+	bash_object.traverse-get string 'OBJ' '.["omicron"].[2].["pi"]'
+	assert [ "$REPLY" = rho ]
 }

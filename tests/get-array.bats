@@ -51,11 +51,13 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
 	bash_object.traverse-get array OBJECT '.my_key'
-
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = omicron ]
 	assert [ "${REPLY[1]}" = pi ]
 	assert [ "${REPLY[2]}" = rho ]
+
+	bash_object.traverse-get string OBJECT '.["my_key"].[2]'
+	assert [ "$REPLY" = rho ]
 }
 
 @test "correctly gets array in subobject" {
@@ -64,11 +66,13 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	bash_object.traverse-get array OBJECT '.my_key.subkey'
-
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = pi ]
 	assert [ "${REPLY[1]}" = rho ]
 	assert [ "${REPLY[2]}" = sigma ]
+
+	bash_object.traverse-get string OBJECT '.["my_key"].["subkey"].[2]'
+	assert [ "$REPLY" = sigma ]
 }
 
 @test "correctly gets array in subarray" {
@@ -77,14 +81,12 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
 	bash_object.traverse-get array OBJECT '.["my_key"].[2]'
-
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = omicron ]
 	assert [ "${REPLY[1]}" = pi ]
 	assert [ "${REPLY[2]}" = rho ]
 
 
-	bash_object.traverse-get array OBJECT '.["my_key"].[2].[0]'
-
+	bash_object.traverse-get string OBJECT '.["my_key"].[2].[0]'
 	assert [ "$REPLY" = omicron ]
 }

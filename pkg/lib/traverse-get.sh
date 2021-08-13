@@ -61,7 +61,7 @@ bash_object.traverse-get() {
 				local -n current_object="$current_object_name"
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					# TODO: test these internal invalid errors
+					# TODO: test these internal invalid errors (error when type=array references object, etc.)
 					# Do nothing (assuming the type is correct), we have already set 'current_object'
 					# for the next iteration
 					:

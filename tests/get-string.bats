@@ -48,14 +48,14 @@ load './util/init.sh'
 	assert_line -p 'Queried for string, but found array'
 }
 
-@test "properly gets string in root" {
+@test "correctly gets object at root" {
 	declare -A OBJECT=([my_key]='my_value')
 
 	bash_object.traverse-get string OBJECT '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
-@test "properly gets string in nested object" {
+@test "correctly gets object" {
 	declare -A EPSILON_OBJECT=([my_key]='my_value2')
 	declare -A OBJECT=([epsilon]=$'\x1C\x1Dtype=object;&EPSILON_OBJECT')
 
@@ -63,22 +63,27 @@ load './util/init.sh'
 	assert [ "$REPLY" = 'my_value2' ]
 }
 
-# { "stars": { "cool": "Wolf 359" } }
-@test "properly gets string in nested object 2" {
-	declare -A inner_object=([cool]='Wolf 359')
-	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
+@test "correctly gets object in subobject" {
+	declare -A obj_bravo=([charlie]=delta)
+	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
+	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
-	bash_object.traverse-get string 'OBJ' '.stars.cool'
-	assert [ "$REPLY" = 'Wolf 359' ]
+	bash_object.traverse-get object 'OBJ' '.alfa.bravo'
+	assert [ "${REPLY[charlie]}" = 'delta' ]
+
+	bash_object.traverse-get string 'OBJ' '.alfa.bravo.charlie'
+	assert [ "$REPLY" = 'delta' ]
 }
 
-# # { "alfa": { "bravo": { "charlie": { "delta": { "echo": "final_value" } } } } }
-@test "properly gets string in nested object 3" {
+@test "correctly gets object in subobject highly nested" {
 	declare -A obj_delta=([echo]="final_value")
 	declare -A obj_charlie=([delta]=$'\x1C\x1Dtype=object;&obj_delta')
 	declare -A obj_bravo=([charlie]=$'\x1C\x1Dtype=object;&obj_charlie')
 	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
 	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
+
+	bash_object.traverse-get object 'OBJ' '.alfa.bravo.charlie.delta'
+	assert [ "${REPLY[echo]}" = 'final_value' ]
 
 	bash_object.traverse-get string 'OBJ' '.alfa.bravo.charlie.delta.echo'
 	assert [ "$REPLY" = 'final_value' ]
