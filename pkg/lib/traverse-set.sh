@@ -3,7 +3,7 @@
 bash_object.traverse-set() {
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
-		stdtrace.log 0 "CALL: bash_object.traverse: $*"
+		stdtrace.log 0 "CALL: bash_object.traverse-set: $*"
 	fi
 
 	# TODO: errors if vmd_dtype, final_value_type is not one of the known ones

@@ -5,7 +5,7 @@ bash_object.traverse-get() {
 
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
-		stdtrace.log 0 "CALL: bash_object.traverse: $*"
+		stdtrace.log 0 "CALL: bash_object.traverse-get: $*"
 	fi
 
 	local final_value_type="$1"
@@ -30,24 +30,17 @@ bash_object.traverse-get() {
 
 		bash_object.trace_loop
 
-		# If 'key' is not a member of object, error
+		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
 			echo "Error: Key '$key' is not in object '$current_object_name'"
 			exit 1
-		# If 'key' is a member of object, then we check to see if it's an object, array, or string
 		else
-			local key_value="${current_object["$key"]}"
-
+		# If 'key' is a member of an object, or index of array
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				stdtrace.log 1 "key: '$key'"
-				stdtrace.log 1 "key_value: '$key_value'"
-				stdtrace.log 1 "current_object_name: '$current_object_name'"
-				stdtrace.log 1 "current_object=("
-				for debug_key in "${!current_object[@]}"; do
-					stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
-				done
-				stdtrace.log 1 ")"
+				stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
 			fi
+
+			local key_value="${current_object["$key"]}"
 
 			# If the 'key_value' is a virtual object, it starts with the byte sequence
 			# This means we will be setting either an object or an array
@@ -60,86 +53,90 @@ bash_object.traverse-get() {
 
 				local -n current_object="$current_object_name"
 
-				# If we are not on the last element of the query, then do nothing. We have
-				# already set 'current_object_name' and 'current_object', so at the next loop
-				# iteration, the just-"dereferenced" virtual object will be evaluated
 				if ((i+1 < ${#REPLIES[@]})); then
+					# Do nothing, we have already set 'current_object'
+					# for the next iteration
 					:
-				# If we are the last element, then we actually perform the get operation. Set
-				# REPLY (and go to next loop)
 				elif ((i+1 == ${#REPLIES[@]})); then
+					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
 						object)
 							REPLY=("${current_object[@]}")
 							;;
 						array)
-							printf '%s\n' "Error: 'A query for type 'object' was given, but an array was found"
-							return 1
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found array'
+							return
+							;;
+						*)
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							return
 							;;
 						esac
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							printf '%s\n' "Error: 'A query for type 'array' was given, but an object was found"
-							return 1
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found object'
+							return
 							;;
 						array)
-							# TODO: Perf: Use 'REPLY=("${current_object[@]}")'?
 							local key=
 							for key in "${!current_object[@]}"; do
 								REPLY["$key"]="${current_object["$key"]}"
 							done
 							;;
+						*)
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							return
+							;;
 						esac
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							printf '%s\n' "Error: 'A query for type 'string' was given, but an object was found"
-							return 1
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found object'
+							return
 							;;
 						array)
-							printf '%s\n' "Error: 'A query for type 'string' was given, but an array was found"
-							return 1
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found array'
+							return
 							;;
+						*)
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							return
 						esac
+					else
+						bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+						return
 					fi
 				fi
+			# Otherwise, 'key_value' is a string
 			else
-				# If we are getting a string
-
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 					stdtrace.log 2 "BLOCK: STRING"
 				fi
 
-				# If we are less than the last element in the query, and the object member has a type
-				# of 'string', throw an error. This means the user expected an object to have a key
-				# with type 'object', but the type really is 'string'
 				if ((i+1 < ${#REPLIES[@]})); then
+					# TODO
+					echo "mu" >&3
+					exit 2
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						printf '%s\n' "Error: bash-object: A query for type 'object' was given, but a string was found"
-						exit 1
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found string'
+						return
 					elif [ "$final_value_type" = array ]; then
-						printf '%s\n' "Error: bash-object: A query for type 'array' was given, but a string was found"
-						exit 1
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found string'
+						return
 					elif [ "$final_value_type" = string ]; then
 						REPLY="$value"
 					fi
 				fi
 			fi
 
+			bash_object.trace_current_object
 			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				stdtrace.log 1 "current_object_name: '$current_object_name'"
-				stdtrace.log 1 "current_object=("
-				for debug_key in "${!current_object[@]}"; do
-					stdtrace.log 1 "   [$debug_key]='${current_object["$debug_key"]}'"
-				done
-				stdtrace.log 1 ")"
-				stdtrace.log 1 "final_value: '$final_value'"
-				stdtrace.log 1 "END BLOCK 2"
+				stdtrace.log 1 "END BLOCK"
 			fi
 		fi
 	done

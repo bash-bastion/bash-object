@@ -2,36 +2,39 @@
 
 load './util/init.sh'
 
-@test "errors if final type is 'string' when expecting type 'object' 1" {
+@test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing string" {
 	declare -A OBJECT=([my_key]='string_value2')
 
 	run bash_object.traverse-get object OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "A query for type 'object' was given, but a string was found"
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found string'
 }
 
-@test "errors if final type is 'string' when expecting type 'object' 2" {
+@test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing string inside object" {
 	declare -A SUB_OBJECT=([nested]='string_value')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	run bash_object.traverse-get object OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "A query for type 'object' was given, but a string was found"
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found string'
 }
 
-@test "errors if final type is 'array' when expecting type 'object' 1" {
+@test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing array" {
 	declare -a SUB_ARRAY=(omicron pi rho)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
 	run bash_object.traverse-get object OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "A query for type 'object' was given, but an array was found"
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found array'
 }
 
-@test "errors if final type is 'array' when expecting type 'object' 2" {
+@test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing array inside object" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
@@ -39,7 +42,8 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "A query for type 'object' was given, but an array was found"
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found array'
 }
 
 # # { "stars": { "cool": "Wolf 359" } }
