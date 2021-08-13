@@ -6,7 +6,7 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([omicron]='pi')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	run bash_object.traverse get string OBJECT '.my_key'
+	run bash_object.traverse-get string OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "A query for type 'string' was given, but an object was found"
@@ -17,7 +17,7 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	run bash_object.traverse get string OBJECT '.my_key.nested'
+	run bash_object.traverse-get string OBJECT '.my_key.nested'
 
 	assert_failure
 	assert_line -p "A query for type 'string' was given, but an object was found"
@@ -27,7 +27,7 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=(omicron pi rho)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	run bash_object.traverse get string OBJECT '.my_key'
+	run bash_object.traverse-get string OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "A query for type 'string' was given, but an array was found"
@@ -38,7 +38,7 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 
-	run bash_object.traverse get string OBJECT '.my_key.nested'
+	run bash_object.traverse-get string OBJECT '.my_key.nested'
 
 	assert_failure
 	assert_line -p "A query for type 'string' was given, but an array was found"
@@ -47,7 +47,7 @@ load './util/init.sh'
 @test "properly gets string in root" {
 	declare -A OBJECT=([my_key]='my_value')
 
-	bash_object.traverse get string OBJECT '.my_key'
+	bash_object.traverse-get string OBJECT '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -55,7 +55,7 @@ load './util/init.sh'
 	declare -A EPSILON_OBJECT=([my_key]='my_value2')
 	declare -A OBJECT=([epsilon]=$'\x1C\x1Dtype=object;&EPSILON_OBJECT')
 
-	bash_object.traverse get string OBJECT '.epsilon.my_key'
+	bash_object.traverse-get string OBJECT '.epsilon.my_key'
 	assert [ "$REPLY" = 'my_value2' ]
 }
 
@@ -64,7 +64,7 @@ load './util/init.sh'
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-	bash_object.traverse get string 'OBJ' '.stars.cool'
+	bash_object.traverse-get string 'OBJ' '.stars.cool'
 	assert [ "$REPLY" = 'Wolf 359' ]
 }
 
@@ -76,6 +76,6 @@ load './util/init.sh'
 	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
 	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
-	bash_object.traverse get string 'OBJ' '.alfa.bravo.charlie.delta.echo'
+	bash_object.traverse-get string 'OBJ' '.alfa.bravo.charlie.delta.echo'
 	assert [ "$REPLY" = 'final_value' ]
 }
