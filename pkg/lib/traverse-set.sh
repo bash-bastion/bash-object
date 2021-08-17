@@ -64,6 +64,7 @@ bash_object.traverse-set() {
 
 					# 1. Create object
 					if ! eval "declare -gA $new_current_object_name=()"; then
+						# TODO: error
 						printf '%s\n' 'Error: bash-object: eval declare failed'
 						return 1
 					fi
@@ -73,7 +74,8 @@ bash_object.traverse-set() {
 
 					local -n new_current_object="$new_current_object_name"
 					local -n object_to_copy="$final_value"
-					for key in "${!new_current_object[@]}"; do
+					# test if the object_to_copy is of the right type
+					for key in "${!object_to_copy[@]}"; do
 						new_current_object["$key"]="${object_to_copy["$key"]}"
 					done
 				elif [ "$final_value_type" = array ]; then

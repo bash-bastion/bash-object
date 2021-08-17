@@ -108,6 +108,8 @@ bash_object.traverse-get() {
 							return
 							;;
 						array)
+							declare -ga REPLY=()
+							# shellcheck disable=SC2190
 							REPLY=("${current_object[@]}")
 							;;
 						*)
@@ -155,6 +157,7 @@ bash_object.traverse-get() {
 						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
+						# shellcheck disable=SC2178
 						REPLY="$value"
 					fi
 				fi

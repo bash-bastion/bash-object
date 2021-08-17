@@ -63,13 +63,20 @@ load './util/init.sh'
 	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	bash_object.traverse-set string 'OBJECT' '.omicron.pi.rho' 'sigma'
-
 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
-
-	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
-	assert [ "${REPLY[rho]}" = 'sigma' ]
 }
+
+# @test "correctly sets string in subobject 2" {
+# 	declare -A OBJECT=()
+
+# 	bash_object.traverse-set object 'OBJECT' '.omicron'
+# 	bash_object.traverse-set object 'OBJECT' '.omicron.pi'
+
+# 	bash_object.traverse-set string 'OBJECT' '.omicron.pi.rho' 'sigma'
+# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+# 	assert [ "$REPLY" = 'sigma' ]
+# }
 
 @test "correctly sets 2 strings in subobject" {
 	declare -A SUB_SUB_OBJECT=()
