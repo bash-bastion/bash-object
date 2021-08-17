@@ -92,8 +92,7 @@ bash_object.traverse-get() {
 							done
 							;;
 						array)
-							# TODO: prepend 'existing' for all (existing array)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found array'
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found existing array'
 							return
 							;;
 						*)
@@ -104,7 +103,7 @@ bash_object.traverse-get() {
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found object'
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found existing object'
 							return
 							;;
 						array)
@@ -120,11 +119,11 @@ bash_object.traverse-get() {
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found object'
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing object'
 							return
 							;;
 						array)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found array'
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing array'
 							return
 							;;
 						*)
@@ -151,10 +150,10 @@ bash_object.traverse-get() {
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found string '$value'"
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found string '$value'"
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
 						# shellcheck disable=SC2178

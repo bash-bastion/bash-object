@@ -62,4 +62,4 @@ bpm add hyperupcall/bash-object
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - add tests for array in array (like object in object)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
-- "queried for X, but found object": print object in error (same with indexed arrays)
+- "queried for X, but found existing object": print object in error (same with indexed arrays)

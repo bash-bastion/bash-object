@@ -9,7 +9,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_line -p 'Queried for object, but found string'
+	assert_line -p 'Queried for object, but found existing string'
 }
 
 @test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing string inside object" {
@@ -20,7 +20,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_line -p 'Queried for object, but found string'
+	assert_line -p 'Queried for object, but found existing string'
 }
 
 @test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing array" {
@@ -31,7 +31,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_line -p 'Queried for object, but found array'
+	assert_line -p 'Queried for object, but found existing array'
 }
 
 @test "ERROR_VALUE_INCORRECT_TYPE on get-object'ing array inside object" {
@@ -43,7 +43,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_line -p 'Queried for object, but found array'
+	assert_line -p 'Queried for object, but found existing array'
 }
 
 @test "correctly gets object" {
