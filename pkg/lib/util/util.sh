@@ -7,7 +7,7 @@ declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_INVALID_ARGS]='Invalid arguments'
 	[ERROR_INTERNAL_INVALID_VOBJ]='Internal virtual object has incorrect metadata'
 	[ERROR_INTERNAL_INVALID_PARAM]='Internal parameter has an incorrect value'
-
+	[ERROR_INTERNAL_MISCELLANEOUS]='Miscellaneous error occured'
 )
 
 bash_object.util.die() {
@@ -35,6 +35,19 @@ bash_object.util.die() {
 
 	printf '%s' "$error_output"
 	return 2
+}
+
+bash_object.util.generate_vobject_name() {
+	unset REPLY
+
+	local random_string=
+	if ((BASH_VERSINFO[0] >= 6)) || ((BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1)); then
+		random_string="${SRANDOM}_${SRANDOM}_${SRANDOM}_${SRANDOM}_${SRANDOM}"
+	else
+		random_string="${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+	fi
+
+	REPLY="__bash_object_${root_object_name}_tree_${key}_${random_string}"
 }
 
 # TODO
