@@ -50,13 +50,12 @@ assert [ "$REPLY" = rho ]
 STATUS: IN DEVELOPMENT!
 
 ```sh
-# With bpm (highly recommended)
-bpm add hyperupcall/bash-object
+echo "dependencies [ 'hyperupcall/bash-object' ]" > 'bpm.toml'
+bpm install
 ```
 
 ## TODO
 - do not auto create tree with set (or add -p flag that does so)
-- test errors on parser fail
 - workshop set-* functions
 - add support for set-object and set-array
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)

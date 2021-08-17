@@ -55,7 +55,7 @@ load './util/init.sh'
 	run bash_object.parse_filter -a '.[""'
 
 	assert_failure
-	assert_line -p "Error: bash-object: Key cannot be empty"
+	assert_line -p "Key cannot be empty"
 }
 
 @test "advanced errors on incomplete 4" {

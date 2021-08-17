@@ -65,18 +65,18 @@ bash_object.traverse-get() {
 					# case "$vmd_dtype" in
 					# object)
 					# 	if [ "$is_index_of_array" = yes ]; then
-					# 		bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
+					# 		bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
 					# 		return
 					# 	fi
 					# 	;;
 					# array)
 					# 	if [ "$is_index_of_array" = no ]; then
-					# 		bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
+					# 		bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
 					# 		return
 					# 	fi
 					# 	;;
 					# *)
-					# 	bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+					# 	bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
 					# 	return
 					# 	;;
 					# esac
@@ -92,18 +92,18 @@ bash_object.traverse-get() {
 							done
 							;;
 						array)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found existing array'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found existing array'
 							return
 							;;
 						*)
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found existing object'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found existing object'
 							return
 							;;
 						array)
@@ -112,26 +112,26 @@ bash_object.traverse-get() {
 							REPLY=("${current_object[@]}")
 							;;
 						*)
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing object'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing object'
 							return
 							;;
 						array)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing array'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing array'
 							return
 							;;
 						*)
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
 							return
 						esac
 					else
-						bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
 						return
 					fi
 				fi
@@ -150,10 +150,10 @@ bash_object.traverse-get() {
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found existing string '$value'"
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found existing string '$value'"
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
 						# shellcheck disable=SC2178

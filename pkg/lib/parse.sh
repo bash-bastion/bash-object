@@ -1,13 +1,12 @@
 # shellcheck shell=bash
 
-# TODO: Error handling
-# TODO: print column and 'mode' in error
-
 # @description Convert a user string into an array representing successive
 # object / array access
 # @exitcode 1 Miscellaneous error
 # @exitcode 2 Parsing error
 bash_object.parse_filter() {
+	declare -ga REPLIES=()
+
 	local flag_parser_type=
 
 	for arg; do
@@ -25,12 +24,10 @@ bash_object.parse_filter() {
 
 	local filter="$1"
 
-	declare -ga REPLIES=()
-
 	if [ "$flag_parser_type" = 'simple' ]; then
 		if [ "${filter::1}" != . ]; then
-			printf '%s\n' "Error: bash-object: Filter must begin with a dot"
-			return 2
+			bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter must begin with a dot'
+			return
 		fi
 
 		local old_ifs="$IFS"; IFS=.
@@ -66,16 +63,16 @@ bash_object.parse_filter() {
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					printf '%s\n' "Error: bash-object: Filter must begin with a dot"
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter must begin with a dot'
+					return
 				fi
 				;;
 			MODE_BEFORE_DOT)
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					printf '%s\n' "Error: bash-object: Each part in a filter must be deliminated by a dot"
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'Each part in a filter must be deliminated by a dot'
+					return
 				fi
 				;;
 			MODE_EXPECTING_BRACKET)
@@ -84,8 +81,8 @@ bash_object.parse_filter() {
 				elif [ "$char" = $'\n' ]; then
 					return
 				else
-					printf '%s\n' "Error: bash-object: A dot MUST be followed by an opening bracket in this mode"
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'A dot MUST be followed by an opening bracket in this mode'
+					return
 				fi
 				;;
 			MODE_EXPECTING_OPENING_STRING_OR_NUMBER)
@@ -94,8 +91,8 @@ bash_object.parse_filter() {
 				if [ "$char" = \" ]; then
 					mode='MODE_EXPECTING_STRING'
 				elif [ "$char" = ']' ]; then
-					printf '%s\n' "Error: bash-object: Key cannot be empty"
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'Key cannot be empty'
+					return
 				else
 					case "$char" in
 					0|1|2|3|4|5|6|7|8|9)
@@ -103,8 +100,8 @@ bash_object.parse_filter() {
 						mode='MODE_EXPECTING_READ_NUMBER'
 						;;
 					*)
-						printf '%s\n' "Error: bash-object: A number or opening quote must follow an open bracket"
-						return 2
+						bash_object.util.die 'ERROR_INVALID_FILTER' 'A number or opening quote must follow an open bracket'
+						return
 						;;
 					esac
 				fi
@@ -114,15 +111,15 @@ bash_object.parse_filter() {
 					mode='MODE_STRING_ESCAPE_SEQUENCE'
 				elif [ "$char" = \" ]; then
 					if [ -z "$reply" ]; then
-						printf '%s\n' "Error: bash-object: Key cannot be empty"
-						return 2
+						bash_object.util.die 'ERROR_INVALID_FILTER' 'Key cannot be empty'
+						return
 					fi
 
 					REPLIES+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				elif [ "$char" = $'\n' ]; then
-					printf '%s\n' 'Filter is not complete'
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter is not complete'
+					return
 				else
 					reply+="$char"
 				fi
@@ -133,8 +130,8 @@ bash_object.parse_filter() {
 					\") reply+=\" ;;
 					']') reply+=']' ;;
 					*)
-						printf '%s\n' "Error: bash-object: Escape sequence of '$char' not valid"
-						return 2
+						bash_object.util.die 'ERROR_INVALID_FILTER' "Escape sequence of '$char' not valid"
+						return
 						;;
 				esac
 				mode='MODE_EXPECTING_STRING'
@@ -149,8 +146,8 @@ bash_object.parse_filter() {
 						reply+="$char"
 						;;
 					*)
-						printf '%s\n' "Error: bash-object: Expecting number, found '$char'"
-						return 2
+						bash_object.util.die 'ERROR_INVALID_FILTER' "Expecting number, found '$char'"
+						return
 						;;
 					esac
 				fi
@@ -159,15 +156,15 @@ bash_object.parse_filter() {
 				if [ "$char" = ']' ]; then
 					mode='MODE_BEFORE_DOT'
 				else
-					printf '%s\n' "Error: bash-object: Expected a closing bracket after the closing quotation mark"
-					return 2
+					bash_object.util.die 'ERROR_INVALID_FILTER' 'Expected a closing bracket after the closing quotation mark'
+					return
 				fi
 				;;
 			esac
 		done <<< "$filter"
 	else
-		printf '%s\n' "bash-object: Must choose simple or advanced; no current default established"
-		return 2
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Must pass either '--simple' or '--advanced'"
+		return
 	fi
 }
 

@@ -3,29 +3,40 @@
 declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_VALUE_NOT_FOUND]='Attempted to access either a member of an object or an index of an array, but the member or index does not exist'
 	[ERROR_VALUE_INCORRECT_TYPE]='Attempted to get or set a value, but somewhere a value with a different type was expected'
+	[ERROR_INVALID_FILTER]='The supplied filter is invalid'
+	[ERROR_INVALID_ARGS]='Invalid arguments'
 	[ERROR_INTERNAL_INVALID_VOBJ]='Internal virtual object has incorrect metadata'
 	[ERROR_INTERNAL_INVALID_PARAM]='Internal parameter has an incorrect value'
+
 )
 
-bash_object.util.traverse_fail() {
+bash_object.util.die() {
 	local error_key="$1"
-	local error_context="$2"
-
-	if [ -z "$error_context" ]; then
-		error_context='<empty>'
-	fi
+	local error_context="${2:-<empty>}"
 
 	local error_message="${ERRORS_BASH_OBJECT["$error_key"]}"
 
 	local error_output=
-	printf -v error_output 'Failed to perform object operation:
+	case "$error_key" in
+	ERROR_INVALID_FILTER)
+		printf -v error_output 'Failed to perform operation:
+  -> code: %s
+  -> message: %s
+  -> context: %s
+  -> PARSER_COLUMN_NUMBER: %s' "$error_key" "$error_message" "$error_context" "$PARSER_COLUMN_NUMBER"
+		;;
+	*)
+		printf -v error_output 'Failed to parse filter:
   -> code: %s
   -> message: %s
   -> context: %s' "$error_key" "$error_message" "$error_context"
+		;;
+	esac
 
 	printf '%s' "$error_output"
 	return 2
 }
+
 # TODO
 stdtrace.log() {
     local level="$1"

@@ -88,7 +88,7 @@ bash_object.traverse-set() {
 				elif [ "$final_value_type" = string ]; then
 					current_object["$key"]="$final_value"
 				else
-					bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+					bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
 					return
 				fi
 			fi
@@ -114,15 +114,15 @@ bash_object.traverse-set() {
 				elif ((i+1 == ${#REPLIES[@]})); then
 					case "$vmd_dtype" in
 						object)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
 							return
 							;;
 						array)
-							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
 							return
 							;;
 						*)
-							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
 							return
 							;;
 					esac
