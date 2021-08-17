@@ -40,6 +40,9 @@ bash_object.util.die() {
 bash_object.util.generate_vobject_name() {
 	unset REPLY
 
+	local root_object_name="$1"
+	local root_object_query="$2"
+
 	local random_string=
 	if ((BASH_VERSINFO[0] >= 6)) || ((BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1)); then
 		random_string="${SRANDOM}_${SRANDOM}_${SRANDOM}_${SRANDOM}_${SRANDOM}"
@@ -47,21 +50,21 @@ bash_object.util.generate_vobject_name() {
 		random_string="${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
 	fi
 
-	REPLY="__bash_object_${root_object_name}_tree_${key}_${random_string}"
+	REPLY="__bash_object_${root_object_name}_${root_object_query}_${random_string}"
 }
 
 # TODO
 stdtrace.log() {
-    local level="$1"
-    local message="$2"
+	local level="$1"
+	local message="$2"
 
-    local padding=
-    case "$level" in
-        0) padding= ;;
-        1) padding="  " ;;
-        2) padding="    " ;;
-        3) padding="      " ;;
-    esac
+	local padding=
+	case "$level" in
+		0) padding= ;;
+		1) padding="  " ;;
+		2) padding="    " ;;
+		3) padding="      " ;;
+	esac
 
-    printf '%s\n' "TRACE $level: $padding| $message" >&3
+	printf '%s\n' "TRACE $level: $padding| $message" >&3
 }
