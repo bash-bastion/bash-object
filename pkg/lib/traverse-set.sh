@@ -31,70 +31,110 @@ bash_object.traverse-set() {
 
 		bash_object.trace_loop
 
-		# If 'key' is not a member of object, create the object, and set it
+		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
-			# If we are before the last element in the query, then set
+			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-				# The variable is 'new_current_object_name', but it also could
-				# be the name of a new _array_
-				local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+				echo "could not traverse property does not exist"
+				return 2
+			# 	# The variable is 'new_current_object_name', but it also could
+			# 	# be the name of a new _array_
+			# 	local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
 
-				# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
-				if ! eval "declare -gA $new_current_object_name=()"; then
-					printf '%s\n' 'Error: bash-object: eval declare failed'
-					return 1
-				fi
+			# 	# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
+			# 	if ! eval "declare -gA $new_current_object_name=()"; then
+			# 		printf '%s\n' 'Error: bash-object: eval declare failed'
+			# 		return 1
+			# 	fi
 
-				current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
+			# 	current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
 
-				current_object_name="$new_current_object_name"
-				# shellcheck disable=SC2178
-				local -n current_object="$new_current_object_name"
+			# 	current_object_name="$new_current_object_name"
+			# 	# shellcheck disable=SC2178
+			# 	local -n current_object="$new_current_object_name"
 			# If we are at the last element in the query
 			elif ((i+1 == ${#REPLIES[@]})); then
-				# TODO: object, arrays
-				current_object["$key"]="$final_value"
+				if [ "$final_value_type" = object ]; then
+					# TODO: late bash srandom
+					local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+
+					# TODO: test if name is already used
+
+					# TODO: double-check if new_current_object_name only has underscores, dots, etc. (printf %q?)
+
+					# 1. Create object
+					if ! eval "declare -gA $new_current_object_name=()"; then
+						printf '%s\n' 'Error: bash-object: eval declare failed'
+						return 1
+					fi
+
+					# 2. Create virtual object
+					current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
+
+					local -n new_current_object="$new_current_object_name"
+					local -n object_to_copy="$final_value"
+					for key in "${!new_current_object[@]}"; do
+						new_current_object["$key"]="${object_to_copy["$key"]}"
+					done
+				elif [ "$final_value_type" = array ]; then
+					# local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
+					# current_object["$key"]=$'\x1C\x1D'"type=array;&$new_current_object_name"
+
+					# local -n new_array = "$final_value"
+					:
+					# current_object["$key"]=("${new_array[@]}")
+				elif [ "$final_value_type" = string ]; then
+					current_object["$key"]="$final_value"
+				else
+					bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+					return
+				fi
 			fi
-		# If 'key' is already a member of object, use it if it's a virtual object. If
-		# it's not a virtual object, then a throw an error
+		# If 'key' is already a member of object or index of array
 		else
-			if ((i+1 < ${#REPLIES[@]})); then
-				local key_value="${current_object["$key"]}"
+			local key_value="${current_object["$key"]}"
 
-				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-					virtual_item="${key_value#??}"
+			# If 'key_value' is a virtual object, dereference it
+			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
+				fi
 
-					bash_object.parse_virtual_object "$virtual_item"
-					local current_object_name="$REPLY1"
-					local vmd_dtype="$REPLY2"
+				virtual_item="${key_value#??}"
+				bash_object.parse_virtual_object "$virtual_item"
+				local current_object_name="$REPLY1"
+				local vmd_dtype="$REPLY2"
+				local -n current_object="$current_object_name"
 
-					local -n current_object="$current_object_name"
-
-					# Get the next value (number, string), and construct the next
-					# element accordingly
+				if ((i+1 < ${#REPLIES[@]})); then
+					# TODO: test these internal invalid errors (error when type=array references object, etc.)?
+					:
+				elif ((i+1 == ${#REPLIES[@]})); then
 					case "$vmd_dtype" in
 						object)
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
+							return
 							;;
-						array) ;;
+						array)
+							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
+							return
+							;;
+						*)
+							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							return
+							;;
 					esac
-				else
-					# TODO: throw error
-					echo "phi" >&3
-					# return 1
 				fi
-				:
-			elif ((i+1 == ${#REPLIES[@]})); then
-				local key_value="${current_object["$key"]}"
+			# Otherwise, 'key_value' is a string
+			else
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 2 "BLOCK: STRING"
+				fi
 
-				if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-					virtual_item="${key_value#??}"
-
-					bash_object.parse_virtual_object "$virtual_item"
-					local current_object_name="$REPLY1"
-					local vmd_dtype="$REPLY2"
-
-					local -n current_object="$current_object_name"
-
+				if ((i+1 < ${#REPLIES[@]})); then
+					echo "omicron" >&3
+					:
+				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
 						object)
@@ -124,22 +164,13 @@ bash_object.traverse-set() {
 						esac
 					fi
 					current_object["$key"]="$final_value"
-				else
-					# TODO: throw error
-					echo "omicron" >&3
-					return 1
 				fi
 			fi
 		fi
 
+		bash_object.trace_current_object
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			stdtrace.log 1 'AFTER OPERATION'
-			stdtrace.log 1 "current_object_name: '$current_object_name'"
-			stdtrace.log 1 "current_object=("
-			for debug_key in "${!current_object[@]}"; do
-				stdtrace.log 1 "  [$debug_key]='${current_object["$debug_key"]}'"
-			done
-			stdtrace.log 1 ")"
+			stdtrace.log 0 "END BLOCK"
 		fi
 	done
 }

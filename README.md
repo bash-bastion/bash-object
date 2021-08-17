@@ -53,3 +53,13 @@ STATUS: IN DEVELOPMENT!
 # With bpm (highly recommended)
 bpm add hyperupcall/bash-object
 ```
+
+## TODO
+- do not auto create tree with set (or add -p flag that does so)
+- test errors on parser fail
+- workshop set-* functions
+- add support for set-object and set-array
+- error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
+- add tests for array in array (like object in object)
+- ensure error (for set primarily) if the virtual object references a variable that does not exist
+- "queried for X, but found object": print object in error (same with indexed arrays)

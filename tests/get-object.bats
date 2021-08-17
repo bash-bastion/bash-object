@@ -70,6 +70,26 @@ load './util/init.sh'
 	assert [ "$REPLY" = pi ]
 }
 
+@test "correctly gets multi-key object in subobject" {
+	declare -A SUB_SUB_OBJECT=([omicron]=pi [rho]=sigma [tau]=upsilon)
+	declare -A SUB_OBJECT=([delta]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJ=([gamma]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+
+	bash_object.traverse-get object 'OBJ' '.gamma.delta'
+	assert [ "${REPLY[omicron]}" = pi ]
+	assert [ "${REPLY[rho]}" = sigma ]
+	assert [ "${REPLY[tau]}" = upsilon ]
+
+	bash_object.traverse-get string 'OBJ' '.gamma.delta.omicron'
+	assert [ "$REPLY" = pi ]
+
+	bash_object.traverse-get string 'OBJ' '.gamma.delta.rho'
+	assert [ "$REPLY" = sigma ]
+
+	bash_object.traverse-get string 'OBJ' '.gamma.delta.tau'
+	assert [ "$REPLY" = upsilon ]
+}
+
 @test "correctly gets object in subarray" {
 	declare -A SUB_SUB_OBJECT=([pi]='rho')
 	declare -a SUB_ARRAY=('foo' 'bar' $'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')

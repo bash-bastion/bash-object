@@ -41,23 +41,20 @@ bash_object.traverse-get() {
 		if [ -z "${current_object["$key"]+x}" ]; then
 			echo "Error: Key '$key' is not in object '$current_object_name'"
 			return 1
+		# If 'key' is a member of an object or index of array
 		else
-		# If 'key' is a member of an object, or index of array
-			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
-			fi
-
 			local key_value="${current_object["$key"]}"
 
-			# If the 'key_value' is a virtual object, it starts with the byte sequence
-			# This means we will be setting either an object or an array
+			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
-				virtual_item="${key_value#??}"
+				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+					stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
+				fi
 
+				virtual_item="${key_value#??}"
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
 				local vmd_dtype="$REPLY2"
-
 				local -n current_object="$current_object_name"
 
 				if ((i+1 < ${#REPLIES[@]})); then
@@ -88,9 +85,14 @@ bash_object.traverse-get() {
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
 						object)
-							REPLY=("${current_object[@]}")
+							declare -gA REPLY=()
+							local key=
+							for key in "${!current_object[@]}"; do
+								REPLY["$key"]="${current_object["$key"]}"
+							done
 							;;
 						array)
+							# TODO: prepend 'existing' for all (existing array)
 							bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found array'
 							return
 							;;
@@ -106,11 +108,7 @@ bash_object.traverse-get() {
 							return
 							;;
 						array)
-							declare -ga REPLY=()
-							local key=
-							for key in "${!current_object[@]}"; do
-								REPLY["$key"]="${current_object["$key"]}"
-							done
+							REPLY=("${current_object[@]}")
 							;;
 						*)
 							bash_object.util.traverse_fail 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
@@ -143,28 +141,29 @@ bash_object.traverse-get() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
+					# Means the query is one level deeper than expected. Expected
+					# object/array, but got string
 					# TODO
-					echo "mu" >&3
-					# return 2
-					:
+					echo "mu '$key_value'" >&3
+					return 2
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found string'
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found string '$value'"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found string'
+						bash_object.util.traverse_fail 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
 						REPLY="$value"
 					fi
 				fi
 			fi
+		fi
 
-			bash_object.trace_current_object
-			if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-				stdtrace.log 0 "END BLOCK"
-			fi
+		bash_object.trace_current_object
+		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
+			stdtrace.log 0 "END BLOCK"
 		fi
 	done
 }
