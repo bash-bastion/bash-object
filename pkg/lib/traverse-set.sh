@@ -11,9 +11,10 @@ bash_object.traverse-set() {
 	local filter="$3"
 	local final_value="$4"
 
-	# TODO: test this
-	if bash_object.ensure.variable_does_exist "$final_value"; then :; else
-		return
+	# TODO: test, old versions of bash
+	if [[ ! -v 4 ]]; then
+			bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' "final_value is empty"
+			return
 	fi
 
 	# Start traversing at the root object
@@ -57,6 +58,11 @@ bash_object.traverse-set() {
 			# If we are at the last element in the query
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
+					# TODO: test this
+					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
+						return
+					fi
+
 					local oldIFS="$IFS"
 					IFS='_'
 					local filter_stack_string="${filter_stack[*]}"
@@ -90,6 +96,11 @@ bash_object.traverse-set() {
 						globel_object["$key"]="${object_to_copy_from["$key"]}"
 					done
 				elif [ "$final_value_type" = array ]; then
+					# TODO: test this
+					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
+						return
+					fi
+
 					local oldIFS="$IFS"
 					IFS='_'
 					local filter_stack_string="${filter_stack[*]}"
