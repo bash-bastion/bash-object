@@ -26,12 +26,16 @@ bash_object.traverse-get() {
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
-		local is_index_of_array='no'
-
 		filter_stack+=("$key")
+
+		local oldIFS="$IFS"
+		IFS='_'
+		local filter_stack_string="${filter_stack[*]}"
+		IFS="$oldIFS"
 
 		bash_object.trace_loop
 
+		local is_index_of_array='no'
 		if [ "${key::1}" = $'\x1C' ]; then
 			key="${key#?}"
 			is_index_of_array='yes'
@@ -39,8 +43,8 @@ bash_object.traverse-get() {
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
-			echo "Error: Key '$key' is not in object '$current_object_name'"
-			return 1
+			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
+			return
 		# If 'key' is a member of an object or index of array
 		else
 			local key_value="${current_object["$key"]}"

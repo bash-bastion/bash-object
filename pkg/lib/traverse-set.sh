@@ -33,28 +33,19 @@ bash_object.traverse-set() {
 		local key="${REPLIES[$i]}"
 		filter_stack+=("$key")
 
+		local oldIFS="$IFS"
+		IFS='_'
+		local filter_stack_string="${filter_stack[*]}"
+		IFS="$oldIFS"
+
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-				echo "could not traverse property does not exist"
-				return 2
-			# 	# The variable is 'new_current_object_name', but it also could
-			# 	# be the name of a new _array_
-			# 	local new_current_object_name="__bash_object_${root_object_name}_tree_${key}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
-
-			# 	if ! eval "declare -gA $new_current_object_name=()"; then
-			# 		printf '%s\n' 'Error: bash-object: eval declare failed'
-			# 		return 1
-			# 	fi
-
-			# 	current_object["$key"]=$'\x1C\x1D'"type=object;&$new_current_object_name"
-
-			# 	current_object_name="$new_current_object_name"
-			# 	# shellcheck disable=SC2178
-			# 	local -n current_object="$new_current_object_name"
+					bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
+					return
 			# If we are at the last element in the query
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
@@ -62,11 +53,6 @@ bash_object.traverse-set() {
 					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
 						return
 					fi
-
-					local oldIFS="$IFS"
-					IFS='_'
-					local filter_stack_string="${filter_stack[*]}"
-					IFS="$oldIFS"
 
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_object_name="$REPLY"
@@ -100,11 +86,6 @@ bash_object.traverse-set() {
 					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
 						return
 					fi
-
-					local oldIFS="$IFS"
-					IFS='_'
-					local filter_stack_string="${filter_stack[*]}"
-					IFS="$oldIFS"
 
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_array_name="$REPLY"

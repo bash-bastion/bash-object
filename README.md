@@ -50,14 +50,11 @@ assert [ "$REPLY" = rho ]
 STATUS: IN DEVELOPMENT!
 
 ```sh
-echo "dependencies [ 'hyperupcall/bash-object' ]" > 'bpm.toml'
+echo "dependencies = [ 'hyperupcall/bash-object' ]" > 'bpm.toml'
 bpm install
 ```
 
 ## TODO
-- do not auto create tree with set (or add -p flag that does so)
-- workshop set-* functions
-- add support for set-object and set-array
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - add tests for array in array (like object in object)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
