@@ -51,7 +51,7 @@ bash_object.traverse-set() {
 				if [ "$final_value_type" = object ]; then
 					# TODO: test this
 					# shellcheck disable=SC1087
-					if bash_object.ensure.variable_does_exist "$final_value[@]"; then :; else
+					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
 						return
 					fi
 
@@ -85,7 +85,7 @@ bash_object.traverse-set() {
 				elif [ "$final_value_type" = array ]; then
 					# TODO: test this
 					# shellcheck disable=SC1087
-					if bash_object.ensure.variable_does_exist "$final_value[@]"; then :; else
+					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
 						return
 					fi
 
