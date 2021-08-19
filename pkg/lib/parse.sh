@@ -9,18 +9,14 @@ bash_object.parse_filter() {
 
 	local flag_parser_type=
 
-	for arg; do
-		case "$arg" in
-		-s|--simple)
-			flag_parser_type='simple'
-			shift
-			;;
-		-a|--advanced)
-			flag_parser_type='advanced'
-			shift
-			;;
-		esac
-	done
+	for arg; do case "$arg" in
+	-s|--simple)
+		flag_parser_type='simple'
+		shift ;;
+	-a|--advanced)
+		flag_parser_type='advanced'
+		shift ;;
+	esac done
 
 	local filter="$1"
 

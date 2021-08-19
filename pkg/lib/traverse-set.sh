@@ -11,10 +11,70 @@ bash_object.traverse-set() {
 	local filter="$3"
 	local final_value="$4"
 
-	# TODO: test, old versions of bash
-	if [[ ! -v 4 ]]; then
-			bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' "final_value is empty"
+	if (( $# != 4)); then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Incorrect arguments for subcommand 'set-$final_value_type'"
+		return
+	fi
+
+	# TODO test
+	# Ensure parameters are not empty
+	local variable=
+	for variable_name in final_value_type root_object_name filter; do
+		local -n variable="$variable_name"
+
+		if [ -z "$variable" ]; then
+			bash_object.util.die 'ERROR_INVALID_ARGS' "Variable '$variable' is empty. Please check passed parameters"
 			return
+		fi
+	done
+
+	if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
+		# TODO: test
+		# Check 'root_object_name'
+		local root_object_type=
+		if root_object_type="$(declare -p "$root_object_name" 2>/dev/null)"; then :; else
+			bash_object.util.die 'ERROR_INVALID_ARGS' "The final value of '$root_object_name' does not exist"
+			return
+		fi
+		root_object_type="${root_object_type#declare -}"
+		if [ "${root_object_type::1}" != 'A' ]; then
+			bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The root object must have a type of 'object'"
+			return
+		fi
+
+		# TODO: test
+		# Check 'final_value' for type correctness
+		if [ "$final_value_type" != string ]; then
+			local actual_final_value_type=
+			if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
+				bash_object.util.die 'ERROR_INVALID_ARGS' "The final value of '$final_value' does not exist"
+				return
+			fi
+			actual_final_value_type="${actual_final_value_type#declare -}"
+			case "${actual_final_value_type::1}" in
+				A) actual_final_value_type='object' ;;
+				a) actual_final_value_type='array' ;;
+				i) actual_final_value_type='integer' ;;
+				-) actual_final_value_type='string' ;;
+				*) actual_final_value_type='unknown' ;;
+			esac
+
+			if [ "$final_value_type" == object ]; then
+				if [ "$actual_final_value_type" != object ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The type of the final value was expected to be '$final_value_type', but was actually '$actual_final_value_type'"
+					return
+				fi
+			elif [ "$final_value_type" == array ]; then
+				if [ "$actual_final_value_type" != array ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The type of the final value was expected to be '$final_value_type', but was actually '$actual_final_value_type'"
+					return
+				fi
+			else
+				# case 'string' is handled above
+				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type   $actual_final_value_type'"
+				return
+			fi
+		fi
 	fi
 
 	# Start traversing at the root object
@@ -117,7 +177,7 @@ bash_object.traverse-set() {
 				elif [ "$final_value_type" = string ]; then
 					current_object["$key"]="$final_value"
 				else
-					bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+					bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 					return
 				fi
 			fi
@@ -151,7 +211,7 @@ bash_object.traverse-set() {
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 					esac
@@ -163,37 +223,11 @@ bash_object.traverse-set() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					echo "omicron" >&3
+					# TODO error message
+					bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Encountered string using accessor '$key', but expected to find either an object or array, in accordance with the filter"
+					return
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
-					if [ "$final_value_type" = object ]; then
-						case "$vmd_dtype" in
-						object)
-
-							;;
-						array)
-							;;
-						esac
-					elif [ "$final_value_type" = array ]; then
-						case "$vmd_dtype" in
-						object)
-							;;
-						array)
-							;;
-						esac
-					elif [ "$final_value_type" = string ]; then
-						case "$vmd_dtype" in
-						object)
-							# TODO: test this
-							echo "Error: Cannot set string on object"
-							return 1
-							;;
-						array)
-							echo "Error: Cannot set string on array"
-							return 1
-							;;
-						esac
-					fi
 					current_object["$key"]="$final_value"
 				fi
 			fi

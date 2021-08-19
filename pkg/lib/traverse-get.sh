@@ -12,6 +12,11 @@ bash_object.traverse-get() {
 	local root_object_name="$2"
 	local filter="$3"
 
+	if (( $# != 3)); then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Incorrect arguments for subcommand 'get-$final_value_type'"
+		return
+	fi
+
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
 	local -n current_object="$root_object_name"
@@ -81,7 +86,7 @@ bash_object.traverse-get() {
 					# 	fi
 					# 	;;
 					# *)
-					# 	bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+					# 	bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
 					# 	return
 					# 	;;
 					# esac
@@ -101,7 +106,7 @@ bash_object.traverse-get() {
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
@@ -117,7 +122,7 @@ bash_object.traverse-get() {
 							REPLY=("${current_object[@]}")
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
@@ -132,11 +137,11 @@ bash_object.traverse-get() {
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "vmd_dtype: $vmd_dtype"
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 						esac
 					else
-						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "final_value_type: $final_value_type"
+						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 						return
 					fi
 				fi

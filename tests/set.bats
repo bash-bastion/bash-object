@@ -3,6 +3,7 @@
 load './util/init.sh'
 
 @test "Error if random variable already exists" {
+	declare -A OBJECT=()
 	declare -A objj=()
 
 	bash_object.util.generate_vobject_name() {

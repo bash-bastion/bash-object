@@ -1,37 +1,39 @@
 # shellcheck shell=bash
 
+# shellcheck disable=SC2192
 declare -gA ERRORS_BASH_OBJECT=(
-	[ERROR_VALUE_NOT_FOUND]='Attempted to access either a member of an object or an index of an array, but the member or index does not exist'
-	[ERROR_VALUE_INCORRECT_TYPE]='Attempted to get or set a value, but somewhere a value with a different type was expected'
-	[ERROR_INVALID_FILTER]='The supplied filter is invalid'
-	[ERROR_INVALID_ARGS]='Invalid arguments'
-	[ERROR_INTERNAL_INVALID_VOBJ]='Internal virtual object has incorrect metadata'
-	[ERROR_INTERNAL_INVALID_PARAM]='Internal parameter has an incorrect value'
-	[ERROR_INTERNAL_MISCELLANEOUS]='Miscellaneous error occured'
+	[ERROR_VALUE_NOT_FOUND]=
+	[ERROR_VALUE_INCORRECT_TYPE]=
+	[ERROR_INVALID_FILTER]=
+	[ERROR_INVALID_ARGS]=
+	[ERROR_INTERNAL_INVALID_VOBJ]=
+	[ERROR_INTERNAL_INVALID_PARAM]=
+	[ERROR_INTERNAL_MISCELLANEOUS]=
 )
 
 bash_object.util.die() {
 	local error_key="$1"
 	local error_context="${2:-<empty>}"
 
-	local error_message="${ERRORS_BASH_OBJECT["$error_key"]}"
+	# TODO: test
+	# if [[ ! -v 'ERRORS_BASH_OBJECT["$error_key"]' ]]; then
+	# 	return 77
+	# fi
 
 	local error_output=
 	case "$error_key" in
 	ERROR_INVALID_FILTER)
 		printf -v error_output 'Failed to parse filter:
   -> code: %s
-  -> message: %s
   -> context: %s
   -> PARSER_COLUMN_NUMBER: %s
-' "$error_key" "$error_message" "$error_context" "$PARSER_COLUMN_NUMBER"
+' "$error_key" "$error_context" "$PARSER_COLUMN_NUMBER"
 		;;
 	*)
 		printf -v error_output 'Failed to perform operation:
   -> code: %s
-  -> message: %s
   -> context: %s
-' "$error_key" "$error_message" "$error_context"
+' "$error_key" "$error_context"
 		;;
 	esac
 
