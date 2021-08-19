@@ -28,6 +28,7 @@ bash_object.traverse-get() {
 		local key="${REPLIES[$i]}"
 		filter_stack+=("$key")
 
+		# TODO: redo filter_stack string, and use stdlib.arrayprint TODO
 		local oldIFS="$IFS"
 		IFS='_'
 		local filter_stack_string="${filter_stack[*]}"
@@ -150,7 +151,7 @@ bash_object.traverse-get() {
 					# object/array, but got string
 					# TODO
 					echo "mu '$key_value'" >&3
-					return 2
+					# return 2
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then

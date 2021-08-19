@@ -6,9 +6,9 @@ load './util/init.sh'
 	local subcmds=(get-string get-array get-object)
 
 	for subcmd in "${subcmds[@]}"; do
-		declare -A OBJ=()
+		declare -A OBJECT=()
 
-		run bobject "$subcmd" 'OBJ' '.zulu.yankee' 'invalid'
+		run bobject "$subcmd" 'OBJECT' '.zulu.yankee' 'invalid'
 
 		assert_failure
 		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
@@ -19,7 +19,7 @@ load './util/init.sh'
 	local subcmds=(get-string get-array get-object)
 
 	for subcmd in "${subcmds[@]}"; do
-		declare -A OBJ=()
+		declare -A OBJECT=()
 
 		run bobject "$subcmd" 'invalid'
 
@@ -32,9 +32,9 @@ load './util/init.sh'
 	local subcmds=(set-string set-array set-object)
 
 	for subcmd in "${subcmds[@]}"; do
-		declare -A OBJ=()
+		declare -A OBJECT=()
 
-		run bobject "$subcmd" 'OBJ' '.zulu.yankee' 'xray' 'invalid'
+		run bobject "$subcmd" 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
 
 		assert_failure
 		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
@@ -45,9 +45,9 @@ load './util/init.sh'
 	local subcmds=(set-string set-array set-object)
 
 	for subcmd in "${subcmds[@]}"; do
-		declare -A OBJ=()
+		declare -A OBJECT=()
 
-		run bobject "$subcmd" 'OBJ' '.zulu'
+		run bobject "$subcmd" 'OBJECT' '.zulu'
 
 		assert_failure
 		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
@@ -55,25 +55,29 @@ load './util/init.sh'
 }
 
 @test "get-string simple parser" {
-	declare -A OBJ=()
+	declare -A OBJECT=()
+	declare -A subobj=()
 
-	bobject set-string 'OBJ' '.zulu.yankee' 'MEOW'
-	bobject get-string 'OBJ' '.zulu.yankee'
+	bobject set-object 'OBJECT' '.zulu' subobj
+	bobject set-string 'OBJECT' '.zulu.yankee' 'MEOW'
+	bobject get-string 'OBJECT' '.zulu.yankee'
 
 	assert [ "$REPLY" = 'MEOW' ]
 }
 
 @test "get-string advanced parser" {
-	declare -A OBJ=()
+	declare -A OBJECT=()
+	declare -A subobj=()
 
-	bobject set-string 'OBJ' '.["zulu"].["yankee"]' 'MEOW'
-	bobject get-string 'OBJ' '.["zulu"].["yankee"]'
+	bobject set-object 'OBJECT' '.zulu' subobj
+	bobject set-string 'OBJECT' '.["zulu"].["yankee"]' 'MEOW'
+	bobject get-string 'OBJECT' '.["zulu"].["yankee"]'
 
 	assert [ "$REPLY" = 'MEOW' ]
 }
 
 @test "readme code works" {
-	declare -A root_object=()
+	declare -A root_object=([zulu=])
 	declare -A zulu_object=([yankee]=)
 	declare -A yankee_object=([xray]=)
 	declare -A xray_object=([whiskey]=victor [foxtrot]=)
