@@ -19,17 +19,19 @@ bash_object.util.die() {
 	local error_output=
 	case "$error_key" in
 	ERROR_INVALID_FILTER)
+		printf -v error_output 'Failed to parse filter:
+  -> code: %s
+  -> message: %s
+  -> context: %s
+  -> PARSER_COLUMN_NUMBER: %s
+' "$error_key" "$error_message" "$error_context" "$PARSER_COLUMN_NUMBER"
+		;;
+	*)
 		printf -v error_output 'Failed to perform operation:
   -> code: %s
   -> message: %s
   -> context: %s
-  -> PARSER_COLUMN_NUMBER: %s' "$error_key" "$error_message" "$error_context" "$PARSER_COLUMN_NUMBER"
-		;;
-	*)
-		printf -v error_output 'Failed to parse filter:
-  -> code: %s
-  -> message: %s
-  -> context: %s' "$error_key" "$error_message" "$error_context"
+' "$error_key" "$error_message" "$error_context"
 		;;
 	esac
 

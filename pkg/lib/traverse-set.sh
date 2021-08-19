@@ -44,13 +44,14 @@ bash_object.traverse-set() {
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-					bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
-					return
+				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
+				return
 			# If we are at the last element in the query
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
 					# TODO: test this
-					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
+					# shellcheck disable=SC1087
+					if bash_object.ensure.variable_does_exist "$final_value[@]"; then :; else
 						return
 					fi
 
@@ -83,7 +84,8 @@ bash_object.traverse-set() {
 					done
 				elif [ "$final_value_type" = array ]; then
 					# TODO: test this
-					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
+					# shellcheck disable=SC1087
+					if bash_object.ensure.variable_does_exist "$final_value[@]"; then :; else
 						return
 					fi
 
