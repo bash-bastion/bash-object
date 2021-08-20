@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 # @brief Ensures errors are thrown when the type of vobject does not match up with the actual object that it references
+# TODO
 
 load './util/init.sh'
 

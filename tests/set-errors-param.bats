@@ -22,7 +22,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 2" {
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT'
+	run bobject set-string --pass-by-ref 'OBJECT'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -30,7 +30,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 3" {
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj'
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -38,7 +38,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 5" {
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj extraneous
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj extraneous
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -46,7 +46,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 1 (--pass-by-value, string)" {
-	run bash_object.traverse-set --pass-by-value string
+	run bobject set-string --pass-by-value
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -54,7 +54,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 2 (--pass-by-value, string)" {
-	run bash_object.traverse-set --pass-by-value string 'OBJECT'
+	run bobject set-string --pass-by-value 'OBJECT'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -62,7 +62,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 3 (--pass-by-value, string)" {
-	run bash_object.traverse-set --pass-by-value string 'OBJECT' '.obj'
+	run bobject set-string --pass-by-value 'OBJECT' '.obj'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -70,23 +70,16 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 5 (--pass-by-value, string)" {
-	run bash_object.traverse-set --pass-by-value string 'OBJECT' '.obj' obj extraneous
+	run bobject set-string --pass-by-value 'OBJECT' '.obj' obj extraneous
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p ", but received '5'"
 }
 
-@test "Error on empty \$1" {
-	run bash_object.traverse-set --pass-by-ref "" 'OBJECT' '.obj' obj
-
-	assert_failure
-	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "'1' is empty"
-}
 
 @test "Error on empty \$2" {
-	run bash_object.traverse-set --pass-by-ref string "" '.obj' obj
+	run bobject set-string --pass-by-ref "" '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -94,7 +87,7 @@ load './util/init.sh'
 }
 
 @test "Error on empty \$3" {
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' "" obj
+	run bobject set-string --pass-by-ref 'OBJECT' "" obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -102,7 +95,7 @@ load './util/init.sh'
 }
 
 @test "Error on empty \$4" {
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' ""
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' ""
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -110,7 +103,7 @@ load './util/init.sh'
 }
 
 @test "Do not error on empty \$4 on --pass-by-value" {
-	run bash_object.traverse-set --pass-by-value string 'OBJECT' '.obj' ""
+	run bobject set-string --pass-by-value 'OBJECT' '.obj' ""
 
 	assert_success
 }
@@ -118,7 +111,7 @@ load './util/init.sh'
 @test "Error if root object does not exist" {
 	export VERIFY_BASH_OBJECT=
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_NOT_FOUND"
@@ -129,7 +122,7 @@ load './util/init.sh'
 	export VERIFY_BASH_OBJECT=
 	declare -a OBJECT=()
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -140,7 +133,7 @@ load './util/init.sh'
 	export VERIFY_BASH_OBJECT=
 	declare OBJECT=
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -151,7 +144,7 @@ load './util/init.sh'
 	export VERIFY_BASH_OBJECT=
 	OBJECT=
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -163,7 +156,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	unset str
 
-	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' str
+	run bobject set-object --pass-by-ref 'OBJECT' '.obj' str
 
 	assert_failure
 	assert_line -p "ERROR_NOT_FOUND"
@@ -175,7 +168,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -a obj=()
 
-	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' obj
+	run bobject set-object --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -187,7 +180,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare obj=
 
-	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' obj
+	run bobject set-object --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -199,7 +192,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -i obj=
 
-	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' obj
+	run bobject set-object --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -211,7 +204,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	unset str
 
-	run bash_object.traverse-set --pass-by-ref array 'OBJECT' '.obj' str
+	run bobject set-array --pass-by-ref 'OBJECT' '.obj' str
 
 	assert_failure
 	assert_line -p "ERROR_NOT_FOUND"
@@ -223,7 +216,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -A obj=()
 
-	run bash_object.traverse-set --pass-by-ref array 'OBJECT' '.obj' obj
+	run bobject set-array --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -235,7 +228,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare obj=
 
-	run bash_object.traverse-set --pass-by-ref array 'OBJECT' '.obj' obj
+	run bobject set-array --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -247,7 +240,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -i obj=
 
-	run bash_object.traverse-set --pass-by-ref array 'OBJECT' '.obj' obj
+	run bobject set-array --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -259,7 +252,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	unset str
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' str
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' str
 
 	assert_failure
 	assert_line -p "ERROR_NOT_FOUND"
@@ -271,7 +264,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -A obj=()
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -283,7 +276,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -a obj=()
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -295,7 +288,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -i obj=
 
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-ref 'OBJECT' '.obj' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID_TYPE"
@@ -309,7 +302,7 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	declare -a obj=()
 
-	run bash_object.traverse-set --pass-by-value string 'OBJECT' '.obj' obj
+	run bobject set-string --pass-by-value 'OBJECT' '.obj' obj
 
 	assert_success
 }
