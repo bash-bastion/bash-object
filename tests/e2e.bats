@@ -57,9 +57,10 @@ load './util/init.sh'
 @test "get-string simple parser" {
 	declare -A OBJECT=()
 	declare -A subobj=()
+	str='MEOW'
 
 	bobject set-object 'OBJECT' '.zulu' subobj
-	bobject set-string 'OBJECT' '.zulu.yankee' 'MEOW'
+	bobject set-string 'OBJECT' '.zulu.yankee' str
 	bobject get-string 'OBJECT' '.zulu.yankee'
 
 	assert [ "$REPLY" = 'MEOW' ]
@@ -68,9 +69,10 @@ load './util/init.sh'
 @test "get-string advanced parser" {
 	declare -A OBJECT=()
 	declare -A subobj=()
+	str='MEOW'
 
 	bobject set-object 'OBJECT' '.zulu' subobj
-	bobject set-string 'OBJECT' '.["zulu"].["yankee"]' 'MEOW'
+	bobject set-string 'OBJECT' '.["zulu"].["yankee"]' str
 	bobject get-string 'OBJECT' '.["zulu"].["yankee"]'
 
 	assert [ "$REPLY" = 'MEOW' ]

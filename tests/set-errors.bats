@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 load './util/init.sh'
 
-@test "ERROR_INVALID_ARGS with \$# of 1" {
+@test "Error with \$# of 1" {
 	run bash_object.traverse-set string
 
 	assert_failure
@@ -9,7 +9,7 @@ load './util/init.sh'
 	assert_line -p ", but received '1'"
 }
 
-@test "ERROR_INVALID_ARGS with \$# of 2" {
+@test "Error with \$# of 2" {
 	run bash_object.traverse-set string 'OBJECT'
 
 	assert_failure
@@ -17,7 +17,7 @@ load './util/init.sh'
 	assert_line -p ", but received '2'"
 }
 
-@test "ERROR_INVALID_ARGS with \$# of 3" {
+@test "Error with \$# of 3" {
 	run bash_object.traverse-set string 'OBJECT' '.obj'
 
 	assert_failure
@@ -25,7 +25,7 @@ load './util/init.sh'
 	assert_line -p ", but received '3'"
 }
 
-@test "ERROR_INVALID_ARGS with \$# of 5" {
+@test "Error with \$# of 5" {
 	run bash_object.traverse-set string 'OBJECT' '.obj' obj extraneous
 
 	assert_failure
@@ -33,7 +33,7 @@ load './util/init.sh'
 	assert_line -p ", but received '5'"
 }
 
-@test "ERROR_INVALID_ARGS on empty \$1" {
+@test "Error on empty \$1" {
 	run bash_object.traverse-set "" 'OBJECT' '.obj' obj
 
 	assert_failure
@@ -41,7 +41,7 @@ load './util/init.sh'
 	assert_line -p "'1' is empty"
 }
 
-@test "ERROR_INVALID_ARGS on empty \$2" {
+@test "Error on empty \$2" {
 	run bash_object.traverse-set string "" '.obj' obj
 
 	assert_failure
@@ -49,7 +49,7 @@ load './util/init.sh'
 	assert_line -p "'2' is empty"
 }
 
-@test "ERROR_INVALID_ARGS on empty \$3" {
+@test "Error on empty \$3" {
 	run bash_object.traverse-set string 'OBJECT' "" obj
 
 	assert_failure
@@ -57,7 +57,7 @@ load './util/init.sh'
 	assert_line -p "'3' is empty"
 }
 
-@test "ERROR_INVALID_ARGS on empty \$4" {
+@test "Error on empty \$4" {
 	run bash_object.traverse-set string 'OBJECT' '.obj' ""
 
 	assert_failure
@@ -204,28 +204,50 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'other' was passed"
 }
 
-# TODO: complete string
+@test "Error if final_value_type is 'string', but is actually nonexistent" {
+	export VERIFY_BASH_OBJECT=
+	declare -A OBJECT=()
+	unset str
 
-# @test "Error if 'final_value_type' is 'string', but is actually nonexistent" {
-# 	export VERIFY_BASH_OBJECT=
-# 	declare -A OBJECT=()
-# 	unset str
+	run bash_object.traverse-set string 'OBJECT' '.obj' str
 
-# 	run bash_object.traverse-set string 'OBJECT' '.obj' str
+	assert_failure
+	assert_line -p "ERROR_VALUE_NOT_FOUND"
+	assert_line -p "The variable 'str' does not exist"
+}
 
-# 	assert_failure
-# 	assert_line -p "ERROR_VALUE_NOT_FOUND"
-# 	assert_line -p "The variable 'str' does not exist"
-# }
+@test "Error if final_value_type is 'string', but is really 'object'" {
+	export VERIFY_BASH_OBJECT=
+	declare -A OBJECT=()
+	declare -A obj=()
 
-# @test "Error if 'final_value_type' is 'string', but is really 'object'" {
-# 	export VERIFY_BASH_OBJECT=
-# 	declare -A OBJECT=()
-# 	declare -A obj=()
+	run bash_object.traverse-set string 'OBJECT' '.obj' obj
 
-# 	run bash_object.traverse-set string 'OBJECT' '.obj' obj
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p ", but a variable with type 'object' was passed"
+}
 
-# 	assert_failure
-# 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-# 	assert_line -p ", but a varaible with type 'object' was passed"
-# }
+@test "Error if final_value_type is 'string', but is really 'array'" {
+	export VERIFY_BASH_OBJECT=
+	declare -A OBJECT=()
+	declare -a obj=()
+
+	run bash_object.traverse-set string 'OBJECT' '.obj' obj
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p ", but a variable with type 'array' was passed"
+}
+
+@test "Error if final_value_type is 'string', but is really 'other'" {
+	export VERIFY_BASH_OBJECT=
+	declare -A OBJECT=()
+	declare -i obj=
+
+	run bash_object.traverse-set string 'OBJECT' '.obj' obj
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p ", but a variable with type 'other' was passed"
+}

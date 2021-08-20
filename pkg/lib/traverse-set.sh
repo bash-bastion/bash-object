@@ -58,40 +58,37 @@ bash_object.traverse-set() {
 
 		# TODO: dont' do this in zerocopy mode
 		# Ensure the 'final_value' is the same type as specified by the user
-		if [ "$final_value_type" != string ]; then # remove this conditional when consistency and zerocopy mode
-			local actual_final_value_type=
-			if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
-				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
-				return
-			fi
-			actual_final_value_type="${actual_final_value_type#declare -}"
-			case "${actual_final_value_type::1}" in
-				A) actual_final_value_type='object' ;;
-				a) actual_final_value_type='array' ;;
-				-) actual_final_value_type='string' ;;
-				*) actual_final_value_type='other' ;;
-			esac
+		local actual_final_value_type=
+		if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
+			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
+			return
+		fi
+		actual_final_value_type="${actual_final_value_type#declare -}"
+		case "${actual_final_value_type::1}" in
+			A) actual_final_value_type='object' ;;
+			a) actual_final_value_type='array' ;;
+			-) actual_final_value_type='string' ;;
+			*) actual_final_value_type='other' ;;
+		esac
 
-			if [ "$final_value_type" == object ]; then
-				if [ "$actual_final_value_type" != object ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
-					return
-				fi
-			elif [ "$final_value_type" == array ]; then
-				if [ "$actual_final_value_type" != array ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
-					return
-				fi
-			# TODO: currently extraneous, but needed after 'zerocopy' implementation
-			elif [ "$final_value_type" == string ]; then
-				if [ "$actual_final_value_type" != string ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
-					return
-				fi
-			else
-				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+		if [ "$final_value_type" == object ]; then
+			if [ "$actual_final_value_type" != object ]; then
+				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 				return
 			fi
+		elif [ "$final_value_type" == array ]; then
+			if [ "$actual_final_value_type" != array ]; then
+				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+				return
+			fi
+		elif [ "$final_value_type" == string ]; then
+			if [ "$actual_final_value_type" != string ]; then
+				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+				return
+			fi
+		else
+			bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+			return
 		fi
 	fi
 
@@ -193,7 +190,9 @@ bash_object.traverse-set() {
 					# shellcheck disable=SC2034
 					global_array=("${array_to_copy_from[@]}")
 				elif [ "$final_value_type" = string ]; then
-					current_object["$key"]="$final_value"
+					# TODO: ensure correct type
+					local -n string_to_copy_from="$final_value"
+					current_object["$key"]="$string_to_copy_from"
 				else
 					bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 					return
@@ -220,18 +219,18 @@ bash_object.traverse-set() {
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
 					case "$vmd_dtype" in
-						object)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
-							return
-							;;
-						array)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
-							return
-							;;
-						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
-							return
-							;;
+					object)
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
+						return
+						;;
+					array)
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
+						return
+						;;
+					*)
+						bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+						return
+						;;
 					esac
 				fi
 			# Otherwise, 'key_value' is a string
@@ -246,7 +245,9 @@ bash_object.traverse-set() {
 					return
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
-					current_object["$key"]="$final_value"
+					# TODO: ensure correct type
+					local -n string_to_copy_from="$final_value"
+					current_object["$key"]="$string_to_copy_from"
 				fi
 			fi
 		fi

@@ -49,8 +49,9 @@ load './util/init.sh'
 
 @test "correctly sets string at root" {
 	declare -A OBJECT=()
+	str='my_value'
 
-	bash_object.traverse-set string 'OBJECT' '.my_key' 'my_value'
+	bash_object.traverse-set string 'OBJECT' '.my_key' str
 	assert [ "${OBJECT[my_key]}" = 'my_value' ]
 
 	bash_object.traverse-get string 'OBJECT' '.my_key'
@@ -60,8 +61,9 @@ load './util/init.sh'
 @test "correctly sets string in object" {
 	declare -A SUB_OBJECT=()
 	declare -A OBJECT=([tau]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+	str='phi'
 
-	bash_object.traverse-set string 'OBJECT' '.tau.upsilon' 'phi'
+	bash_object.traverse-set string 'OBJECT' '.tau.upsilon' str
 	bash_object.traverse-get string 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
@@ -69,10 +71,11 @@ load './util/init.sh'
 @test "correctly sets string in object 2" {
 	declare -A obj=()
 	declare -A OBJECT=()
+	str='phi'
 
 	bash_object.traverse-set object 'OBJECT' '.tau' obj
 
-	bash_object.traverse-set string 'OBJECT' '.tau.upsilon' 'phi'
+	bash_object.traverse-set string 'OBJECT' '.tau.upsilon' str
 	bash_object.traverse-get string 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
