@@ -127,6 +127,12 @@ bash_object.traverse-set() {
 
 		bash_object.trace_loop
 
+		local is_index_of_array='no'
+		if [ "${key::1}" = $'\x1C' ]; then
+			key="${key#?}"
+			is_index_of_array='yes'
+		fi
+
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
@@ -230,20 +236,49 @@ bash_object.traverse-set() {
 					# TODO: test these internal invalid errors (error when type=array references object, etc.)?
 					:
 				elif ((i+1 == ${#REPLIES[@]})); then
-					case "$vmd_dtype" in
-					object)
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing object'
+					if [ "$final_value_type" = object ]; then
+						case "$vmd_dtype" in
+						object) :;;
+						array)
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							return
+							;;
+						*)
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							return
+							;;
+						esac
+					elif [ "$final_value_type" = array ]; then
+						case "$vmd_dtype" in
+						object)
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							return
+							;;
+						array) :;;
+						*)
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							return
+							;;
+						esac
+					elif [ "$final_value_type" = string ]; then
+						case "$vmd_dtype" in
+						object)
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							return
+							;;
+						array)
+							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							return
+							;;
+						*)
+							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							return
+							;;
+						esac
+					else
+						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 						return
-						;;
-					array)
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Was going to set-string, but found existing array'
-						return
-						;;
-					*)
-						bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
-						return
-						;;
-					esac
+					fi
 				fi
 			# Otherwise, 'key_value' is a string
 			else
@@ -255,11 +290,20 @@ bash_object.traverse-set() {
 					# TODO error message
 					bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Encountered string using accessor '$key', but expected to find either an object or array, in accordance with the filter"
 					return
-					:
 				elif ((i+1 == ${#REPLIES[@]})); then
-					# TODO: ensure correct type
-					local -n string_to_copy_from="$final_value"
-					current_object["$key"]="$string_to_copy_from"
+					if [ "$final_value_type" = object ]; then
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Assigning an object, but found existing string'
+						return
+					elif [ "$final_value_type" = array ]; then
+						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Assigning an array, but found existing string'
+						return
+					elif [ "$final_value_type" = string ]; then
+						local -n string_to_copy_from="$final_value"
+						current_object["$key"]="$string_to_copy_from"
+					else
+						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+						return
+					fi
 				fi
 			fi
 		fi

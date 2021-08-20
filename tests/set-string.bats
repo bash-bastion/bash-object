@@ -2,51 +2,6 @@
 
 load './util/init.sh'
 
-@test "Error on set-string'ing object" {
-	declare -A SUB_OBJECT=([nested]=woof)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
-
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.my_key' 'my_value'
-
-	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_output -p "to set-string, but found existing object"
-}
-
-@test "Error on set-string'ing object in object" {
-	declare -A SUB_OBJECT=([nested]=woof)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
-
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.my_key' 'my_value'
-
-	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_output -p "to set-string, but found existing object"
-}
-
-@test "Error on set-string'ing array" {
-	declare -A SUB_ARRAY=(omicron pi rho)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
-
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.my_key' 'my_value'
-
-	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_output -p "to set-string, but found existing array"
-}
-
-@test "Error on set-string'ing array in object" {
-	declare -A SUB_SUB_ARRAY=(omicron pi rho)
-	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
-
-	run bash_object.traverse-set --pass-by-ref string 'OBJECT' '.my_key.nested' 'my_value'
-
-	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
-	assert_output -p "to set-string, but found existing array"
-}
-
 @test "Correctly sets string at root" {
 	declare -A OBJECT=()
 	str='my_value'
