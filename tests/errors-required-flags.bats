@@ -19,6 +19,14 @@ load './util/init.sh'
 	assert_line -p "Flags '--as-ref' and '--as-value' are mutually exclusive"
 }
 
+@test "error on unimplemented --as-ref" {
+	run bobject get-string --as-ref
+
+	assert_failure
+	assert_line -p 'ERROR_ARGUMENTS_INVALID'
+	assert_line -p "--as-ref not implemented"
+}
+
 # set
 @test "set errors on missing flags" {
 	run bobject set-string
@@ -34,4 +42,12 @@ load './util/init.sh'
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
 	assert_line -p "Flags '--by-ref' and '--by-value' are mutually exclusive"
+}
+
+@test "error on unimplemented --by-value" {
+	run bobject set-string --by-value
+
+	assert_failure
+	assert_line -p 'ERROR_ARGUMENTS_INVALID'
+	assert_line -p "--by-value not implemented"
 }

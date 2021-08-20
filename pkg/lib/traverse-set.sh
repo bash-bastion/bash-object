@@ -37,6 +37,10 @@ bash_object.traverse-set() {
 		return
 	fi
 
+	if [ "$flag_pass_by_what" = 'by-value' ]; then
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--by-value not implemented"
+	fi
+
 	local final_value_type root_object_name filter final_value
 	# `set -u` compat
 	if [ -n "${args[0]+x}" ]; then

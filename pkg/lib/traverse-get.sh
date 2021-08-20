@@ -39,6 +39,10 @@ bash_object.traverse-get() {
 		return
 	fi
 
+	if [ "$flag_as_what" = 'as-ref' ]; then
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--as-ref not implemented"
+	fi
+
 	# Ensure correct number of arguments have been passed
 	if (( ${#args[@]} != 3)); then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '3' arguments, but received '${#args[@]}'"
