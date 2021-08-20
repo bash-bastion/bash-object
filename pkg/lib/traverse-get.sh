@@ -48,12 +48,6 @@ bash_object.traverse-get() {
 		local key="${REPLIES[$i]}"
 		filter_stack+=("$key")
 
-		# TODO: redo filter_stack string, and use stdlib.arrayprint TODO
-		local oldIFS="$IFS"
-		IFS='_'
-		local filter_stack_string="${filter_stack[*]}"
-		IFS="$oldIFS"
-
 		bash_object.trace_loop
 
 		local is_index_of_array='no'
@@ -64,7 +58,7 @@ bash_object.traverse-get() {
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
-			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
+			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
 			return
 		# If 'key' is a member of an object or index of array
 		else

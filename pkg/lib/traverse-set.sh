@@ -122,11 +122,8 @@ bash_object.traverse-set() {
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
 		filter_stack+=("$key")
-
-		local oldIFS="$IFS"
-		IFS='_'
-		local filter_stack_string="${filter_stack[*]}"
-		IFS="$oldIFS"
+		bash_object.util.generate_filter_stack_string
+		local filter_stack_string="$REPLY"
 
 		bash_object.trace_loop
 
@@ -134,7 +131,7 @@ bash_object.traverse-set() {
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' is not in '$filter_stack_string'"
+				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
 				return
 			# If we are at the last element in the query
 			elif ((i+1 == ${#REPLIES[@]})); then

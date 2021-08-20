@@ -57,6 +57,18 @@ bash_object.util.generate_vobject_name() {
 	REPLY="__bash_object_${root_object_name}_${root_object_query}_${random_string}"
 }
 
+# @description A stringified version of the filter
+# stack. This is used when generating objects to prevent
+# conflicts
+bash_object.util.generate_filter_stack_string() {
+	unset REPLY
+
+	local oldIFS="$IFS"
+	IFS='_'
+	REPLY="${filter_stack[*]}"
+	IFS="$oldIFS"
+}
+
 # TODO
 stdtrace.log() {
 	local level="$1"
