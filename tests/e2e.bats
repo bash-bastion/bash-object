@@ -11,7 +11,7 @@ load './util/init.sh'
 		run bobject "$subcmd" 'OBJECT' '.zulu.yankee' 'invalid'
 
 		assert_failure
-		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
+		assert_line -p "Expected '3' arguments, but received '4'"
 	done
 }
 
@@ -24,7 +24,8 @@ load './util/init.sh'
 		run bobject "$subcmd" 'invalid'
 
 		assert_failure
-		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
+		assert_failure
+		assert_line -p "Expected '3' arguments, but received '2'"
 	done
 }
 

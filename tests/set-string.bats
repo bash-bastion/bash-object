@@ -80,64 +80,70 @@ load './util/init.sh'
 	assert [ "$REPLY" = 'phi' ]
 }
 
-# @test "correctly sets string in subobject" {
-# 	declare -A SUB_SUB_OBJECT=()
-# 	declare -A SUB_OBJECT=([pi]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
-# 	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+@test "correctly sets string in subobject" {
+	declare -A SUB_SUB_OBJECT=()
+	declare -A SUB_OBJECT=([pi]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+	str='sigma'
 
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' 'sigma'
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
-# 	assert [ "$REPLY" = 'sigma' ]
-# }
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	assert [ "$REPLY" = 'sigma' ]
+}
 
-# @test "correctly sets string in subobject 2" {
-# 	declare -A obj=()
+@test "correctly sets string in subobject 2" {
+	declare -A obj=()
+	str='sigma'
 
-# 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron' obj
-# 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron.pi' obj
+	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron' obj
+	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron.pi' obj
 
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' 'sigma'
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
-# 	assert [ "$REPLY" = 'sigma' ]
-# }
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	assert [ "$REPLY" = 'sigma' ]
+}
 
-# @test "correctly sets 2 strings in subobject" {
-# 	declare -A SUB_SUB_OBJECT=()
-# 	declare -A SUB_OBJECT=([pi]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
-# 	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+@test "correctly sets 2 strings in subobject" {
+	declare -A SUB_SUB_OBJECT=()
+	declare -A SUB_OBJECT=([pi]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+	str1='sigma'
+	str2='upsilon'
 
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' 'sigma'
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' 'upsilon'
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str1
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' str2
 
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
-# 	assert [ "$REPLY" = 'sigma' ]
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	assert [ "$REPLY" = 'sigma' ]
 
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
-# 	assert [ "$REPLY" = 'upsilon' ]
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
+	assert [ "$REPLY" = 'upsilon' ]
 
-# 	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
+	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
 
-# 	assert [ "${REPLY[rho]}" = 'sigma' ]
-# 	assert [ "${REPLY[tau]}" = 'upsilon' ]
-# }
+	assert [ "${REPLY[rho]}" = 'sigma' ]
+	assert [ "${REPLY[tau]}" = 'upsilon' ]
+}
 
-# @test "correctly sets 2 strings in subobject 2" {
-# 	declare -A obj=()
+@test "correctly sets 2 strings in subobject 2" {
+	declare -A obj=()
+	str1='sigma'
+	str2='upsilon'
 
-# 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron' obj
-# 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron.pi' obj
+	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron' obj
+	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron.pi' obj
 
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' 'sigma'
-# 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' 'upsilon'
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str1
+	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' str2
 
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
-# 	assert [ "$REPLY" = 'sigma' ]
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	assert [ "$REPLY" = 'sigma' ]
 
-# 	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
-# 	assert [ "$REPLY" = 'upsilon' ]
+	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
+	assert [ "$REPLY" = 'upsilon' ]
 
-# 	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
+	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
 
-# 	assert [ "${REPLY[rho]}" = 'sigma' ]
-# 	assert [ "${REPLY[tau]}" = 'upsilon' ]
-# }
+	assert [ "${REPLY[rho]}" = 'sigma' ]
+	assert [ "${REPLY[tau]}" = 'upsilon' ]
+}
