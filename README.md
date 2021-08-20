@@ -22,15 +22,15 @@ In the coming days, I will release never seen before parsers written in Bash cal
 # }
 
 declare -A root_object=()
-declare -A zulu_object=([yankee]=)
-declare -A yankee_object=([xray]=)
-declare -A xray_object=([whiskey]=victor [foxtrot]=)
+declare -A zulu_object=()
+declare -A yankee_object=()
+declare -A xray_object=([whiskey]=victor)
 declare -a foxtrot_array=(omicron pi rho sigma)
 
 bobject set-object --pass-by-ref root_object '.zulu' zulu_object
 bobject set-object --pass-by-ref root_object '.zulu.yankee' yankee_object
 bobject set-object --pass-by-ref root_object '.zulu.yankee.xray' xray_object
-bobject set-array root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+bobject set-array --pass-by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
 bobject get-object root_object '.zulu.yankee.xray'
 assert [ "${REPLY[whiskey]}" = victor ]
@@ -38,16 +38,16 @@ assert [ "${REPLY[whiskey]}" = victor ]
 bobject get-string root_object '.zulu.yankee.xray.whiskey'
 assert [ "$REPLY" = victor ]
 
-bobject get-array root_object '.zulu.yankee.xray.victor'
-assert [ ${#REPLY} -eq 4 ]
+bobject get-array root_object '.zulu.yankee.xray.foxtrot'
+assert [ ${#REPLY[@]} -eq 4 ]
 
-bobject get-string root_object '.["zulu"].["yankee"].["xray"].["victor"].[2]'
+bobject get-string root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 assert [ "$REPLY" = rho ]
 ```
 
 ## Installation
 
-STATUS: IN DEVELOPMENT!
+STATUS: ALPHA
 
 ```sh
 echo "dependencies = [ 'hyperupcall/bash-object' ]" > 'bpm.toml'

@@ -80,10 +80,10 @@ load './util/init.sh'
 }
 
 @test "readme code works" {
-	declare -A root_object=([zulu=])
-	declare -A zulu_object=([yankee]=)
-	declare -A yankee_object=([xray]=)
-	declare -A xray_object=([whiskey]=victor [foxtrot]=)
+	declare -A root_object=()
+	declare -A zulu_object=()
+	declare -A yankee_object=()
+	declare -A xray_object=([whiskey]=victor)
 	declare -a foxtrot_array=(omicron pi rho sigma)
 
 	bobject set-object --pass-by-ref root_object '.zulu' zulu_object
@@ -97,9 +97,9 @@ load './util/init.sh'
 	bobject get-string root_object '.zulu.yankee.xray.whiskey'
 	assert [ "$REPLY" = victor ]
 
-	bobject get-array root_object '.zulu.yankee.xray.victor'
-	assert [ ${#REPLY} -eq 4 ]
+	bobject get-array root_object '.zulu.yankee.xray.foxtrot'
+	assert [ ${#REPLY[@]} -eq 4 ]
 
-	bobject get-string root_object '.["zulu"].["yankee"].["xray"].["victor"].[2]'
+	bobject get-string root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 	assert [ "$REPLY" = rho ]
 }
