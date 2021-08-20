@@ -1,24 +1,8 @@
 # Errors
 
-Depending on your operation, your object transaction may fail. This details the reasons
+Because Bash often does the wrong thing silently, it's important to fail early when any inputs are unexpected. Extra checks that require spawning subshells require setting the `VERIFY_BASH_OBJECT` variable. We recommend exporting it so any child Bash processes keep the verification behavior
 
-In this context, value means either "member of object" or "index of array"
-
-## Get
-
-- `ERROR_NOT_FOUND`
-  - Attempted to access a value that does not exist
-- `ERROR_VALUE_INCORRECT_TYPE`
-  - Attempted to access a value that has the wrong type. This can happen if the query uses `.[30]` to get an array index, but an object exists instead. It can also happen if the user writes `get-string`, and it found a non-string value after evaluating the query. It can also happen if the user writes `set-string`, and the place to write the new value already has a value of a different type
-- `ERROR_VOBJ_INVALID_TYPE`
-  - The virtual object (a string that contains a reference to the real global object) had keys with unexpected values. You shouldn't get this error unless something has seriously gone wrong
-
-# Handling
-
-Because Bash often does the wrong thing silently, it's important to fail early when any inputs are unexpected. `bash-object` does this at every level
-
-Below, if any of the assurances do not pass, `bash-object` will fail with a non-zero exit code. For some of these, `VERIFY_BASH_OBJECT` must be a variable
-
+The following checks are performed
 
 1. Argument parsing
 

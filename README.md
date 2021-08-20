@@ -27,9 +27,9 @@ declare -A yankee_object=([xray]=)
 declare -A xray_object=([whiskey]=victor [foxtrot]=)
 declare -a foxtrot_array=(omicron pi rho sigma)
 
-bobject set-object root_object '.zulu' zulu_object
-bobject set-object root_object '.zulu.yankee' yankee_object
-bobject set-object root_object '.zulu.yankee.xray' xray_object
+bobject set-object --pass-by-ref root_object '.zulu' zulu_object
+bobject set-object --pass-by-ref root_object '.zulu.yankee' yankee_object
+bobject set-object --pass-by-ref root_object '.zulu.yankee.xray' xray_object
 bobject set-array root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
 bobject get-object root_object '.zulu.yankee.xray'
