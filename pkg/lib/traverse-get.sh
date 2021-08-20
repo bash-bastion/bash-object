@@ -12,8 +12,23 @@ bash_object.traverse-get() {
 	local root_object_name="$2"
 	local filter="$3"
 
+	# Ensure correct number of arguments have been passed
 	if (( $# != 3)); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Incorrect arguments for subcommand 'get-$final_value_type'"
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '3' arguments, but received '$#'"
+		return
+	fi
+
+	# Ensure parameters are not empty
+	if [ -z "$final_value_type" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '1' is empty. Please check passed parameters"
+		return
+	fi
+	if [ -z "$root_object_name" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '2' is empty. Please check passed parameters"
+		return
+	fi
+	if [ -z "$filter" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '3' is empty. Please check passed parameters"
 		return
 	fi
 

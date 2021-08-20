@@ -7,11 +7,13 @@ bash_object.traverse-set() {
 	fi
 
 	local flag_pass_by_what=''
+	local -a args=()
 
 	for arg; do case "$arg" in
 		--pass-by-ref) flag_pass_by_what='by-ref'; shift ;;
 		--pass-by-value) flag_pass_by_what='by-value'; shift ;;
-		--) break ;;
+		--) shift; break ;;
+		*) args+=("$arg") ;;
 	esac done
 
 	if [ -z "$flag_pass_by_what" ]; then
@@ -19,16 +21,17 @@ bash_object.traverse-set() {
 		return
 	fi
 
-	local final_value_type="$1"
-	local root_object_name="$2"
-	local filter="$3"
-	local final_value="$4"
+	local final_value_type="${args[0]}"
+	local root_object_name="${args[1]}"
+	local filter="${args[2]}"
+	local final_value="${args[3]}"
 
-	# We can only check the correct argument number under certain conditions
-	if [ "$flag_pass_by_what" = 'by-ref' ] && (( $# != 4)); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
+	# Ensure correct number of arguments have been passed. Only do this
+	# for circumstances in which we know the correct argument amount
+	if [ "$flag_pass_by_what" = 'by-ref' ] && (( ${#args[@]} != 4)); then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '${#args[@]}'"
 		return
-	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( $# != 4 )); then
+	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( ${#args[@]} != 4 )); then
 		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
 		return
 	fi
@@ -52,12 +55,6 @@ bash_object.traverse-set() {
 		# index 0 is passed (by value)
 		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '4' is empty. Please check passed parameters"
 		return
-	fi
-
-	shift 4
-	# Do not do 'shift 5', since 5 is greater than 4, the minimum amount of valid parameters
-	if [ "$1" = -- ]; then
-		shift
 	fi
 
 	if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then

@@ -1,4 +1,8 @@
 #!/usr/bin/env bats
+
+# @file Contains tests that ensure the positional
+# parameters have been validated properly, when possible
+
 load './util/init.sh'
 
 @test "Error if neither '--pass-by-ref' nor '--pass-by-value' are passed" {
