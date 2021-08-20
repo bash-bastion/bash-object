@@ -14,21 +14,21 @@ bash_object.traverse-get() {
 
 	# Ensure correct number of arguments have been passed
 	if (( $# != 3)); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '3' arguments, but received '$#'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '3' arguments, but received '$#'"
 		return
 	fi
 
 	# Ensure parameters are not empty
 	if [ -z "$final_value_type" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '1' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '1' is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$root_object_name" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '2' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$filter" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '3' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
 		return
 	fi
 
@@ -58,7 +58,7 @@ bash_object.traverse-get() {
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
-			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
+			bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
 			return
 		# If 'key' is a member of an object or index of array
 		else
@@ -77,6 +77,11 @@ bash_object.traverse-get() {
 				local -n current_object="$current_object_name"
 
 				if ((i+1 < ${#REPLIES[@]})); then
+					# echo aa >&3
+					# if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
+					# 	echo jj >&3
+					# fi
+
 					# TODO: test these internal invalid errors (error when type=array references object, etc.)
 					# Do nothing (assuming the type is correct), we have already set 'current_object'
 					# for the next iteration
@@ -84,22 +89,57 @@ bash_object.traverse-get() {
 					# case "$vmd_dtype" in
 					# object)
 					# 	if [ "$is_index_of_array" = yes ]; then
-					# 		bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Expected object, but reference to array was found"
+					# 		bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Expected object, but reference to array was found"
 					# 		return
 					# 	fi
 					# 	;;
 					# array)
 					# 	if [ "$is_index_of_array" = no ]; then
-					# 		bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Expected array, but reference to object was found"
+					# 		bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Expected array, but reference to object was found"
 					# 		return
 					# 	fi
 					# 	;;
 					# *)
-					# 	bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+					# 	bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 					# 	return
 					# 	;;
 					# esac
 				elif ((i+1 == ${#REPLIES[@]})); then
+					if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
+						# Ensure the 'final_value' is the same type as specified by the user
+						local current_object_type=
+						if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
+							bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
+							return
+						fi
+						current_object_type="${current_object_type#declare -}"
+						case "${current_object_type::1}" in
+							A) current_object_type='object' ;;
+							a) current_object_type='array' ;;
+							-) current_object_type='string' ;;
+							*) current_object_type='other' ;;
+						esac
+
+						case "$vmd_dtype" in
+						object)
+							if [ "$current_object_type" != object ]; then
+								bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+								return
+							fi
+							;;
+						array)
+							if [ "$current_object_type" != array ]; then
+								bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+								return
+							fi
+							;;
+						*)
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
+							return
+							;;
+						esac
+					fi
+
 					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
@@ -111,18 +151,18 @@ bash_object.traverse-get() {
 							done
 							;;
 						array)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for object, but found existing array'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for object, but found existing array'
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for array, but found existing object'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for array, but found existing object'
 							return
 							;;
 						array)
@@ -131,26 +171,26 @@ bash_object.traverse-get() {
 							REPLY=("${current_object[@]}")
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing object'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for string, but found existing object'
 							return
 							;;
 						array)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Queried for string, but found existing array'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for string, but found existing array'
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 						esac
 					else
-						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+						bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 						return
 					fi
 				fi
@@ -169,10 +209,10 @@ bash_object.traverse-get() {
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Queried for object, but found existing string '$value'"
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Queried for array, but found existing string '$value'"
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
 						# shellcheck disable=SC2178

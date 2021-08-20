@@ -15,7 +15,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.my_key' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing array'
 }
 
@@ -28,7 +28,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.my_key.nested' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing array'
 }
 
@@ -41,7 +41,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.["my_key"].[2]' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing array'
 }
 
@@ -52,7 +52,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.my_key' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing string'
 }
 
@@ -64,7 +64,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.my_key.nested' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing string'
 }
 
@@ -76,7 +76,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object OBJECT '.["my_key"].[2]' obj
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an object, but found existing string'
 }
 
@@ -89,7 +89,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.my_key' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing object'
 }
 
@@ -102,7 +102,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.my_key.nested' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing object'
 }
 
@@ -115,7 +115,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.["my_key"].[2]' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing object'
 }
 
@@ -126,7 +126,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.my_key' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing string'
 }
 
@@ -138,7 +138,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.my_key.nested' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing string'
 }
 
@@ -150,7 +150,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref array OBJECT '.["my_key"].[2]' arr
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an array, but found existing string'
 }
 
@@ -163,7 +163,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.my_key' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing array'
 }
 
@@ -176,7 +176,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.my_key.nested' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing array'
 }
 
@@ -189,7 +189,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.["my_key"].[2]' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing array'
 }
 
@@ -201,7 +201,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.my_key' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing object'
 }
 
@@ -214,7 +214,7 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.my_key.nested' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing object'
 }
 
@@ -227,6 +227,6 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref string OBJECT '.["my_key"].[2]' str
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Assigning an string, but found existing object'
 }

@@ -17,7 +17,7 @@ bash_object.traverse-set() {
 	esac done
 
 	if [ -z "$flag_pass_by_what" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Must pass either the '--pass-by-ref' or '--pass-by-value' flag"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--pass-by-ref' or '--pass-by-value' flag"
 		return
 	fi
 
@@ -29,31 +29,31 @@ bash_object.traverse-set() {
 	# Ensure correct number of arguments have been passed. Only do this
 	# for circumstances in which we know the correct argument amount
 	if [ "$flag_pass_by_what" = 'by-ref' ] && (( ${#args[@]} != 4)); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '${#args[@]}'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '${#args[@]}'"
 		return
 	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( ${#args[@]} != 4 )); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '$#'"
 		return
 	fi
 
 	# Ensure parameters are not empty
 	if [ -z "$final_value_type" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '1' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '1' is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$root_object_name" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '2' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$filter" ]; then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '3' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
 		return
 	fi
 	if [[ "$flag_pass_by_what" == 'by-ref' && -z "$final_value" ]]; then
 		# Can only check if passing by ref, since we do not want to error if
 		# an empty string is passed (by value) or an array with empty string at
 		# index 0 is passed (by value)
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '4' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '4' is empty. Please check passed parameters"
 		return
 	fi
 
@@ -61,12 +61,12 @@ bash_object.traverse-set() {
 		# Ensure the root object exists, and is an associative array
 		local root_object_type=
 		if root_object_type="$(declare -p "$root_object_name" 2>/dev/null)"; then :; else
-			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The associative array '$root_object_name' does not exist"
+			bash_object.util.die 'ERROR_NOT_FOUND' "The associative array '$root_object_name' does not exist"
 			return
 		fi
 		root_object_type="${root_object_type#declare -}"
 		if [ "${root_object_type::1}" != 'A' ]; then
-			bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The 'root object' must be an associative array"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "The 'root object' must be an associative array"
 			return
 		fi
 
@@ -74,7 +74,7 @@ bash_object.traverse-set() {
 			# Ensure the 'final_value' is the same type as specified by the user
 			local actual_final_value_type=
 			if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
-				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
+				bash_object.util.die 'ERROR_NOT_FOUND' "The variable '$final_value' does not exist"
 				return
 			fi
 			actual_final_value_type="${actual_final_value_type#declare -}"
@@ -87,21 +87,21 @@ bash_object.traverse-set() {
 
 			if [ "$final_value_type" == object ]; then
 				if [ "$actual_final_value_type" != object ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
 			elif [ "$final_value_type" == array ]; then
 				if [ "$actual_final_value_type" != array ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
 			elif [ "$final_value_type" == string ]; then
 				if [ "$actual_final_value_type" != string ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
 			else
-				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 				return
 			fi
 		fi
@@ -137,9 +137,10 @@ bash_object.traverse-set() {
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
+				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
 				return
-			# If we are at the last element in the query
+			# If we are at the last element in the query, and it doesn't
+			# exist, create it
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
 					# TODO: test this
@@ -160,7 +161,7 @@ bash_object.traverse-set() {
 					fi
 
 					if ! eval "declare -gA $global_object_name=()"; then
-						bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' 'Eval declare failed'
+						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
 						return
 					fi
 
@@ -194,7 +195,7 @@ bash_object.traverse-set() {
 					fi
 
 					if ! eval "declare -ga $global_array_name=()"; then
-						bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' 'Eval declare failed'
+						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
 						return
 					fi
 
@@ -212,7 +213,7 @@ bash_object.traverse-set() {
 					local -n string_to_copy_from="$final_value"
 					current_object["$key"]="$string_to_copy_from"
 				else
-					bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 					return
 				fi
 			fi
@@ -240,43 +241,43 @@ bash_object.traverse-set() {
 						case "$vmd_dtype" in
 						object) :;;
 						array)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
 							return
 							;;
 						array) :;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
 							return
 							;;
 						array)
-							bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing $vmd_dtype"
 							return
 							;;
 						*)
-							bash_object.util.die 'ERROR_INTERNAL_INVALID_VOBJ' "Unexpected vmd_dtype '$vmd_dtype'"
+							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 							return
 							;;
 						esac
 					else
-						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+						bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 						return
 					fi
 				fi
@@ -288,20 +289,20 @@ bash_object.traverse-set() {
 
 				if ((i+1 < ${#REPLIES[@]})); then
 					# TODO error message
-					bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "Encountered string using accessor '$key', but expected to find either an object or array, in accordance with the filter"
+					bash_object.util.die 'ERROR_NOT_FOUND' "Encountered string using accessor '$key', but expected to find either an object or array, in accordance with the filter"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Assigning an object, but found existing string'
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Assigning an object, but found existing string'
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' 'Assigning an array, but found existing string'
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Assigning an array, but found existing string'
 						return
 					elif [ "$final_value_type" = string ]; then
 						local -n string_to_copy_from="$final_value"
 						current_object["$key"]="$string_to_copy_from"
 					else
-						bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
+						bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 						return
 					fi
 				fi

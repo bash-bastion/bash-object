@@ -28,7 +28,7 @@ bobject() {
 			bash_object.traverse-set --pass-by-ref object "$@"
 			;;
 		*)
-			bash_object.util.die 'ERROR_INVALID_ARGS' "Subcommand '$subcmd' not recognized"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Subcommand '$subcmd' not recognized"
 			return
 	esac
 }

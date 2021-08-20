@@ -14,6 +14,6 @@ load './util/init.sh'
 	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' objj
 
 	assert_failure
-	assert_output -p 'ERROR_INTERNAL_MISCELLANEOUS'
+	assert_output -p 'ERROR_INTERNAL'
 	assert_output -p "Variable 'some_other_var' exists, but it shouldn't"
 }

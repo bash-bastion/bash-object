@@ -22,7 +22,7 @@ bash_object.parse_filter() {
 
 	if [ "$flag_parser_type" = 'simple' ]; then
 		if [ "${filter::1}" != . ]; then
-			bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter must begin with a dot'
+			bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter must begin with a dot'
 			return
 		fi
 
@@ -36,6 +36,7 @@ bash_object.parse_filter() {
 		done
 		IFS="$old_ifs"
 	elif [ "$flag_parser_type" = 'advanced' ]; then
+		# TODO: scope
 		declare char=
 		declare mode='MODE_DEFAULT'
 		declare -i PARSER_COLUMN_NUMBER=0
@@ -59,7 +60,7 @@ bash_object.parse_filter() {
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter must begin with a dot'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter must begin with a dot'
 					return
 				fi
 				;;
@@ -67,7 +68,7 @@ bash_object.parse_filter() {
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'Each part in a filter must be deliminated by a dot'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'Each part in a filter must be deliminated by a dot'
 					return
 				fi
 				;;
@@ -77,7 +78,7 @@ bash_object.parse_filter() {
 				elif [ "$char" = $'\n' ]; then
 					return
 				else
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'A dot MUST be followed by an opening bracket in this mode'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'A dot MUST be followed by an opening bracket in this mode'
 					return
 				fi
 				;;
@@ -87,7 +88,7 @@ bash_object.parse_filter() {
 				if [ "$char" = \" ]; then
 					mode='MODE_EXPECTING_STRING'
 				elif [ "$char" = ']' ]; then
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'Key cannot be empty'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'Key cannot be empty'
 					return
 				else
 					case "$char" in
@@ -96,7 +97,7 @@ bash_object.parse_filter() {
 						mode='MODE_EXPECTING_READ_NUMBER'
 						;;
 					*)
-						bash_object.util.die 'ERROR_INVALID_FILTER' 'A number or opening quote must follow an open bracket'
+						bash_object.util.die 'ERROR_FILTER_INVALID' 'A number or opening quote must follow an open bracket'
 						return
 						;;
 					esac
@@ -107,14 +108,14 @@ bash_object.parse_filter() {
 					mode='MODE_STRING_ESCAPE_SEQUENCE'
 				elif [ "$char" = \" ]; then
 					if [ -z "$reply" ]; then
-						bash_object.util.die 'ERROR_INVALID_FILTER' 'Key cannot be empty'
+						bash_object.util.die 'ERROR_FILTER_INVALID' 'Key cannot be empty'
 						return
 					fi
 
 					REPLIES+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				elif [ "$char" = $'\n' ]; then
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'Filter is not complete'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter is not complete'
 					return
 				else
 					reply+="$char"
@@ -126,7 +127,7 @@ bash_object.parse_filter() {
 					\") reply+=\" ;;
 					']') reply+=']' ;;
 					*)
-						bash_object.util.die 'ERROR_INVALID_FILTER' "Escape sequence of '$char' not valid"
+						bash_object.util.die 'ERROR_FILTER_INVALID' "Escape sequence of '$char' not valid"
 						return
 						;;
 				esac
@@ -142,7 +143,7 @@ bash_object.parse_filter() {
 						reply+="$char"
 						;;
 					*)
-						bash_object.util.die 'ERROR_INVALID_FILTER' "Expecting number, found '$char'"
+						bash_object.util.die 'ERROR_FILTER_INVALID' "Expecting number, found '$char'"
 						return
 						;;
 					esac
@@ -152,14 +153,14 @@ bash_object.parse_filter() {
 				if [ "$char" = ']' ]; then
 					mode='MODE_BEFORE_DOT'
 				else
-					bash_object.util.die 'ERROR_INVALID_FILTER' 'Expected a closing bracket after the closing quotation mark'
+					bash_object.util.die 'ERROR_FILTER_INVALID' 'Expected a closing bracket after the closing quotation mark'
 					return
 				fi
 				;;
 			esac
 		done <<< "$filter"
 	else
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Must pass either '--simple' or '--advanced'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either '--simple' or '--advanced'"
 		return
 	fi
 }

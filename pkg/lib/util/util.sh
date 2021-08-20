@@ -2,13 +2,18 @@
 
 # shellcheck disable=SC2192
 declare -gA ERRORS_BASH_OBJECT=(
-	[ERROR_VALUE_NOT_FOUND]=
-	[ERROR_VALUE_INCORRECT_TYPE]=
-	[ERROR_INVALID_FILTER]=
-	[ERROR_INVALID_ARGS]=
-	[ERROR_INTERNAL_INVALID_VOBJ]=
-	[ERROR_INTERNAL_INVALID_PARAM]=
-	[ERROR_INTERNAL_MISCELLANEOUS]=
+	[ERROR_NOT_FOUND]=
+	[ERROR_INTERNAL]=
+
+	[ERROR_ARGUMENTS_INVALID]="Wrong number, empty, or missing required arguments to function"
+	[ERROR_ARGUMENTS_INVALID_TYPE]="The type of the final value specified by the user is neither 'object', 'array', nor 'string'"
+	[ERROR_ARGUMENTS_INCORRECT_TYPE]="The type of the final value does not match that of the actual final value (at end of query string)"
+
+	[ERROR_FILTER_INVALID]="The filter could not be parsed"
+	[ERROR_FILTER_INCORRECT_TYPE]=
+
+	[ERROR_VOBJ_INVALID_TYPE]="The type of the virtual object is neither 'object' nor 'array'"
+	[ERROR_VOBJ_INCORRECT_TYPE]="The type of the virtual object does not match with the type of the variable it references"
 )
 
 bash_object.util.die() {
@@ -22,7 +27,7 @@ bash_object.util.die() {
 
 	local error_output=
 	case "$error_key" in
-	ERROR_INVALID_FILTER)
+	ERROR_FILTER_INVALID)
 		printf -v error_output 'Failed to parse filter:
   -> code: %s
   -> context: %s

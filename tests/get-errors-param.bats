@@ -9,7 +9,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p ", but received '1'"
 }
 
@@ -17,7 +17,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string 'OBJECT'
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p ", but received '2'"
 }
 
@@ -25,7 +25,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string 'OBJECT' '.obj' extraneous
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p ", but received '4'"
 }
 
@@ -33,7 +33,7 @@ load './util/init.sh'
 	run bash_object.traverse-get "" 'OBJECT' '.obj'
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p "'1' is empty"
 }
 
@@ -41,7 +41,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string "" '.obj'
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p "'2' is empty"
 }
 
@@ -49,6 +49,6 @@ load './util/init.sh'
 	run bash_object.traverse-get string 'OBJECT' ""
 
 	assert_failure
-	assert_line -p "ERROR_INVALID_ARGS"
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p "'3' is empty"
 }

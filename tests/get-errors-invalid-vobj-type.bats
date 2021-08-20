@@ -12,7 +12,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing string'
 }
 
@@ -23,7 +23,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing string'
 }
 
@@ -34,7 +34,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.["my_key"].[3]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing string'
 }
 
@@ -45,7 +45,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing array'
 }
 
@@ -57,7 +57,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing array'
 }
 
@@ -69,7 +69,7 @@ load './util/init.sh'
 	run bash_object.traverse-get object OBJECT '.["my_key"].[3]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for object, but found existing array'
 }
 
@@ -80,7 +80,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing string'
 }
 
@@ -91,7 +91,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing string'
 }
 
@@ -102,7 +102,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.["my_key"].[2]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing string'
 }
 
@@ -113,7 +113,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing object'
 }
 
@@ -125,7 +125,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing object'
 }
 
@@ -137,7 +137,7 @@ load './util/init.sh'
 	run bash_object.traverse-get array OBJECT '.["my_key"].[1]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for array, but found existing object'
 }
 
@@ -149,7 +149,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing object'
 }
 
@@ -161,7 +161,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing object'
 }
 
@@ -173,7 +173,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.["my_key"].[3]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing object'
 }
 
@@ -184,7 +184,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.my_key'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing array'
 }
 
@@ -196,7 +196,7 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.my_key.nested'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing array'
 }
 
@@ -208,6 +208,6 @@ load './util/init.sh'
 	run bash_object.traverse-get string OBJECT '.["my_key"].[2]'
 
 	assert_failure
-	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p 'Queried for string, but found existing array'
 }
