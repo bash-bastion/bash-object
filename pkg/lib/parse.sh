@@ -10,10 +10,10 @@ bash_object.parse_filter() {
 	local flag_parser_type=
 
 	for arg; do case "$arg" in
-	-s|--simple)
+	--simple)
 		flag_parser_type='simple'
 		shift ;;
-	-a|--advanced)
+	--advanced)
 		flag_parser_type='advanced'
 		shift ;;
 	esac done
