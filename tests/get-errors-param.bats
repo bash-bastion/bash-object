@@ -7,6 +7,14 @@
 load './util/init.sh'
 
 # get
+@test "Error on invalid \$1" {
+	run bobject get-blah
+
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Subcommand 'get-blah' not recognized"
+}
+
 @test "Error with \$# of 2" {
 	run bobject get-string --as-value 'OBJECT'
 

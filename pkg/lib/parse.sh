@@ -36,10 +36,9 @@ bash_object.parse_filter() {
 		done
 		IFS="$old_ifs"
 	elif [ "$flag_parser_type" = 'advanced' ]; then
-		# TODO: scope
-		declare char=
-		declare mode='MODE_DEFAULT'
-		declare -i PARSER_COLUMN_NUMBER=0
+		local char=
+		local mode='MODE_DEFAULT'
+		local -i PARSER_COLUMN_NUMBER=0
 
 		# Append dot so parsing does not fail at end
 		# This makes parsing a lot easier, since it always expects a dot after a ']'

@@ -77,14 +77,13 @@ load './util/init.sh'
 	assert_line -p ", but received '5'"
 }
 
-# TODO?
-# @test "Error on empty \$1" {
-# 	run bobject
+@test "Error on invalid \$1" {
+	run bobject set-blah
 
-# 	assert_failure
-# 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-# 	assert_line -p "'1' is empty"
-# }
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Subcommand 'set-blah' not recognized"
+}
 
 @test "Error on empty \$2" {
 	run bobject set-string --by-ref "" '.obj' obj

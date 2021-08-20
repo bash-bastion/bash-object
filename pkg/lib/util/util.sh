@@ -21,11 +21,6 @@ bash_object.util.die() {
 	local error_key="$1"
 	local error_context="${2:-<empty>}"
 
-	# TODO: test
-	# if [[ ! -v 'ERRORS_BASH_OBJECT["$error_key"]' ]]; then
-	# 	return 77
-	# fi
-
 	local error_output=
 	case "$error_key" in
 	ERROR_FILTER_INVALID)
@@ -60,7 +55,7 @@ bash_object.util.generate_vobject_name() {
 		random_string="${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
 	fi
 
-	REPLY="__bash_object_${root_object_name}_${root_object_query}_${random_string}"
+	printf -v REPLY '%q' "__bash_object_${root_object_name}_${root_object_query}_${random_string}"
 }
 
 # @description A stringified version of the filter
