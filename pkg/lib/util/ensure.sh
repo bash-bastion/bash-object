@@ -20,6 +20,7 @@ bash_object.ensure.variable_does_exist() {
 	fi
 }
 
+# TODO
 # @description Test if the variable already exists. Note that the variable _must_ be sanitized before using this function
 bash_object.ensure.variable_does_not_exist() {
 	local variable_name="$1"

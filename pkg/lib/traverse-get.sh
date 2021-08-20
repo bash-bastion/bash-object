@@ -70,6 +70,8 @@ bash_object.traverse-get() {
 					stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
 				fi
 
+				local old_current_object_name="$current_object_name"
+
 				virtual_item="${key_value#??}"
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
@@ -104,6 +106,12 @@ bash_object.traverse-get() {
 					# 	return
 					# 	;;
 					# esac
+
+					# Ensure no circular references (WET)
+					if [ "$old_current_object_name" = "$current_object_name" ]; then
+						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+						return
+					fi
 				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
 						# Ensure the 'final_value' is the same type as specified by the user
@@ -138,6 +146,12 @@ bash_object.traverse-get() {
 							return
 							;;
 						esac
+					fi
+
+					# Ensure no circular references (WET)
+					if [ "$old_current_object_name" = "$current_object_name" ]; then
+						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+						return
 					fi
 
 					# We are last element of query, return the object

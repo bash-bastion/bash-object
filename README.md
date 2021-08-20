@@ -58,7 +58,4 @@ bpm install
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
 - "queried for X, but found existing object": print object in error (same with indexed arrays)
-- support `--pass-by-value`
-- check for circular references
-- --reply-with-ref --reply-with-value
-- meta: 'unset REPLY' potential conflict with set -u
+--reply-with-value

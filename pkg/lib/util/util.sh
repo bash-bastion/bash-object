@@ -4,6 +4,7 @@
 declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_NOT_FOUND]=
 	[ERROR_INTERNAL]=
+	[ERROR_SELF_REFERENCE]="A virtual object cannot reference itself"
 
 	[ERROR_ARGUMENTS_INVALID]="Wrong number, empty, or missing required arguments to function"
 	[ERROR_ARGUMENTS_INVALID_TYPE]="The type of the final value specified by the user is neither 'object', 'array', nor 'string'"

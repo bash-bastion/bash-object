@@ -139,8 +139,7 @@ bash_object.traverse-set() {
 			if ((i+1 < ${#REPLIES[@]})); then
 				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
 				return
-			# If we are at the last element in the query, and it doesn't
-			# exist, create it
+			# If we are at the last element in the query, and it doesn't exist, create it
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
 					# TODO: test this
@@ -227,6 +226,8 @@ bash_object.traverse-set() {
 					stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
 				fi
 
+				local old_current_object_name="$current_object_name"
+
 				virtual_item="${key_value#??}"
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
@@ -236,7 +237,20 @@ bash_object.traverse-set() {
 				if ((i+1 < ${#REPLIES[@]})); then
 					# TODO: test these internal invalid errors (error when type=array references object, etc.)?
 					:
+
+					# Ensure no circular references (WET)
+					if [ "$old_current_object_name" = "$current_object_name" ]; then
+						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+						return
+					fi
 				elif ((i+1 == ${#REPLIES[@]})); then
+					# Ensure no circular references (WET)
+					if [ "$old_current_object_name" = "$current_object_name" ]; then
+						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+						return
+					fi
+
+					# We are last element of query, but do not set the object there is one that already exists
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
 						object) :;;
@@ -293,10 +307,10 @@ bash_object.traverse-set() {
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Assigning an object, but found existing string'
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Assigning an array, but found existing string'
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string"
 						return
 					elif [ "$final_value_type" = string ]; then
 						local -n string_to_copy_from="$final_value"
