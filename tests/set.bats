@@ -11,7 +11,7 @@ load './util/init.sh'
 	}
 	declare -g some_other_var=
 
-	run bash_object.traverse-set object 'OBJECT' '.obj' objj
+	run bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' objj
 
 	assert_failure
 	assert_output -p 'ERROR_INTERNAL_MISCELLANEOUS'

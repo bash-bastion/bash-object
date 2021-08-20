@@ -1,12 +1,22 @@
 # shellcheck shell=bash
 
 bash_object.traverse-set() {
-	# TODO: rename zerocopy, as it's misleading - ex. 'zerocopy' object would be slower
-	local flag_zerocopy='no'
-
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
 		stdtrace.log 0 "CALL: bash_object.traverse-set: $*"
+	fi
+
+	local flag_pass_by_what=''
+
+	for arg; do case "$arg" in
+		--pass-by-ref) flag_pass_by_what='by-ref'; shift ;;
+		--pass-by-value) flag_pass_by_what='by-value'; shift ;;
+		--) break ;;
+	esac done
+
+	if [ -z "$flag_pass_by_what" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Must pass either the '--pass-by-ref' or '--pass-by-value' flag"
+		return
 	fi
 
 	local final_value_type="$1"
@@ -14,33 +24,40 @@ bash_object.traverse-set() {
 	local filter="$3"
 	local final_value="$4"
 
-	if (( $# != 4)); then
+	# We can only check the correct argument number under certain conditions
+	if [ "$flag_pass_by_what" = 'by-ref' ] && (( $# != 4)); then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
+		return
+	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( $# != 4 )); then
 		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
 		return
 	fi
 
-	# TODO: zerocopy check
 	# Ensure parameters are not empty
-	if [ "$flag_zerocopy" = no ]; then
-		for ((i=1; i<=$#; i++)); do
-			if [ -z "${!i}" ]; then
-				bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '$i' is empty. Please check passed parameters"
-				return
-			fi
-		done
-	elif [ "$flag_zerocopy" = yes ]; then
-		# If we are zerocopying, it means the string or array is passed on the
-		# command line; we don't check it since the string or the first element
-		# of array or string could be empty
-		for ((i=1; i<=$#-1; i++)); do
-		if [ -z "${!i}" ]; then
-			bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '$i' is empty. Please check passed parameters"
-			return
-		fi
-		done
-	else
-		bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' "Unexpected final_value_type '$final_value_type   $actual_final_value_type'"
+	if [ -z "$final_value_type" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '1' is empty. Please check passed parameters"
 		return
+	fi
+	if [ -z "$root_object_name" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '2' is empty. Please check passed parameters"
+		return
+	fi
+	if [ -z "$filter" ]; then
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '3' is empty. Please check passed parameters"
+		return
+	fi
+	if [[ "$flag_pass_by_what" == 'by-ref' && -z "$final_value" ]]; then
+		# Can only check if passing by ref, since we do not want to error if
+		# an empty string is passed (by value) or an array with empty string at
+		# index 0 is passed (by value)
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '4' is empty. Please check passed parameters"
+		return
+	fi
+
+	shift 4
+	# Do not do 'shift 5', since 5 is greater than 4, the minimum amount of valid parameters
+	if [ "$1" = -- ]; then
+		shift
 	fi
 
 	if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
@@ -56,39 +73,40 @@ bash_object.traverse-set() {
 			return
 		fi
 
-		# TODO: dont' do this in zerocopy mode
-		# Ensure the 'final_value' is the same type as specified by the user
-		local actual_final_value_type=
-		if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
-			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
-			return
-		fi
-		actual_final_value_type="${actual_final_value_type#declare -}"
-		case "${actual_final_value_type::1}" in
-			A) actual_final_value_type='object' ;;
-			a) actual_final_value_type='array' ;;
-			-) actual_final_value_type='string' ;;
-			*) actual_final_value_type='other' ;;
-		esac
+		if [ "$flag_pass_by_what" = 'by-ref' ]; then
+			# Ensure the 'final_value' is the same type as specified by the user
+			local actual_final_value_type=
+			if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
+				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
+				return
+			fi
+			actual_final_value_type="${actual_final_value_type#declare -}"
+			case "${actual_final_value_type::1}" in
+				A) actual_final_value_type='object' ;;
+				a) actual_final_value_type='array' ;;
+				-) actual_final_value_type='string' ;;
+				*) actual_final_value_type='other' ;;
+			esac
 
-		if [ "$final_value_type" == object ]; then
-			if [ "$actual_final_value_type" != object ]; then
-				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+			if [ "$final_value_type" == object ]; then
+				if [ "$actual_final_value_type" != object ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					return
+				fi
+			elif [ "$final_value_type" == array ]; then
+				if [ "$actual_final_value_type" != array ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					return
+				fi
+			elif [ "$final_value_type" == string ]; then
+				if [ "$actual_final_value_type" != string ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					return
+				fi
+			else
+				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 				return
 			fi
-		elif [ "$final_value_type" == array ]; then
-			if [ "$actual_final_value_type" != array ]; then
-				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
-				return
-			fi
-		elif [ "$final_value_type" == string ]; then
-			if [ "$actual_final_value_type" != string ]; then
-				bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
-				return
-			fi
-		else
-			bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
-			return
 		fi
 	fi
 

@@ -19,13 +19,13 @@ bobject() {
 			bash_object.traverse-get object "$@"
 			;;
 		set-string)
-			bash_object.traverse-set string "$@"
+			bash_object.traverse-set --pass-by-ref string "$@"
 			;;
 		set-array)
-			bash_object.traverse-set array "$@"
+			bash_object.traverse-set --pass-by-ref array "$@"
 			;;
 		set-object)
-			bash_object.traverse-set object "$@"
+			bash_object.traverse-set --pass-by-ref object "$@"
 			;;
 		*)
 			bash_object.util.die 'ERROR_INVALID_ARGS' "Subcommand '$subcmd' not recognized"

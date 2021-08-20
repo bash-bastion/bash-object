@@ -60,3 +60,4 @@ bpm install
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
 - "queried for X, but found existing object": print object in error (same with indexed arrays)
 - zerocopy for get and set
+- -p flag?

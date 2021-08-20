@@ -6,7 +6,7 @@ load './util/init.sh'
 	declare -a arr=(omicron pi rho)
 	declare -A OBJECT=()
 
-	bash_object.traverse-set array 'OBJECT' '.arr' arr
+	bash_object.traverse-set --pass-by-ref array 'OBJECT' '.arr' arr
 
 	bash_object.traverse-get array 'OBJECT' '.arr'
 	assert [ ${#REPLY[@]} -eq 3 ]

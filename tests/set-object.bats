@@ -6,7 +6,7 @@ load './util/init.sh'
 	declare -A obj=([omicron]=pi [rho]=sigma [tau]=upsilon)
 	declare -A OBJECT=()
 
-	bash_object.traverse-set object 'OBJECT' '.obj' obj
+	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' obj
 
 	bash_object.traverse-get object 'OBJECT' '.obj'
 	assert [ ${#REPLY[@]} -eq 3 ]
