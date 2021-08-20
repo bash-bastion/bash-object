@@ -8,12 +8,12 @@ load './util/init.sh'
 
 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.obj' obj
 
-	bash_object.traverse-get object 'OBJECT' '.obj'
+	bobject get-object 'OBJECT' '.obj'
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[omicron]}" = pi ]
 	assert [ "${REPLY[rho]}" = sigma ]
 	assert [ "${REPLY[tau]}" = upsilon ]
 
-	bash_object.traverse-get string 'OBJECT' '.obj.rho'
+	bobject get-string 'OBJECT' '.obj.rho'
 	assert [ "$REPLY" = sigma ]
 }

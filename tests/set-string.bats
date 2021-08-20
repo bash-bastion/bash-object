@@ -9,7 +9,7 @@ load './util/init.sh'
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.my_key' str
 	assert [ "${OBJECT[my_key]}" = 'my_value' ]
 
-	bash_object.traverse-get string 'OBJECT' '.my_key'
+	bobject get-string 'OBJECT' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -19,7 +19,7 @@ load './util/init.sh'
 	str='phi'
 
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.tau.upsilon' str
-	bash_object.traverse-get string 'OBJECT' '.tau.upsilon'
+	bobject get-string 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
 
@@ -31,7 +31,7 @@ load './util/init.sh'
 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.tau' obj
 
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.tau.upsilon' str
-	bash_object.traverse-get string 'OBJECT' '.tau.upsilon'
+	bobject get-string 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
 
@@ -42,7 +42,7 @@ load './util/init.sh'
 	str='sigma'
 
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	bobject get-string 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 }
 
@@ -54,7 +54,7 @@ load './util/init.sh'
 	bash_object.traverse-set --pass-by-ref object 'OBJECT' '.omicron.pi' obj
 
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	bobject get-string 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 }
 
@@ -68,13 +68,13 @@ load './util/init.sh'
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str1
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' str2
 
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	bobject get-string 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
+	bobject get-string 'OBJECT' '.omicron.pi.tau'
 	assert [ "$REPLY" = 'upsilon' ]
 
-	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
+	bobject get-object 'OBJECT' '.omicron.pi'
 
 	assert [ "${REPLY[rho]}" = 'sigma' ]
 	assert [ "${REPLY[tau]}" = 'upsilon' ]
@@ -91,13 +91,13 @@ load './util/init.sh'
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.rho' str1
 	bash_object.traverse-set --pass-by-ref string 'OBJECT' '.omicron.pi.tau' str2
 
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.rho'
+	bobject get-string 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 
-	bash_object.traverse-get string 'OBJECT' '.omicron.pi.tau'
+	bobject get-string 'OBJECT' '.omicron.pi.tau'
 	assert [ "$REPLY" = 'upsilon' ]
 
-	bash_object.traverse-get object 'OBJECT' '.omicron.pi'
+	bobject get-object 'OBJECT' '.omicron.pi'
 
 	assert [ "${REPLY[rho]}" = 'sigma' ]
 	assert [ "${REPLY[tau]}" = 'upsilon' ]

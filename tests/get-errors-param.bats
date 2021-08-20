@@ -1,20 +1,13 @@
 #!/usr/bin/env bats
 
 # @brief Contains tests that ensure the positional
-# parameters have been validated properly, when possible
+# parameters have been validated properly, when possible. \$1 is not
+# tested because bobject.sh always sets the first positional parameter
 
 load './util/init.sh'
 
-@test "Error with \$# of 1" {
-	run bash_object.traverse-get string
-
-	assert_failure
-	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p ", but received '1'"
-}
-
 @test "Error with \$# of 2" {
-	run bash_object.traverse-get string 'OBJECT'
+	run bobject get-string 'OBJECT'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -22,23 +15,15 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 4" {
-	run bash_object.traverse-get string 'OBJECT' '.obj' extraneous
+	run bobject get-string 'OBJECT' '.obj' extraneous
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
 	assert_line -p ", but received '4'"
 }
 
-@test "Error on empty \$1" {
-	run bash_object.traverse-get "" 'OBJECT' '.obj'
-
-	assert_failure
-	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "'1' is empty"
-}
-
 @test "Error on empty \$2" {
-	run bash_object.traverse-get string "" '.obj'
+	run bobject get-string "" '.obj'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -46,7 +31,7 @@ load './util/init.sh'
 }
 
 @test "Error on empty \$3" {
-	run bash_object.traverse-get string 'OBJECT' ""
+	run bobject get-string 'OBJECT' ""
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
