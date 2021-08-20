@@ -2,7 +2,7 @@
 
 load './util/init.sh'
 
-@test "correctly sets array" {
+@test "Correctly sets array" {
 	declare -a arr=(omicron pi rho)
 	declare -A OBJECT=()
 

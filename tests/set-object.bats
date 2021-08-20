@@ -2,7 +2,7 @@
 
 load './util/init.sh'
 
-@test "correctly sets object" {
+@test "Correctly sets object" {
 	declare -A obj=([omicron]=pi [rho]=sigma [tau]=upsilon)
 	declare -A OBJECT=()
 
