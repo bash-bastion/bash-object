@@ -27,6 +27,17 @@ load './util/init.sh'
 	assert_line -p 'Queried for object, but found existing string'
 }
 
+@test "Error on get-object'ing string inside array" {
+	declare -a SUB_ARRAY=(upsilon phi chi psi omicron)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse-get object OBJECT '.["my_key"].[3]'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found existing string'
+}
+
 @test "Error on get-object'ing array" {
 	declare -a SUB_ARRAY=(omicron pi rho)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
@@ -44,6 +55,18 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 
 	run bash_object.traverse-get object OBJECT '.my_key.nested'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for object, but found existing array'
+}
+
+@test "Error on get-object'ing array inside array" {
+	declare -a SUB_SUB_ARRAY=(alpha beta gamma delta)
+	declare -a SUB_ARRAY=(upsilon phi chi $'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse-get object OBJECT '.["my_key"].[3]'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
@@ -72,6 +95,17 @@ load './util/init.sh'
 	assert_line -p 'Queried for array, but found existing string'
 }
 
+@test "Error on get-array'ing string in array" {
+	declare -a SUB_ARRAY=(epsilon zeta eta)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_ARRAY')
+
+	run bash_object.traverse-get array OBJECT '.["my_key"].[2]'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for array, but found existing string'
+}
+
 @test "Error on get-array'ing object" {
 	declare -A SUB_OBJECT=([omicron]='pi')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
@@ -89,6 +123,18 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	run bash_object.traverse-get array OBJECT '.my_key.nested'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for array, but found existing object'
+}
+
+@test "Error on get-array'ing object in array" {
+	declare -A SUB_SUB_OBJECT=([omicron]='pi')
+	declare -a SUB_ARRAY=(epsilon $'\x1C\x1Dtype=object;&SUB_SUB_OBJECT' zeta)
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse-get array OBJECT '.["my_key"].[1]'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
@@ -119,6 +165,18 @@ load './util/init.sh'
 	assert_line -p 'Queried for string, but found existing object'
 }
 
+@test "Error on get-string'ing object in array" {
+	declare -A SUB_SUB_OBJECT=([omicron]='pi')
+	declare -a SUB_ARRAY=(epislon zeta eta $'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse-get string OBJECT '.["my_key"].[3]'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for string, but found existing object'
+}
+
 @test "Error on get-string'ing array" {
 	declare -a SUB_ARRAY=(omicron pi rho)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
@@ -136,6 +194,18 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 
 	run bash_object.traverse-get string OBJECT '.my_key.nested'
+
+	assert_failure
+	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
+	assert_line -p 'Queried for string, but found existing array'
+}
+
+@test "Error on get-string'ing array in array" {
+	declare -a SUB_SUB_ARRAY=(omicron pi rho)
+	declare -a SUB_ARRAY=(omicron pi $'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+
+	run bash_object.traverse-get string OBJECT '.["my_key"].[2]'
 
 	assert_failure
 	assert_line -p "ERROR_VALUE_INCORRECT_TYPE"
