@@ -1,6 +1,9 @@
 # shellcheck shell=bash
 
 bash_object.traverse-set() {
+	# TODO: rename zerocopy, as it's misleading - ex. 'zerocopy' object would be slower
+	local flag_zerocopy='no'
+
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
 		stdtrace.log 0 "CALL: bash_object.traverse-set: $*"
@@ -12,66 +15,81 @@ bash_object.traverse-set() {
 	local final_value="$4"
 
 	if (( $# != 4)); then
-		bash_object.util.die 'ERROR_INVALID_ARGS' "Incorrect arguments for subcommand 'set-$final_value_type'"
+		bash_object.util.die 'ERROR_INVALID_ARGS' "Expected '4' arguments, but received '$#'"
 		return
 	fi
 
-	# TODO test
+	# TODO: zerocopy check
 	# Ensure parameters are not empty
-	local variable=
-	for variable_name in final_value_type root_object_name filter; do
-		local -n variable="$variable_name"
-
-		if [ -z "$variable" ]; then
-			bash_object.util.die 'ERROR_INVALID_ARGS' "Variable '$variable' is empty. Please check passed parameters"
+	if [ "$flag_zerocopy" = no ]; then
+		for ((i=1; i<=$#; i++)); do
+			if [ -z "${!i}" ]; then
+				bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '$i' is empty. Please check passed parameters"
+				return
+			fi
+		done
+	elif [ "$flag_zerocopy" = yes ]; then
+		# If we are zerocopying, it means the string or array is passed on the
+		# command line; we don't check it since the string or the first element
+		# of array or string could be empty
+		for ((i=1; i<=$#-1; i++)); do
+		if [ -z "${!i}" ]; then
+			bash_object.util.die 'ERROR_INVALID_ARGS' "Positional parameter '$i' is empty. Please check passed parameters"
 			return
 		fi
-	done
+		done
+	else
+		bash_object.util.die 'ERROR_INTERNAL_MISCELLANEOUS' "Unexpected final_value_type '$final_value_type   $actual_final_value_type'"
+		return
+	fi
 
 	if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
-		# TODO: test
-		# Check 'root_object_name'
+		# Ensure the root object exists, and is an associative array
 		local root_object_type=
 		if root_object_type="$(declare -p "$root_object_name" 2>/dev/null)"; then :; else
-			bash_object.util.die 'ERROR_INVALID_ARGS' "The final value of '$root_object_name' does not exist"
+			bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The associative array '$root_object_name' does not exist"
 			return
 		fi
 		root_object_type="${root_object_type#declare -}"
 		if [ "${root_object_type::1}" != 'A' ]; then
-			bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The root object must have a type of 'object'"
+			bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The 'root object' must be an associative array"
 			return
 		fi
 
-		# TODO: test
-		# Check 'final_value' for type correctness
-		if [ "$final_value_type" != string ]; then
+		# TODO: dont' do this in zerocopy mode
+		# Ensure the 'final_value' is the same type as specified by the user
+		if [ "$final_value_type" != string ]; then # remove this conditional when consistency and zerocopy mode
 			local actual_final_value_type=
 			if ! actual_final_value_type="$(declare -p "$final_value" 2>/dev/null)"; then
-				bash_object.util.die 'ERROR_INVALID_ARGS' "The final value of '$final_value' does not exist"
+				bash_object.util.die 'ERROR_VALUE_NOT_FOUND' "The variable '$final_value' does not exist"
 				return
 			fi
 			actual_final_value_type="${actual_final_value_type#declare -}"
 			case "${actual_final_value_type::1}" in
 				A) actual_final_value_type='object' ;;
 				a) actual_final_value_type='array' ;;
-				i) actual_final_value_type='integer' ;;
 				-) actual_final_value_type='string' ;;
-				*) actual_final_value_type='unknown' ;;
+				*) actual_final_value_type='other' ;;
 			esac
 
 			if [ "$final_value_type" == object ]; then
 				if [ "$actual_final_value_type" != object ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The type of the final value was expected to be '$final_value_type', but was actually '$actual_final_value_type'"
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
 			elif [ "$final_value_type" == array ]; then
 				if [ "$actual_final_value_type" != array ]; then
-					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "The type of the final value was expected to be '$final_value_type', but was actually '$actual_final_value_type'"
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
+					return
+				fi
+			# TODO: currently extraneous, but needed after 'zerocopy' implementation
+			elif [ "$final_value_type" == string ]; then
+				if [ "$actual_final_value_type" != string ]; then
+					bash_object.util.die 'ERROR_VALUE_INCORRECT_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
 			else
-				# case 'string' is handled above
-				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type   $actual_final_value_type'"
+				bash_object.util.die 'ERROR_INTERNAL_INVALID_PARAM' "Unexpected final_value_type '$final_value_type'"
 				return
 			fi
 		fi

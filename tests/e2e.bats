@@ -37,7 +37,7 @@ load './util/init.sh'
 		run bobject "$subcmd" 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
 
 		assert_failure
-		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
+		assert_line -p "Expected '4' arguments, but received '5'"
 	done
 }
 
@@ -50,7 +50,7 @@ load './util/init.sh'
 		run bobject "$subcmd" 'OBJECT' '.zulu'
 
 		assert_failure
-		assert_line -p "Incorrect arguments for subcommand '$subcmd'"
+		assert_line -p "Expected '4' arguments, but received '3'"
 	done
 }
 
