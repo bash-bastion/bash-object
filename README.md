@@ -27,10 +27,10 @@ declare -A yankee_object=()
 declare -A xray_object=([whiskey]=victor)
 declare -a foxtrot_array=(omicron pi rho sigma)
 
-bobject set-object --pass-by-ref root_object '.zulu' zulu_object
-bobject set-object --pass-by-ref root_object '.zulu.yankee' yankee_object
-bobject set-object --pass-by-ref root_object '.zulu.yankee.xray' xray_object
-bobject set-array --pass-by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+bobject set-object --by-ref root_object '.zulu' zulu_object
+bobject set-object --by-ref root_object '.zulu.yankee' yankee_object
+bobject set-object --by-ref root_object '.zulu.yankee.xray' xray_object
+bobject set-array --by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
 bobject get-object root_object '.zulu.yankee.xray'
 assert [ "${REPLY[whiskey]}" = victor ]

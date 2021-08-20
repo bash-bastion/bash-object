@@ -35,7 +35,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --pass-by-ref 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
+		run bobject "$subcmd" --by-ref 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
 
 		assert_failure
 		assert_line -p "Expected '4' arguments, but received '5'"
@@ -48,7 +48,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --pass-by-ref 'OBJECT' '.zulu'
+		run bobject "$subcmd" --by-ref 'OBJECT' '.zulu'
 
 		assert_failure
 		assert_line -p "Expected '4' arguments, but received '3'"
@@ -60,8 +60,8 @@ load './util/init.sh'
 	declare -A subobj=()
 	str='MEOW'
 
-	bobject set-object --pass-by-ref 'OBJECT' '.zulu' subobj
-	bobject set-string --pass-by-ref 'OBJECT' '.zulu.yankee' str
+	bobject set-object --by-ref 'OBJECT' '.zulu' subobj
+	bobject set-string --by-ref 'OBJECT' '.zulu.yankee' str
 	bobject get-string 'OBJECT' '.zulu.yankee'
 
 	assert [ "$REPLY" = 'MEOW' ]
@@ -72,8 +72,8 @@ load './util/init.sh'
 	declare -A subobj=()
 	str='MEOW'
 
-	bobject set-object --pass-by-ref 'OBJECT' '.zulu' subobj
-	bobject set-string --pass-by-ref 'OBJECT' '.["zulu"].["yankee"]' str
+	bobject set-object --by-ref 'OBJECT' '.zulu' subobj
+	bobject set-string --by-ref 'OBJECT' '.["zulu"].["yankee"]' str
 	bobject get-string 'OBJECT' '.["zulu"].["yankee"]'
 
 	assert [ "$REPLY" = 'MEOW' ]
@@ -86,10 +86,10 @@ load './util/init.sh'
 	declare -A xray_object=([whiskey]=victor)
 	declare -a foxtrot_array=(omicron pi rho sigma)
 
-	bobject set-object --pass-by-ref root_object '.zulu' zulu_object
-	bobject set-object --pass-by-ref root_object '.zulu.yankee' yankee_object
-	bobject set-object --pass-by-ref root_object '.zulu.yankee.xray' xray_object
-	bobject set-array --pass-by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+	bobject set-object --by-ref root_object '.zulu' zulu_object
+	bobject set-object --by-ref root_object '.zulu.yankee' yankee_object
+	bobject set-object --by-ref root_object '.zulu.yankee.xray' xray_object
+	bobject set-array --by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
 	bobject get-object root_object '.zulu.yankee.xray'
 	assert [ "${REPLY[whiskey]}" = victor ]

@@ -6,7 +6,7 @@ load './util/init.sh'
 	declare -a arr=(omicron pi rho)
 	declare -A OBJECT=()
 
-	bobject set-array --pass-by-ref 'OBJECT' '.arr' arr
+	bobject set-array --by-ref 'OBJECT' '.arr' arr
 
 	bobject get-array 'OBJECT' '.arr'
 	assert [ ${#REPLY[@]} -eq 3 ]

@@ -12,7 +12,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.my_key' obj
+	run bobject set-object --by-ref OBJECT '.my_key' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -25,7 +25,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.my_key.nested' obj
+	run bobject set-object --by-ref OBJECT '.my_key.nested' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -38,7 +38,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.["my_key"].[2]' obj
+	run bobject set-object --by-ref OBJECT '.["my_key"].[2]' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -49,7 +49,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]='string_value2')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.my_key' obj
+	run bobject set-object --by-ref OBJECT '.my_key' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -61,7 +61,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.my_key.nested' obj
+	run bobject set-object --by-ref OBJECT '.my_key.nested' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -73,7 +73,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A obj=([upsilon]=phi)
 
-	run bobject set-object --pass-by-ref OBJECT '.["my_key"].[2]' obj
+	run bobject set-object --by-ref OBJECT '.["my_key"].[2]' obj
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -86,7 +86,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.my_key' arr
+	run bobject set-array --by-ref OBJECT '.my_key' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -99,7 +99,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.my_key.nested' arr
+	run bobject set-array --by-ref OBJECT '.my_key.nested' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -112,7 +112,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.["my_key"].[2]' arr
+	run bobject set-array --by-ref OBJECT '.["my_key"].[2]' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -123,7 +123,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]='string_value2')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.my_key' arr
+	run bobject set-array --by-ref OBJECT '.my_key' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -135,7 +135,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.my_key.nested' arr
+	run bobject set-array --by-ref OBJECT '.my_key.nested' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -147,7 +147,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=(upsilon phi chi psi)
 
-	run bobject set-array --pass-by-ref OBJECT '.["my_key"].[2]' arr
+	run bobject set-array --by-ref OBJECT '.["my_key"].[2]' arr
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -160,7 +160,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.my_key' str
+	run bobject set-string --by-ref OBJECT '.my_key' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -173,7 +173,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.my_key.nested' str
+	run bobject set-string --by-ref OBJECT '.my_key.nested' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -186,7 +186,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.["my_key"].[2]' str
+	run bobject set-string --by-ref OBJECT '.["my_key"].[2]' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -198,7 +198,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.my_key' str
+	run bobject set-string --by-ref OBJECT '.my_key' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -211,7 +211,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.my_key.nested' str
+	run bobject set-string --by-ref OBJECT '.my_key.nested' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
@@ -224,7 +224,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	str='psi-omega'
 
-	run bobject set-string --pass-by-ref OBJECT '.["my_key"].[2]' str
+	run bobject set-string --by-ref OBJECT '.["my_key"].[2]' str
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"

@@ -53,7 +53,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A obj=()
 
-	run bobject set-object OBJECT --pass-by-ref '.my_key.nested' obj
+	run bobject set-object OBJECT --by-ref '.my_key.nested' obj
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -65,7 +65,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A obj=()
 
-	run bobject set-object OBJECT --pass-by-ref '.my_key.nested.gone' obj
+	run bobject set-object OBJECT --by-ref '.my_key.nested.gone' obj
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -77,7 +77,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=()
 
-	run bobject set-array OBJECT --pass-by-ref '.my_key.nested' arr
+	run bobject set-array OBJECT --by-ref '.my_key.nested' arr
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -89,7 +89,7 @@ load './util/init.sh'
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=()
 
-	run bobject set-array OBJECT --pass-by-ref '.my_key.nested.gone' arr
+	run bobject set-array OBJECT --by-ref '.my_key.nested.gone' arr
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"

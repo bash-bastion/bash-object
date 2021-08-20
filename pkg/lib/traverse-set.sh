@@ -10,14 +10,14 @@ bash_object.traverse-set() {
 	local -a args=()
 
 	for arg; do case "$arg" in
-		--pass-by-ref) flag_pass_by_what='by-ref'; shift ;;
-		--pass-by-value) flag_pass_by_what='by-value'; shift ;;
+		--by-ref) flag_pass_by_what='by-ref'; shift ;;
+		--by-value) flag_pass_by_what='by-value'; shift ;;
 		--) shift; break ;;
 		*) args+=("$arg") ;;
 	esac done
 
 	if [ -z "$flag_pass_by_what" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--pass-by-ref' or '--pass-by-value' flag"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--by-ref' or '--by-value' flag"
 		return
 	fi
 

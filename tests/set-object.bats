@@ -6,7 +6,7 @@ load './util/init.sh'
 	declare -A obj=([omicron]=pi [rho]=sigma [tau]=upsilon)
 	declare -A OBJECT=()
 
-	bobject set-object --pass-by-ref 'OBJECT' '.obj' obj
+	bobject set-object --by-ref 'OBJECT' '.obj' obj
 
 	bobject get-object 'OBJECT' '.obj'
 	assert [ ${#REPLY[@]} -eq 3 ]
