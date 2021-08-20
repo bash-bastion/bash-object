@@ -66,7 +66,7 @@ declare -A OBJECT=([xray]=$'\x1C\x1Dtype=object;&unique_global_variable_xray')
 You can retrieve the data with
 
 ```sh
-bobject get-object 'OBJECT' 'xray'
+bobject get-object --as-value 'OBJECT' 'xray'
 assert [ "${REPLY[yankee]}" = zulu ]
 ```
 

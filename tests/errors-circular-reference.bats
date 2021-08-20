@@ -7,7 +7,7 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	run bobject get-object OBJECT '.my_key.nested'
+	run bobject get-object --as-value OBJECT '.my_key.nested'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -18,7 +18,7 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	run bobject get-object OBJECT '.my_key.nested.nested'
+	run bobject get-object --as-value OBJECT '.my_key.nested.nested'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -29,7 +29,7 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	run bobject get-array OBJECT '.my_key.nested'
+	run bobject get-array --as-value OBJECT '.my_key.nested'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -40,7 +40,7 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	run bobject get-array OBJECT '.my_key.nested.nested'
+	run bobject get-array --as-value OBJECT '.my_key.nested.nested'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"

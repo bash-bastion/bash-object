@@ -8,29 +8,60 @@ bash_object.traverse-get() {
 		stdtrace.log 0 "CALL: bash_object.traverse-get: $*"
 	fi
 
-	local final_value_type="$1"
-	local root_object_name="$2"
-	local filter="$3"
+	local flag_as_what=''
+	local -a args=()
+
+	for arg; do case "$arg" in
+	--as-ref)
+		if [ -n "$flag_as_what" ]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--as-ref' and '--as-value' are mutually exclusive"
+			return
+		fi
+		flag_as_what='as-ref'
+		;;
+	--as-value)
+		if [ -n "$flag_as_what" ]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--as-ref' and '--as-value' are mutually exclusive"
+			return
+		fi
+		flag_as_what='as-value'
+		;;
+	--)
+		break
+		;;
+	*)
+		args+=("$arg")
+		;;
+	esac done
+
+	if [ -z "$flag_as_what" ]; then
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--as-ref' or '--as-value' flag"
+		return
+	fi
 
 	# Ensure correct number of arguments have been passed
-	if (( $# != 3)); then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '3' arguments, but received '$#'"
+	if (( ${#args[@]} != 3)); then
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '3' arguments, but received '${#args[@]}'"
 		return
 	fi
 
 	# Ensure parameters are not empty
-	if [ -z "$final_value_type" ]; then
+	if [ -z "${args[0]}" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '1' is empty. Please check passed parameters"
 		return
 	fi
-	if [ -z "$root_object_name" ]; then
+	if [ -z "${args[1]}" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
 		return
 	fi
-	if [ -z "$filter" ]; then
+	if [ -z "${args[2]}" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
 		return
 	fi
+
+	local final_value_type="${args[0]}"
+	local root_object_name="${args[1]}"
+	local filter="${args[2]}"
 
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"

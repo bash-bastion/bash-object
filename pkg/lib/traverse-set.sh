@@ -10,10 +10,26 @@ bash_object.traverse-set() {
 	local -a args=()
 
 	for arg; do case "$arg" in
-		--by-ref) flag_pass_by_what='by-ref'; shift ;;
-		--by-value) flag_pass_by_what='by-value'; shift ;;
-		--) shift; break ;;
-		*) args+=("$arg") ;;
+	--by-ref)
+		if [ -n "$flag_pass_by_what" ]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--by-ref' and '--by-value' are mutually exclusive"
+			return
+		fi
+		flag_pass_by_what='by-ref'
+		;;
+	--by-value)
+		if [ -n "$flag_pass_by_what" ]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--by-ref' and '--by-value' are mutually exclusive"
+			return
+		fi
+		flag_pass_by_what='by-value'
+		;;
+	--)
+		break
+		;;
+	*)
+		args+=("$arg")
+		;;
 	esac done
 
 	if [ -z "$flag_pass_by_what" ]; then
@@ -21,18 +37,28 @@ bash_object.traverse-set() {
 		return
 	fi
 
-	local final_value_type="${args[0]}"
-	local root_object_name="${args[1]}"
-	local filter="${args[2]}"
-	local final_value="${args[3]}"
+	local final_value_type root_object_name filter final_value
+	# `set -u` compat
+	if [ -n "${args[0]+x}" ]; then
+		final_value_type="${args[0]}"
+	fi
+	if [ -n "${args[1]+x}" ]; then
+		root_object_name="${args[1]}"
+	fi
+	if [ -n "${args[2]+x}" ]; then
+		filter="${args[2]}"
+	fi
+	if [ -n "${args[3]+x}" ]; then
+		final_value="${args[3]}"
+	fi
 
-	# Ensure correct number of arguments have been passed. Only do this
-	# for circumstances in which we know the correct argument amount
+	# Ensure correct number of arguments have been passed
+	# Only do this for circumstances in which we know the correct argument amount
 	if [ "$flag_pass_by_what" = 'by-ref' ] && (( ${#args[@]} != 4)); then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '${#args[@]}'"
 		return
 	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( ${#args[@]} != 4 )); then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '$#'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '${#args[@]}'"
 		return
 	fi
 

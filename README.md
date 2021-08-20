@@ -32,16 +32,16 @@ bobject set-object --by-ref root_object '.zulu.yankee' yankee_object
 bobject set-object --by-ref root_object '.zulu.yankee.xray' xray_object
 bobject set-array --by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
-bobject get-object root_object '.zulu.yankee.xray'
+bobject get-object --as-value root_object '.zulu.yankee.xray'
 assert [ "${REPLY[whiskey]}" = victor ]
 
-bobject get-string root_object '.zulu.yankee.xray.whiskey'
+bobject get-string --as-value root_object '.zulu.yankee.xray.whiskey'
 assert [ "$REPLY" = victor ]
 
-bobject get-array root_object '.zulu.yankee.xray.foxtrot'
+bobject get-array --as-value root_object '.zulu.yankee.xray.foxtrot'
 assert [ ${#REPLY[@]} -eq 4 ]
 
-bobject get-string root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
+bobject get-string --as-value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 assert [ "$REPLY" = rho ]
 ```
 
@@ -58,4 +58,4 @@ bpm install
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
 - "queried for X, but found existing object": print object in error (same with indexed arrays)
---reply-with-value
+- use ${param@A} on newer bash instead of declare -p
