@@ -57,5 +57,5 @@ bpm install
 ## TODO
 - error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
-- "queried for X, but found existing object": print object in error (same with indexed arrays)
 - use ${param@A} on newer bash instead of declare -p
+- error if set in array out of bounds?

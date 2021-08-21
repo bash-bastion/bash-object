@@ -81,15 +81,16 @@ bash_object.traverse-get() {
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
-		filter_stack+=("$key")
-
-		bash_object.trace_loop
 
 		local is_index_of_array='no'
 		if [ "${key::1}" = $'\x1C' ]; then
 			key="${key#?}"
 			is_index_of_array='yes'
 		fi
+
+		filter_stack+=("$key")
+
+		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then

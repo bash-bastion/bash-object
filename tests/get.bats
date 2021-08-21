@@ -1,10 +1,9 @@
 #!/usr/bin/env bats
 
-# @brief These were the initial tests for 'get-object',
-# 'get-array', and 'get-strings' (before 'set-*' functions)
-# Now, with the 'set-*' functions mostly working, future tests
-# should use that function to keep things clean. Keep the old tests
-# tests just in case
+# @brief These were the initial tests for 'get-object', 'get-array', and
+# 'get-string' before their respective 'set' functions were implemented.
+# With the 'set' functions working, future tests should use them to keep
+# things clean
 
 load './util/init.sh'
 

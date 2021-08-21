@@ -151,17 +151,18 @@ bash_object.traverse-set() {
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
-		filter_stack+=("$key")
-		bash_object.util.generate_filter_stack_string
-		local filter_stack_string="$REPLY"
-
-		bash_object.trace_loop
 
 		local is_index_of_array='no'
 		if [ "${key::1}" = $'\x1C' ]; then
 			key="${key#?}"
 			is_index_of_array='yes'
 		fi
+
+		filter_stack+=("$key")
+		bash_object.util.generate_filter_stack_string
+		local filter_stack_string="$REPLY"
+
+		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
@@ -180,10 +181,6 @@ bash_object.traverse-set() {
 
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_object_name="$REPLY"
-
-					if bash_object.ensure.variable_is_valid "$global_object_name"; then :; else
-						return
-					fi
 
 					if bash_object.ensure.variable_does_not_exist "$global_object_name"; then :; else
 						return
@@ -215,15 +212,11 @@ bash_object.traverse-set() {
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_array_name="$REPLY"
 
-					if bash_object.ensure.variable_is_valid "$global_array_name"; then :; else
-						return
-					fi
-
 					if bash_object.ensure.variable_does_not_exist "$global_array_name"; then :; else
 						return
 					fi
 
-					if ! eval "declare -ga $global_array_name=()"; then
+					if ! eval "declare -ga $global_array_name=()" 2>/dev/null; then
 						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
 						return
 					fi
