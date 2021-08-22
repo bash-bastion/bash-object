@@ -13,7 +13,7 @@ load './util/init.sh'
 	declare -a whatever=()
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&whatever')
 
-	run bobject get-object --as-value OBJECT '.my_key'
+	run bobject get-object --value OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "ERROR_VOBJ_INCORRECT_TYPE"
@@ -26,7 +26,7 @@ load './util/init.sh'
 
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&whatever')
 
-	run bobject get-object --as-value OBJECT '.my_key'
+	run bobject get-object --value OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "ERROR_VOBJ_INCORRECT_TYPE"
@@ -39,7 +39,7 @@ load './util/init.sh'
 	declare -A whatever=()
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&whatever')
 
-	run bobject get-array --as-value OBJECT '.my_key'
+	run bobject get-array --value OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "ERROR_VOBJ_INCORRECT_TYPE"
@@ -52,7 +52,7 @@ load './util/init.sh'
 
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&whatever')
 
-	run bobject get-array --as-value OBJECT '.my_key'
+	run bobject get-array --value OBJECT '.my_key'
 
 	assert_failure
 	assert_line -p "ERROR_VOBJ_INCORRECT_TYPE"

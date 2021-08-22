@@ -10,16 +10,16 @@ bash_object.traverse-set() {
 	local -a args=()
 
 	for arg; do case "$arg" in
-	--by-ref)
+	--ref)
 		if [ -n "$flag_pass_by_what" ]; then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--by-ref' and '--by-value' are mutually exclusive"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
 			return
 		fi
 		flag_pass_by_what='by-ref'
 		;;
-	--by-value)
+	--value)
 		if [ -n "$flag_pass_by_what" ]; then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--by-ref' and '--by-value' are mutually exclusive"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
 			return
 		fi
 		flag_pass_by_what='by-value'
@@ -33,12 +33,12 @@ bash_object.traverse-set() {
 	esac done
 
 	if [ -z "$flag_pass_by_what" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--by-ref' or '--by-value' flag"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--ref' or '--value' flag"
 		return
 	fi
 
 	if [ "$flag_pass_by_what" = 'by-value' ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--by-value not implemented"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--value not implemented"
 	fi
 
 	local final_value_type root_object_name filter final_value

@@ -12,10 +12,10 @@ load './util/init.sh'
 	declare -A inner_object=([cool]='Wolf 359')
 	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
 
-	bobject get-object --as-value 'OBJ' '.stars'
+	bobject get-object --value 'OBJ' '.stars'
 	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
 
-	bobject get-string --as-value 'OBJ' '.stars.cool'
+	bobject get-string --value 'OBJ' '.stars.cool'
 	assert [ "$REPLY" = 'Wolf 359' ]
 }
 
@@ -24,10 +24,10 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([delta]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -A OBJ=([gamma]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	bobject get-object --as-value 'OBJ' '.gamma.delta'
+	bobject get-object --value 'OBJ' '.gamma.delta'
 	assert [ "${REPLY[omicron]}" = pi ]
 
-	bobject get-string --as-value 'OBJ' '.gamma.delta.omicron'
+	bobject get-string --value 'OBJ' '.gamma.delta.omicron'
 	assert [ "$REPLY" = pi ]
 }
 
@@ -36,18 +36,18 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([delta]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -A OBJ=([gamma]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	bobject get-object --as-value 'OBJ' '.gamma.delta'
+	bobject get-object --value 'OBJ' '.gamma.delta'
 	assert [ "${REPLY[omicron]}" = pi ]
 	assert [ "${REPLY[rho]}" = sigma ]
 	assert [ "${REPLY[tau]}" = upsilon ]
 
-	bobject get-string --as-value 'OBJ' '.gamma.delta.omicron'
+	bobject get-string --value 'OBJ' '.gamma.delta.omicron'
 	assert [ "$REPLY" = pi ]
 
-	bobject get-string --as-value 'OBJ' '.gamma.delta.rho'
+	bobject get-string --value 'OBJ' '.gamma.delta.rho'
 	assert [ "$REPLY" = sigma ]
 
-	bobject get-string --as-value 'OBJ' '.gamma.delta.tau'
+	bobject get-string --value 'OBJ' '.gamma.delta.tau'
 	assert [ "$REPLY" = upsilon ]
 }
 
@@ -56,10 +56,10 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=('foo' 'bar' $'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -A OBJ=([omicron]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	bobject get-object --as-value 'OBJ' '.["omicron"].[2]'
+	bobject get-object --value 'OBJ' '.["omicron"].[2]'
 	assert [ "${REPLY[pi]}" = rho ]
 
-	bobject get-string --as-value 'OBJ' '.["omicron"].[2].["pi"]'
+	bobject get-string --value 'OBJ' '.["omicron"].[2].["pi"]'
 	assert [ "$REPLY" = rho ]
 }
 
@@ -68,13 +68,13 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=(omicron pi rho)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	bobject get-array --as-value OBJECT '.my_key'
+	bobject get-array --value OBJECT '.my_key'
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = omicron ]
 	assert [ "${REPLY[1]}" = pi ]
 	assert [ "${REPLY[2]}" = rho ]
 
-	bobject get-string --as-value OBJECT '.["my_key"].[2]'
+	bobject get-string --value OBJECT '.["my_key"].[2]'
 	assert [ "$REPLY" = rho ]
 }
 
@@ -83,13 +83,13 @@ load './util/init.sh'
 	declare -A SUB_OBJECT=([subkey]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
-	bobject get-array --as-value OBJECT '.my_key.subkey'
+	bobject get-array --value OBJECT '.my_key.subkey'
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = pi ]
 	assert [ "${REPLY[1]}" = rho ]
 	assert [ "${REPLY[2]}" = sigma ]
 
-	bobject get-string --as-value OBJECT '.["my_key"].["subkey"].[2]'
+	bobject get-string --value OBJECT '.["my_key"].["subkey"].[2]'
 	assert [ "$REPLY" = sigma ]
 }
 
@@ -98,21 +98,21 @@ load './util/init.sh'
 	declare -a SUB_ARRAY=('foo' 'bar' $'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	bobject get-array --as-value OBJECT '.["my_key"].[2]'
+	bobject get-array --value OBJECT '.["my_key"].[2]'
 	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = omicron ]
 	assert [ "${REPLY[1]}" = pi ]
 	assert [ "${REPLY[2]}" = rho ]
 
 
-	bobject get-string --as-value OBJECT '.["my_key"].[2].[0]'
+	bobject get-string --value OBJECT '.["my_key"].[2].[0]'
 	assert [ "$REPLY" = omicron ]
 }
 
 @test "Correctly gets string at root" {
 	declare -A OBJECT=([my_key]='my_value')
 
-	bobject get-string --as-value OBJECT '.my_key'
+	bobject get-string --value OBJECT '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -120,7 +120,7 @@ load './util/init.sh'
 	declare -A EPSILON_OBJECT=([my_key]='my_value2')
 	declare -A OBJECT=([epsilon]=$'\x1C\x1Dtype=object;&EPSILON_OBJECT')
 
-	bobject get-string --as-value OBJECT '.epsilon.my_key'
+	bobject get-string --value OBJECT '.epsilon.my_key'
 	assert [ "$REPLY" = 'my_value2' ]
 }
 
@@ -129,10 +129,10 @@ load './util/init.sh'
 	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
 	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
-	bobject get-object --as-value 'OBJ' '.alfa.bravo'
+	bobject get-object --value 'OBJ' '.alfa.bravo'
 	assert [ "${REPLY[charlie]}" = 'delta' ]
 
-	bobject get-string --as-value 'OBJ' '.alfa.bravo.charlie'
+	bobject get-string --value 'OBJ' '.alfa.bravo.charlie'
 	assert [ "$REPLY" = 'delta' ]
 }
 
@@ -143,9 +143,9 @@ load './util/init.sh'
 	declare -A obj_alfa=([bravo]=$'\x1C\x1Dtype=object;&obj_bravo')
 	declare -A OBJ=([alfa]=$'\x1C\x1Dtype=object;&obj_alfa')
 
-	bobject get-object --as-value 'OBJ' '.alfa.bravo.charlie.delta'
+	bobject get-object --value 'OBJ' '.alfa.bravo.charlie.delta'
 	assert [ "${REPLY[echo]}" = 'final_value' ]
 
-	bobject get-string --as-value 'OBJ' '.alfa.bravo.charlie.delta.echo'
+	bobject get-string --value 'OBJ' '.alfa.bravo.charlie.delta.echo'
 	assert [ "$REPLY" = 'final_value' ]
 }

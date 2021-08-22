@@ -16,7 +16,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 2" {
-	run bobject get-string --as-value 'OBJECT'
+	run bobject get-string --value 'OBJECT'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -24,7 +24,7 @@ load './util/init.sh'
 }
 
 @test "Error with \$# of 4" {
-	run bobject get-string --as-value 'OBJECT' '.obj' extraneous
+	run bobject get-string --value 'OBJECT' '.obj' extraneous
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -32,7 +32,7 @@ load './util/init.sh'
 }
 
 @test "Error on empty \$2" {
-	run bobject get-string --as-value "" '.obj'
+	run bobject get-string --value "" '.obj'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
@@ -40,7 +40,7 @@ load './util/init.sh'
 }
 
 @test "Error on empty \$3" {
-	run bobject get-string --as-value 'OBJECT' ""
+	run bobject get-string --value 'OBJECT' ""
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"

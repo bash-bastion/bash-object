@@ -8,7 +8,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --as-value 'OBJECT' '.zulu.yankee' 'invalid'
+		run bobject "$subcmd" --value 'OBJECT' '.zulu.yankee' 'invalid'
 
 		assert_failure
 		assert_line -p "Expected '3' arguments, but received '4'"
@@ -21,7 +21,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --as-value 'invalid'
+		run bobject "$subcmd" --value 'invalid'
 
 		assert_failure
 		assert_failure
@@ -35,7 +35,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --by-ref 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
+		run bobject "$subcmd" --ref 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
 
 		assert_failure
 		assert_line -p "Expected '4' arguments, but received '5'"
@@ -48,7 +48,7 @@ load './util/init.sh'
 	for subcmd in "${subcmds[@]}"; do
 		declare -A OBJECT=()
 
-		run bobject "$subcmd" --by-ref 'OBJECT' '.zulu'
+		run bobject "$subcmd" --ref 'OBJECT' '.zulu'
 
 		assert_failure
 		assert_line -p "Expected '4' arguments, but received '3'"
@@ -60,9 +60,9 @@ load './util/init.sh'
 	declare -A subobj=()
 	str='MEOW'
 
-	bobject set-object --by-ref 'OBJECT' '.zulu' subobj
-	bobject set-string --by-ref 'OBJECT' '.zulu.yankee' str
-	bobject get-string --as-value 'OBJECT' '.zulu.yankee'
+	bobject set-object --ref 'OBJECT' '.zulu' subobj
+	bobject set-string --ref 'OBJECT' '.zulu.yankee' str
+	bobject get-string --value 'OBJECT' '.zulu.yankee'
 
 	assert [ "$REPLY" = 'MEOW' ]
 }
@@ -72,9 +72,9 @@ load './util/init.sh'
 	declare -A subobj=()
 	str='MEOW'
 
-	bobject set-object --by-ref 'OBJECT' '.zulu' subobj
-	bobject set-string --by-ref 'OBJECT' '.["zulu"].["yankee"]' str
-	bobject get-string --as-value 'OBJECT' '.["zulu"].["yankee"]'
+	bobject set-object --ref 'OBJECT' '.zulu' subobj
+	bobject set-string --ref 'OBJECT' '.["zulu"].["yankee"]' str
+	bobject get-string --value 'OBJECT' '.["zulu"].["yankee"]'
 
 	assert [ "$REPLY" = 'MEOW' ]
 }
@@ -86,20 +86,20 @@ load './util/init.sh'
 	declare -A xray_object=([whiskey]=victor)
 	declare -a foxtrot_array=(omicron pi rho sigma)
 
-	bobject set-object --by-ref root_object '.zulu' zulu_object
-	bobject set-object --by-ref root_object '.zulu.yankee' yankee_object
-	bobject set-object --by-ref root_object '.zulu.yankee.xray' xray_object
-	bobject set-array --by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+	bobject set-object --ref root_object '.zulu' zulu_object
+	bobject set-object --ref root_object '.zulu.yankee' yankee_object
+	bobject set-object --ref root_object '.zulu.yankee.xray' xray_object
+	bobject set-array --ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
-	bobject get-object --as-value root_object '.zulu.yankee.xray'
+	bobject get-object --value root_object '.zulu.yankee.xray'
 	assert [ "${REPLY[whiskey]}" = victor ]
 
-	bobject get-string --as-value root_object '.zulu.yankee.xray.whiskey'
+	bobject get-string --value root_object '.zulu.yankee.xray.whiskey'
 	assert [ "$REPLY" = victor ]
 
-	bobject get-array --as-value root_object '.zulu.yankee.xray.foxtrot'
+	bobject get-array --value root_object '.zulu.yankee.xray.foxtrot'
 	assert [ ${#REPLY[@]} -eq 4 ]
 
-	bobject get-string --as-value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
+	bobject get-string --value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 	assert [ "$REPLY" = rho ]
 }

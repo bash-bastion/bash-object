@@ -8,23 +8,23 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "Must pass either the '--as-ref' or '--as-value' flag"
+	assert_line -p "Must pass either the '--ref' or '--value' flag"
 }
 
 @test "get errors on combining mutually exclusive flags" {
-	run bobject get-string --as-value --as-ref
+	run bobject get-string --value --ref
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "Flags '--as-ref' and '--as-value' are mutually exclusive"
+	assert_line -p "Flags '--ref' and '--value' are mutually exclusive"
 }
 
-@test "error on unimplemented --as-ref" {
-	run bobject get-string --as-ref
+@test "error on unimplemented --ref" {
+	run bobject get-string --ref
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "--as-ref not implemented"
+	assert_line -p "--ref not implemented"
 }
 
 # set
@@ -33,21 +33,21 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "Must pass either the '--by-ref' or '--by-value' flag"
+	assert_line -p "Must pass either the '--ref' or '--value' flag"
 }
 
 @test "set errors on combining mutually exclusive flags" {
-	run bobject set-string --by-value --by-ref
+	run bobject set-string --value --ref
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "Flags '--by-ref' and '--by-value' are mutually exclusive"
+	assert_line -p "Flags '--ref' and '--value' are mutually exclusive"
 }
 
-@test "error on unimplemented --by-value" {
-	run bobject set-string --by-value
+@test "error on unimplemented --value" {
+	run bobject set-string --value
 
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "--by-value not implemented"
+	assert_line -p "--value not implemented"
 }

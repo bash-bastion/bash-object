@@ -1,6 +1,6 @@
 # bash-object
 
-The _first_ Bash library for imperatively constructing heterogenously hierarchical data structures
+The _first_ Bash library for imperatively constructing heterogeneously hierarchical data structures
 
 This is meant to be a low level API providing primitives for other libraries.
 
@@ -27,21 +27,21 @@ declare -A yankee_object=()
 declare -A xray_object=([whiskey]=victor)
 declare -a foxtrot_array=(omicron pi rho sigma)
 
-bobject set-object --by-ref root_object '.zulu' zulu_object
-bobject set-object --by-ref root_object '.zulu.yankee' yankee_object
-bobject set-object --by-ref root_object '.zulu.yankee.xray' xray_object
-bobject set-array --by-ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
+bobject set-object --ref root_object '.zulu' zulu_object
+bobject set-object --ref root_object '.zulu.yankee' yankee_object
+bobject set-object --ref root_object '.zulu.yankee.xray' xray_object
+bobject set-array --ref root_object '.zulu.yankee.xray.foxtrot' foxtrot_array
 
-bobject get-object --as-value root_object '.zulu.yankee.xray'
+bobject get-object --value root_object '.zulu.yankee.xray'
 assert [ "${REPLY[whiskey]}" = victor ]
 
-bobject get-string --as-value root_object '.zulu.yankee.xray.whiskey'
+bobject get-string --value root_object '.zulu.yankee.xray.whiskey'
 assert [ "$REPLY" = victor ]
 
-bobject get-array --as-value root_object '.zulu.yankee.xray.foxtrot'
+bobject get-array --value root_object '.zulu.yankee.xray.foxtrot'
 assert [ ${#REPLY[@]} -eq 4 ]
 
-bobject get-string --as-value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
+bobject get-string --value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 assert [ "$REPLY" = rho ]
 ```
 
@@ -55,7 +55,5 @@ bpm install
 ```
 
 ## TODO
-- error on invalid references (`type=object` in virtual object metadata, when it is referencing an array)
 - ensure error (for set primarily) if the virtual object references a variable that does not exist
-- use ${param@A} on newer bash instead of declare -p
 - error if set in array out of bounds?

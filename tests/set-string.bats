@@ -6,10 +6,10 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	str='my_value'
 
-	bobject set-string --by-ref 'OBJECT' '.my_key' str
+	bobject set-string --ref 'OBJECT' '.my_key' str
 	assert [ "${OBJECT[my_key]}" = 'my_value' ]
 
-	bobject get-string --as-value 'OBJECT' '.my_key'
+	bobject get-string --value 'OBJECT' '.my_key'
 	assert [ "$REPLY" = 'my_value' ]
 }
 
@@ -18,8 +18,8 @@ load './util/init.sh'
 	declare -A OBJECT=([tau]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='phi'
 
-	bobject set-string --by-ref 'OBJECT' '.tau.upsilon' str
-	bobject get-string --as-value 'OBJECT' '.tau.upsilon'
+	bobject set-string --ref 'OBJECT' '.tau.upsilon' str
+	bobject get-string --value 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
 
@@ -28,10 +28,10 @@ load './util/init.sh'
 	declare -A OBJECT=()
 	str='phi'
 
-	bobject set-object --by-ref 'OBJECT' '.tau' obj
+	bobject set-object --ref 'OBJECT' '.tau' obj
 
-	bobject set-string --by-ref 'OBJECT' '.tau.upsilon' str
-	bobject get-string --as-value 'OBJECT' '.tau.upsilon'
+	bobject set-string --ref 'OBJECT' '.tau.upsilon' str
+	bobject get-string --value 'OBJECT' '.tau.upsilon'
 	assert [ "$REPLY" = 'phi' ]
 }
 
@@ -41,8 +41,8 @@ load './util/init.sh'
 	declare -A OBJECT=([omicron]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='sigma'
 
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.rho' str
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.rho'
+	bobject set-string --ref 'OBJECT' '.omicron.pi.rho' str
+	bobject get-string --value 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 }
 
@@ -50,11 +50,11 @@ load './util/init.sh'
 	declare -A obj=()
 	str='sigma'
 
-	bobject set-object --by-ref 'OBJECT' '.omicron' obj
-	bobject set-object --by-ref 'OBJECT' '.omicron.pi' obj
+	bobject set-object --ref 'OBJECT' '.omicron' obj
+	bobject set-object --ref 'OBJECT' '.omicron.pi' obj
 
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.rho' str
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.rho'
+	bobject set-string --ref 'OBJECT' '.omicron.pi.rho' str
+	bobject get-string --value 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 }
 
@@ -65,16 +65,16 @@ load './util/init.sh'
 	str1='sigma'
 	str2='upsilon'
 
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.rho' str1
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.tau' str2
+	bobject set-string --ref 'OBJECT' '.omicron.pi.rho' str1
+	bobject set-string --ref 'OBJECT' '.omicron.pi.tau' str2
 
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.rho'
+	bobject get-string --value 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.tau'
+	bobject get-string --value 'OBJECT' '.omicron.pi.tau'
 	assert [ "$REPLY" = 'upsilon' ]
 
-	bobject get-object --as-value 'OBJECT' '.omicron.pi'
+	bobject get-object --value 'OBJECT' '.omicron.pi'
 
 	assert [ "${REPLY[rho]}" = 'sigma' ]
 	assert [ "${REPLY[tau]}" = 'upsilon' ]
@@ -85,19 +85,19 @@ load './util/init.sh'
 	str1='sigma'
 	str2='upsilon'
 
-	bobject set-object --by-ref 'OBJECT' '.omicron' obj
-	bobject set-object --by-ref 'OBJECT' '.omicron.pi' obj
+	bobject set-object --ref 'OBJECT' '.omicron' obj
+	bobject set-object --ref 'OBJECT' '.omicron.pi' obj
 
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.rho' str1
-	bobject set-string --by-ref 'OBJECT' '.omicron.pi.tau' str2
+	bobject set-string --ref 'OBJECT' '.omicron.pi.rho' str1
+	bobject set-string --ref 'OBJECT' '.omicron.pi.tau' str2
 
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.rho'
+	bobject get-string --value 'OBJECT' '.omicron.pi.rho'
 	assert [ "$REPLY" = 'sigma' ]
 
-	bobject get-string --as-value 'OBJECT' '.omicron.pi.tau'
+	bobject get-string --value 'OBJECT' '.omicron.pi.tau'
 	assert [ "$REPLY" = 'upsilon' ]
 
-	bobject get-object --as-value 'OBJECT' '.omicron.pi'
+	bobject get-object --value 'OBJECT' '.omicron.pi'
 
 	assert [ "${REPLY[rho]}" = 'sigma' ]
 	assert [ "${REPLY[tau]}" = 'upsilon' ]

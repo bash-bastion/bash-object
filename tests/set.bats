@@ -11,7 +11,7 @@ load './util/init.sh'
 	}
 	declare -g some_other_var=
 
-	run bobject set-object --by-ref 'OBJECT' '.obj' objj
+	run bobject set-object --ref 'OBJECT' '.obj' objj
 
 	assert_failure
 	assert_output -p 'ERROR_INTERNAL'

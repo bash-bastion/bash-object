@@ -12,16 +12,16 @@ bash_object.traverse-get() {
 	local -a args=()
 
 	for arg; do case "$arg" in
-	--as-ref)
+	--ref)
 		if [ -n "$flag_as_what" ]; then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--as-ref' and '--as-value' are mutually exclusive"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
 			return
 		fi
 		flag_as_what='as-ref'
 		;;
-	--as-value)
+	--value)
 		if [ -n "$flag_as_what" ]; then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--as-ref' and '--as-value' are mutually exclusive"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
 			return
 		fi
 		flag_as_what='as-value'
@@ -35,12 +35,12 @@ bash_object.traverse-get() {
 	esac done
 
 	if [ -z "$flag_as_what" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--as-ref' or '--as-value' flag"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--ref' or '--value' flag"
 		return
 	fi
 
 	if [ "$flag_as_what" = 'as-ref' ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--as-ref not implemented"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--ref not implemented"
 	fi
 
 	# Ensure correct number of arguments have been passed

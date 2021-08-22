@@ -62,7 +62,7 @@ bash_object.util.generate_vobject_name() {
 # stack. This is used when generating objects to prevent
 # conflicts
 bash_object.util.generate_filter_stack_string() {
-	unset REPLY
+	unset REPLY; REPLY=
 
 	local oldIFS="$IFS"
 	IFS='_'
