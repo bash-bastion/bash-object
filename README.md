@@ -59,4 +59,4 @@ bpm install
 - clean up argument parsing?
 - do something with 'is_index_of_array?' (do not allow for using index notation to get keys of objects)
 - set element of the same type that already exists (--overwrite?)
-- filter => query
+- querytree => query

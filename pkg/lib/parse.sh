@@ -4,7 +4,7 @@
 # object / array access
 # @exitcode 1 Miscellaneous error
 # @exitcode 2 Parsing error
-bash_object.parse_filter() {
+bash_object.parse_querytree() {
 	declare -ga REPLIES=()
 
 	local flag_parser_type=
@@ -18,16 +18,16 @@ bash_object.parse_filter() {
 		shift ;;
 	esac done
 
-	local filter="$1"
+	local querytree="$1"
 
 	if [ "$flag_parser_type" = 'simple' ]; then
-		if [ "${filter::1}" != . ]; then
-			bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter must begin with a dot'
+		if [ "${querytree::1}" != . ]; then
+			bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Querytree must begin with a dot'
 			return
 		fi
 
 		local old_ifs="$IFS"; IFS=.
-		for key in $filter; do
+		for key in $querytree; do
 			if [ -z "$key" ]; then
 				continue
 			fi
@@ -42,7 +42,7 @@ bash_object.parse_filter() {
 
 		# Append dot so parsing does not fail at end
 		# This makes parsing a lot easier, since it always expects a dot after a ']'
-		filter="${filter}."
+		querytree="${querytree}."
 
 		# Reply represents an accessor (e.g. 'sub_key')
 		local reply=
@@ -59,7 +59,7 @@ bash_object.parse_filter() {
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter must begin with a dot'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Querytree must begin with a dot'
 					return
 				fi
 				;;
@@ -67,7 +67,7 @@ bash_object.parse_filter() {
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
 				else
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'Each part in a filter must be deliminated by a dot'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Each part in a querytree must be deliminated by a dot'
 					return
 				fi
 				;;
@@ -77,7 +77,7 @@ bash_object.parse_filter() {
 				elif [ "$char" = $'\n' ]; then
 					return
 				else
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'A dot MUST be followed by an opening bracket in this mode'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'A dot MUST be followed by an opening bracket in this mode'
 					return
 				fi
 				;;
@@ -87,7 +87,7 @@ bash_object.parse_filter() {
 				if [ "$char" = \" ]; then
 					mode='MODE_EXPECTING_STRING'
 				elif [ "$char" = ']' ]; then
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'Key cannot be empty'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Key cannot be empty'
 					return
 				else
 					case "$char" in
@@ -96,7 +96,7 @@ bash_object.parse_filter() {
 						mode='MODE_EXPECTING_READ_NUMBER'
 						;;
 					*)
-						bash_object.util.die 'ERROR_FILTER_INVALID' 'A number or opening quote must follow an open bracket'
+						bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'A number or opening quote must follow an open bracket'
 						return
 						;;
 					esac
@@ -107,14 +107,14 @@ bash_object.parse_filter() {
 					mode='MODE_STRING_ESCAPE_SEQUENCE'
 				elif [ "$char" = \" ]; then
 					if [ -z "$reply" ]; then
-						bash_object.util.die 'ERROR_FILTER_INVALID' 'Key cannot be empty'
+						bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Key cannot be empty'
 						return
 					fi
 
 					REPLIES+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				elif [ "$char" = $'\n' ]; then
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'Filter is not complete'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Querytree is not complete'
 					return
 				else
 					reply+="$char"
@@ -126,7 +126,7 @@ bash_object.parse_filter() {
 					\") reply+=\" ;;
 					']') reply+=']' ;;
 					*)
-						bash_object.util.die 'ERROR_FILTER_INVALID' "Escape sequence of '$char' not valid"
+						bash_object.util.die 'ERROR_QUERYTREE_INVALID' "Escape sequence of '$char' not valid"
 						return
 						;;
 				esac
@@ -142,7 +142,7 @@ bash_object.parse_filter() {
 						reply+="$char"
 						;;
 					*)
-						bash_object.util.die 'ERROR_FILTER_INVALID' "Expecting number, found '$char'"
+						bash_object.util.die 'ERROR_QUERYTREE_INVALID' "Expecting number, found '$char'"
 						return
 						;;
 					esac
@@ -152,12 +152,12 @@ bash_object.parse_filter() {
 				if [ "$char" = ']' ]; then
 					mode='MODE_BEFORE_DOT'
 				else
-					bash_object.util.die 'ERROR_FILTER_INVALID' 'Expected a closing bracket after the closing quotation mark'
+					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Expected a closing bracket after the closing quotation mark'
 					return
 				fi
 				;;
 			esac
-		done <<< "$filter"
+		done <<< "$querytree"
 	else
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either '--simple' or '--advanced'"
 		return

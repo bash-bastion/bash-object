@@ -41,7 +41,7 @@ bash_object.traverse-set() {
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--value not implemented"
 	fi
 
-	local final_value_type root_object_name filter final_value
+	local final_value_type root_object_name querytree final_value
 	# for compat with 'set -u'
 	if [ -n "${args[0]+x}" ]; then
 		final_value_type="${args[0]}"
@@ -50,7 +50,7 @@ bash_object.traverse-set() {
 		root_object_name="${args[1]}"
 	fi
 	if [ -n "${args[2]+x}" ]; then
-		filter="${args[2]}"
+		querytree="${args[2]}"
 	fi
 	if [ -n "${args[3]+x}" ]; then
 		final_value="${args[3]}"
@@ -75,7 +75,7 @@ bash_object.traverse-set() {
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
 		return
 	fi
-	if [ -z "$filter" ]; then
+	if [ -z "$querytree" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
 		return
 	fi
@@ -141,13 +141,13 @@ bash_object.traverse-set() {
 	local current_object_name="$root_object_name"
 	local -n current_object="$root_object_name"
 
-	# A stack of all the evaluated filter elements
-	local -a filter_stack=()
+	# A stack of all the evaluated querytree elements
+	local -a querytree_stack=()
 
-	# Parse the filter, and recurse over their elements
-	case "$filter" in
-		*']'*) bash_object.parse_filter --advanced "$filter" ;;
-		*) bash_object.parse_filter --simple "$filter" ;;
+	# Parse the querytree, and recurse over their elements
+	case "$querytree" in
+		*']'*) bash_object.parse_querytree --advanced "$querytree" ;;
+		*) bash_object.parse_querytree --simple "$querytree" ;;
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
@@ -158,9 +158,9 @@ bash_object.traverse-set() {
 			is_index_of_array='yes'
 		fi
 
-		filter_stack+=("$key")
-		bash_object.util.generate_filter_stack_string
-		local filter_stack_string="$REPLY"
+		querytree_stack+=("$key")
+		bash_object.util.generate_querytree_stack_string
+		local querytree_stack_string="$REPLY"
 
 		bash_object.trace_loop
 
@@ -168,12 +168,12 @@ bash_object.traverse-set() {
 		if [ -z "${current_object["$key"]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
-				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
+				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
 				return
 			# If we are at the last element in the query, and it doesn't exist, create it
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
-					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
+					bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
 					local global_object_name="$REPLY"
 
 					if bash_object.ensure.variable_does_not_exist "$global_object_name"; then :; else
@@ -195,7 +195,7 @@ bash_object.traverse-set() {
 						global_object["$key"]="${object_to_copy_from["$key"]}"
 					done
 				elif [ "$final_value_type" = array ]; then
-					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
+					bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
 					local global_array_name="$REPLY"
 
 					if bash_object.ensure.variable_does_not_exist "$global_array_name"; then :; else
@@ -337,7 +337,7 @@ bash_object.traverse-set() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					bash_object.util.die 'ERROR_NOT_FOUND' "The passed filter implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
+					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ "$final_value_type" = object ]; then

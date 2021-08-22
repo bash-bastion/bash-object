@@ -65,19 +65,19 @@ bash_object.traverse-get() {
 
 	local final_value_type="${args[0]}"
 	local root_object_name="${args[1]}"
-	local filter="${args[2]}"
+	local querytree="${args[2]}"
 
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
 	local -n current_object="$root_object_name"
 
-	# A stack of all the evaluated filter elements
-	local -a filter_stack=()
+	# A stack of all the evaluated querytree elements
+	local -a querytree_stack=()
 
-	# Parse the filter, and recurse over their elements
-	case "$filter" in
-		*']'*) bash_object.parse_filter --advanced "$filter" ;;
-		*) bash_object.parse_filter --simple "$filter" ;;
+	# Parse the querytree, and recurse over their elements
+	case "$querytree" in
+		*']'*) bash_object.parse_querytree --advanced "$querytree" ;;
+		*) bash_object.parse_querytree --simple "$querytree" ;;
 	esac
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
@@ -88,15 +88,15 @@ bash_object.traverse-get() {
 			is_index_of_array='yes'
 		fi
 
-		filter_stack+=("$key")
-		# bash_object.util.generate_filter_stack_string
-		# local filter_stack_string="$REPLY"
+		querytree_stack+=("$key")
+		# bash_object.util.generate_querytree_stack_string
+		# local querytree_stack_string="$REPLY"
 
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
 		if [ -z "${current_object["$key"]+x}" ]; then
-			bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (filter index '$i') does not exist"
+			bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
 			return
 		# If 'key' is a member of an object or index of array
 		else
@@ -224,7 +224,7 @@ bash_object.traverse-get() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					bash_object.util.die 'ERROR_NOT_FOUND' "The passed filter implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
+					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
