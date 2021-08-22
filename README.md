@@ -47,7 +47,7 @@ assert [ "$REPLY" = rho ]
 
 ## Installation
 
-STATUS: ALPHA
+STATUS: BETA
 
 ```sh
 echo "dependencies = [ 'hyperupcall/bash-object' ]" > 'bpm.toml'

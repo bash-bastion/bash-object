@@ -1,6 +1,18 @@
-# shellcheck shell=bash
+#!/usr/bin/env bats
 
 load './util/init.sh'
+
+@test "Error if setting more than a string" {
+	declare -A OBJECT=()
+	str='golf'
+
+	bobject set-string --ref OBJECT '.foxtrot' str
+	run bobject set-string --ref OBJECT '.foxtrot.omega' str
+
+	assert_failure
+	assert_line -p 'ERROR_NOT_FOUND'
+	assert_line -p "The passed querytree implies that 'foxtrot' accesses an object or array, but a string with a value of 'golf' was found instead"
+}
 
 @test "Error if random variable already exists for set-object" {
 	declare -A OBJECT=()
@@ -32,29 +44,4 @@ load './util/init.sh'
 	assert_failure
 	assert_output -p 'ERROR_INTERNAL'
 	assert_output -p "Variable 'some_other_var' exists, but it shouldn't"
-}
-
-@test "Error if setting more than a string" {
-	declare -A OBJECT=()
-	str='golf'
-
-	bobject set-string --ref OBJECT '.foxtrot' str
-	run bobject set-string --ref OBJECT '.foxtrot.omega' str
-
-	assert_failure
-	assert_line -p 'ERROR_NOT_FOUND'
-	assert_line -p "The passed querytree implies that 'foxtrot' accesses an object or array, but a string with a value of 'golf' was found instead"
-}
-
-# TODO: move
-@test "Error if getting more than a string" {
-	declare -A OBJECT=()
-	str='golf'
-
-	bobject set-string --ref OBJECT '.foxtrot' str
-	run bobject get-string --ref OBJECT '.foxtrot.omega'
-
-	assert_failure
-	assert_line -p 'ERROR_NOT_FOUND'
-	assert_line -p "The passed querytree implies that 'foxtrot' accesses an object or array, but a string with a value of 'golf' was found instead"
 }
