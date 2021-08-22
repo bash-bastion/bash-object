@@ -8,7 +8,7 @@ bash_object.traverse-get() {
 		stdtrace.log 0 "CALL: bash_object.traverse-get: $*"
 	fi
 
-	local flag_as_what=''
+	local flag_as_what=
 	local -a args=()
 
 	for arg; do case "$arg" in

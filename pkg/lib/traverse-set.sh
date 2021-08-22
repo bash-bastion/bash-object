@@ -6,7 +6,7 @@ bash_object.traverse-set() {
 		stdtrace.log 0 "CALL: bash_object.traverse-set: $*"
 	fi
 
-	local flag_pass_by_what=''
+	local flag_pass_by_what=
 	local -a args=()
 
 	for arg; do case "$arg" in
@@ -39,6 +39,8 @@ bash_object.traverse-set() {
 
 	if [ "$flag_pass_by_what" = 'by-value' ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--value not implemented"
+		# TODO:
+		# return
 	fi
 
 	local final_value_type root_object_name querytree final_value
