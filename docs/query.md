@@ -1,6 +1,6 @@
 # Query
 
-Queries are modeled from `jq`'s filter mechanism. The featureset compared to `jq` is significantly less
+Queries are modeled from `jq`'s querytree mechanism. The featureset compared to `jq` is significantly less
 
 Both quering modes listed below are are mutually exclusive. By default, the 'simple' method is used by defualt; only if your query contains a `[` will the 'advanced' method be used
 

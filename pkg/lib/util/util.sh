@@ -10,8 +10,8 @@ declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_ARGUMENTS_INVALID_TYPE]="The type of the final value specified by the user is neither 'object', 'array', nor 'string'"
 	[ERROR_ARGUMENTS_INCORRECT_TYPE]="The type of the final value does not match that of the actual final value (at end of query string)"
 
-	[ERROR_FILTER_INVALID]="The filter could not be parsed"
-	[ERROR_FILTER_INCORRECT_TYPE]=
+	[ERROR_QUERYTREE_INVALID]="The querytree could not be parsed"
+	[ERROR_QUERYTREE_INCORRECT_TYPE]=
 
 	[ERROR_VOBJ_INVALID_TYPE]="The type of the virtual object is neither 'object' nor 'array'"
 	[ERROR_VOBJ_INCORRECT_TYPE]="The type of the virtual object does not match with the type of the variable it references"
@@ -23,8 +23,8 @@ bash_object.util.die() {
 
 	local error_output=
 	case "$error_key" in
-	ERROR_FILTER_INVALID)
-		printf -v error_output 'Failed to parse filter:
+	ERROR_QUERYTREE_INVALID)
+		printf -v error_output 'Failed to parse querytree:
   -> code: %s
   -> context: %s
   -> PARSER_COLUMN_NUMBER: %s
@@ -58,15 +58,15 @@ bash_object.util.generate_vobject_name() {
 	printf -v REPLY '%q' "__bash_object_${root_object_name}_${root_object_query}_${random_string}"
 }
 
-# @description A stringified version of the filter
+# @description A stringified version of the querytree
 # stack. This is used when generating objects to prevent
 # conflicts
-bash_object.util.generate_filter_stack_string() {
+bash_object.util.generate_querytree_stack_string() {
 	unset REPLY; REPLY=
 
 	local oldIFS="$IFS"
 	IFS='_'
-	REPLY="${filter_stack[*]}"
+	REPLY="${querytree_stack[*]}"
 	IFS="$oldIFS"
 }
 
