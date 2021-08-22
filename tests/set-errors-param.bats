@@ -170,7 +170,7 @@ load './util/init.sh'
 	assert_line -p "The variable 'str' does not exist"
 }
 
-@test "Error if final_value_type is 'object', but is really 'array'" {
+@test "Error if final_value_type is 'object', but is actually 'array'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -a obj=()
@@ -182,7 +182,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'array' was passed"
 }
 
-@test "Error if final_value_type is 'object', but is really 'string'" {
+@test "Error if final_value_type is 'object', but is actually 'string'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare obj=
@@ -194,7 +194,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'string' was passed"
 }
 
-@test "Error if final_value_type is 'object', but is really 'other'" {
+@test "Error if final_value_type is 'object', but is actually 'other'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -i obj=
@@ -218,7 +218,7 @@ load './util/init.sh'
 	assert_line -p "The variable 'str' does not exist"
 }
 
-@test "Error if final_value_type is 'array', but is really 'object'" {
+@test "Error if final_value_type is 'array', but is actually 'object'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -A obj=()
@@ -230,7 +230,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'object' was passed"
 }
 
-@test "Error if final_value_type is 'array', but is really 'string'" {
+@test "Error if final_value_type is 'array', but is actually 'string'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare obj=
@@ -242,7 +242,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'string' was passed"
 }
 
-@test "Error if final_value_type is 'array', but is really 'other'" {
+@test "Error if final_value_type is 'array', but is actually 'other'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -i obj=
@@ -266,7 +266,7 @@ load './util/init.sh'
 	assert_line -p "The variable 'str' does not exist"
 }
 
-@test "Error if final_value_type is 'string', but is really 'object'" {
+@test "Error if final_value_type is 'string', but is actually 'object'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -A obj=()
@@ -278,7 +278,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'object' was passed"
 }
 
-@test "Error if final_value_type is 'string', but is really 'array'" {
+@test "Error if final_value_type is 'string', but is actually 'array'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -a obj=()
@@ -290,7 +290,7 @@ load './util/init.sh'
 	assert_line -p ", but a variable with type 'array' was passed"
 }
 
-@test "Error if final_value_type is 'string', but is really 'other'" {
+@test "Error if final_value_type is 'string', but is actually 'other'" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -i obj=
@@ -304,7 +304,7 @@ load './util/init.sh'
 
 # Data validation should not be done if the keys to set are
 # being passed as value
-@test "Do not error if final_value_type is 'string', but is really 'array' on --value" {
+@test "Do not error if final_value_type is 'string', but is actually 'array' on --value" {
 	export VERIFY_BASH_OBJECT=
 	declare -A OBJECT=()
 	declare -a obj=()

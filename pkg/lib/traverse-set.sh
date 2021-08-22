@@ -42,7 +42,7 @@ bash_object.traverse-set() {
 	fi
 
 	local final_value_type root_object_name filter final_value
-	# `set -u` compat
+	# for compat with 'set -u'
 	if [ -n "${args[0]+x}" ]; then
 		final_value_type="${args[0]}"
 	fi
@@ -173,12 +173,6 @@ bash_object.traverse-set() {
 			# If we are at the last element in the query, and it doesn't exist, create it
 			elif ((i+1 == ${#REPLIES[@]})); then
 				if [ "$final_value_type" = object ]; then
-					# TODO: test this
-					# shellcheck disable=SC1087
-					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
-						return
-					fi
-
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_object_name="$REPLY"
 
@@ -193,22 +187,14 @@ bash_object.traverse-set() {
 
 					current_object["$key"]=$'\x1C\x1D'"type=object;&$global_object_name"
 
-					local -n globel_object="$global_object_name"
+					local -n global_object="$global_object_name"
 					local -n object_to_copy_from="$final_value"
-
-					# TODO: test if object_to_copy is of the correct type
 
 					for key in "${!object_to_copy_from[@]}"; do
 						# shellcheck disable=SC2034
-						globel_object["$key"]="${object_to_copy_from["$key"]}"
+						global_object["$key"]="${object_to_copy_from["$key"]}"
 					done
 				elif [ "$final_value_type" = array ]; then
-					# TODO: test this
-					# shellcheck disable=SC1087
-					if bash_object.ensure.variable_does_exist "$final_value"; then :; else
-						return
-					fi
-
 					bash_object.util.generate_vobject_name "$root_object_name" "$filter_stack_string"
 					local global_array_name="$REPLY"
 
@@ -226,14 +212,10 @@ bash_object.traverse-set() {
 					local -n global_array="$global_array_name"
 					local -n array_to_copy_from="$final_value"
 
-					# TODO: test if object_to_copy is of the correct type
-
 					# shellcheck disable=SC2034
 					global_array=("${array_to_copy_from[@]}")
 				elif [ "$final_value_type" = string ]; then
-					# TODO: ensure correct type
-					local -n string_to_copy_from="$final_value"
-					current_object["$key"]="$string_to_copy_from"
+					current_object["$key"]="${!final_value}"
 				else
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 					return
@@ -255,24 +237,54 @@ bash_object.traverse-set() {
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
 				local vmd_dtype="$REPLY2"
+				# shellcheck disable=SC2178
 				local -n current_object="$current_object_name"
 
+				# Ensure no circular references (WET)
+				if [ "$old_current_object_name" = "$current_object_name" ]; then
+					bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+					return
+				fi
+
+				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
+					# Ensure the 'final_value' is the same type as specified by the user (WET)
+					local current_object_type=
+					if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
+						bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
+						return
+					fi
+					current_object_type="${current_object_type#declare -}"
+					case "${current_object_type::1}" in
+						A) current_object_type='object' ;;
+						a) current_object_type='array' ;;
+						-) current_object_type='string' ;;
+						*) current_object_type='other' ;;
+					esac
+					case "$vmd_dtype" in
+					object)
+						if [ "$current_object_type" != object ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+							return
+						fi
+						;;
+					array)
+						if [ "$current_object_type" != array ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+							return
+						fi
+						;;
+					*)
+						bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
+						return
+						;;
+					esac
+				fi
+
 				if ((i+1 < ${#REPLIES[@]})); then
-					# TODO: test these internal invalid errors (error when type=array references object, etc.)?
+					# Do nothing, and continue to next element in query. We already check for the
+					# validity of the virtual object above, so no need to do anything here
 					:
-
-					# Ensure no circular references (WET)
-					if [ "$old_current_object_name" = "$current_object_name" ]; then
-						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
-						return
-					fi
 				elif ((i+1 == ${#REPLIES[@]})); then
-					# Ensure no circular references (WET)
-					if [ "$old_current_object_name" = "$current_object_name" ]; then
-						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
-						return
-					fi
-
 					# We are last element of query, but do not set the object there is one that already exists
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
@@ -325,8 +337,7 @@ bash_object.traverse-set() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					# TODO error message
-					bash_object.util.die 'ERROR_NOT_FOUND' "Encountered string using accessor '$key', but expected to find either an object or array, in accordance with the filter"
+					bash_object.util.die 'ERROR_NOT_FOUND' "The passed filter implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					if [ "$final_value_type" = object ]; then

@@ -55,5 +55,8 @@ bpm install
 ```
 
 ## TODO
-- ensure error (for set primarily) if the virtual object references a variable that does not exist
 - error if set in array out of bounds?
+- clean up argument parsing?
+- do something with 'is_index_of_array?' (do not allow for using index notation to get keys of objects)
+- set element of the same type that already exists (--overwrite?)
+- filter => query

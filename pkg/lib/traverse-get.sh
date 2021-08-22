@@ -89,6 +89,8 @@ bash_object.traverse-get() {
 		fi
 
 		filter_stack+=("$key")
+		# bash_object.util.generate_filter_stack_string
+		# local filter_stack_string="$REPLY"
 
 		bash_object.trace_loop
 
@@ -110,86 +112,57 @@ bash_object.traverse-get() {
 
 				virtual_item="${key_value#??}"
 				bash_object.parse_virtual_object "$virtual_item"
+				# shellcheck disable=SC2153
 				local current_object_name="$REPLY1"
+				# shellcheck disable=SC2153
 				local vmd_dtype="$REPLY2"
 				local -n current_object="$current_object_name"
 
-				if ((i+1 < ${#REPLIES[@]})); then
-					# echo aa >&3
-					# if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
-					# 	echo jj >&3
-					# fi
-
-					# TODO: test these internal invalid errors (error when type=array references object, etc.)
-					# Do nothing (assuming the type is correct), we have already set 'current_object'
-					# for the next iteration
-					:
-					# case "$vmd_dtype" in
-					# object)
-					# 	if [ "$is_index_of_array" = yes ]; then
-					# 		bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Expected object, but reference to array was found"
-					# 		return
-					# 	fi
-					# 	;;
-					# array)
-					# 	if [ "$is_index_of_array" = no ]; then
-					# 		bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Expected array, but reference to object was found"
-					# 		return
-					# 	fi
-					# 	;;
-					# *)
-					# 	bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
-					# 	return
-					# 	;;
-					# esac
-
-					# Ensure no circular references (WET)
-					if [ "$old_current_object_name" = "$current_object_name" ]; then
-						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
+					# Ensure the 'final_value' is the same type as specified by the user (WET)
+					local current_object_type=
+					if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
+						bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
 						return
 					fi
-				elif ((i+1 == ${#REPLIES[@]})); then
-					if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
-						# Ensure the 'final_value' is the same type as specified by the user
-						local current_object_type=
-						if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
-							bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
+					current_object_type="${current_object_type#declare -}"
+					case "${current_object_type::1}" in
+						A) current_object_type='object' ;;
+						a) current_object_type='array' ;;
+						-) current_object_type='string' ;;
+						*) current_object_type='other' ;;
+					esac
+					case "$vmd_dtype" in
+					object)
+						if [ "$current_object_type" != object ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
 							return
 						fi
-						current_object_type="${current_object_type#declare -}"
-						case "${current_object_type::1}" in
-							A) current_object_type='object' ;;
-							a) current_object_type='array' ;;
-							-) current_object_type='string' ;;
-							*) current_object_type='other' ;;
-						esac
-
-						case "$vmd_dtype" in
-						object)
-							if [ "$current_object_type" != object ]; then
-								bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
-								return
-							fi
-							;;
-						array)
-							if [ "$current_object_type" != array ]; then
-								bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
-								return
-							fi
-							;;
-						*)
-							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
+						;;
+					array)
+						if [ "$current_object_type" != array ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
 							return
-							;;
-						esac
-					fi
-
-					# Ensure no circular references (WET)
-					if [ "$old_current_object_name" = "$current_object_name" ]; then
-						bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+						fi
+						;;
+					*)
+						bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
 						return
-					fi
+						;;
+					esac
+				fi
 
+				# Ensure no circular references (WET)
+				if [ "$old_current_object_name" = "$current_object_name" ]; then
+					bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+					return
+				fi
+
+				if ((i+1 < ${#REPLIES[@]})); then
+					# Do nothing, and continue to next element in query. We already check for the
+					# validity of the virtual object above, so no need to do anything here
+					:
+				elif ((i+1 == ${#REPLIES[@]})); then
 					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
@@ -251,11 +224,8 @@ bash_object.traverse-get() {
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
-					# Means the query is one level deeper than expected. Expected
-					# object/array, but got string
-					# TODO
-					echo "mu '$key_value'" >&3
-					# return 2
+					bash_object.util.die 'ERROR_NOT_FOUND' "The passed filter implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
+					return
 				elif ((i+1 == ${#REPLIES[@]})); then
 					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
