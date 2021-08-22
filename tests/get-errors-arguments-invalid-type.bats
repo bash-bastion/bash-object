@@ -54,7 +54,7 @@ load './util/init.sh'
 @test "Error on get-object'ing array inside object" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	run bobject get-object --value OBJECT '.my_key.nested'
 
@@ -99,7 +99,7 @@ load './util/init.sh'
 
 @test "Error on get-array'ing string in array" {
 	declare -a SUB_ARRAY=(epsilon zeta eta)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_ARRAY')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
 	run bobject get-array --value OBJECT '.["my_key"].[2]'
 
@@ -193,7 +193,7 @@ load './util/init.sh'
 @test "Error on get-string'ing array in object" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 
 	run bobject get-string --value OBJECT '.my_key.nested'
 

@@ -3,7 +3,7 @@
 load './util/init.sh'
 
 # object
-@test "Correctly sets object" {
+@test "Correctly set-object --ref" {
 	declare -A obj=([omicron]=pi [rho]=sigma [tau]=upsilon)
 	declare -A OBJECT=()
 
@@ -20,7 +20,7 @@ load './util/init.sh'
 }
 
 # array
-@test "Correctly sets array" {
+@test "Correctly set-array --ref" {
 	declare -a arr=(omicron pi rho)
 	declare -A OBJECT=()
 

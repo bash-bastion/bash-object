@@ -17,7 +17,6 @@ done
 source 'bobject'
 
 setup() {
-	unset TOML
 	cd "$BATS_TEST_TMPDIR"
 }
 

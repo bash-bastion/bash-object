@@ -22,7 +22,7 @@ load './util/init.sh'
 @test "Error on set-object'ing array inside object" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	declare -A obj=([upsilon]=phi)
 
 	run bobject set-object --ref OBJECT '.my_key.nested' obj
@@ -83,7 +83,7 @@ load './util/init.sh'
 # set-array
 @test "Error on set-array'ing object" {
 	declare -A SUB_SUB_OBJECT=([phi]=chi)
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_SUB_OBJECT')
 	declare -a arr=(upsilon phi chi psi)
 
 	run bobject set-array --ref OBJECT '.my_key' arr
@@ -170,7 +170,7 @@ load './util/init.sh'
 @test "Error on set-string'ing array inside object" {
 	declare -a SUB_SUB_ARRAY=(omicron pi rho)
 	declare -A SUB_OBJECT=([nested]=$'\x1C\x1Dtype=array;&SUB_SUB_ARRAY')
-	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_OBJECT')
+	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='psi-omega'
 
 	run bobject set-string --ref OBJECT '.my_key.nested' str
@@ -194,7 +194,7 @@ load './util/init.sh'
 }
 
 @test "Error on set-string'ing object" {
-	declare -A SUB_SUB_OBJECT=([phi]=chi)
+	declare -A SUB_OBJECT=([phi]=chi)
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=object;&SUB_OBJECT')
 	str='psi-omega'
 
