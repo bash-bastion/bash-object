@@ -19,14 +19,6 @@ load './util/init.sh'
 	assert_line -p "Flags '--ref' and '--value' are mutually exclusive"
 }
 
-@test "error on unimplemented --ref" {
-	run bobject get-string --ref
-
-	assert_failure
-	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "--ref not implemented"
-}
-
 # set
 @test "set errors on missing flags" {
 	run bobject set-string
@@ -42,12 +34,4 @@ load './util/init.sh'
 	assert_failure
 	assert_line -p 'ERROR_ARGUMENTS_INVALID'
 	assert_line -p "Flags '--ref' and '--value' are mutually exclusive"
-}
-
-@test "error on unimplemented --value" {
-	run bobject set-string --value
-
-	assert_failure
-	assert_line -p 'ERROR_ARGUMENTS_INVALID'
-	assert_line -p "--value not implemented"
 }

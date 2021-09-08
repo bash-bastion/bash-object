@@ -25,67 +25,103 @@ bash_object.traverse-set() {
 		flag_pass_by_what='by-value'
 		;;
 	--)
+		# All arguments after '--' are in '$@'
 		break
 		;;
 	*)
 		args+=("$arg")
 		;;
-	esac done
+	esac; shift; done
 
 	if [ -z "$flag_pass_by_what" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--ref' or '--value' flag"
 		return
 	fi
 
-	if [ "$flag_pass_by_what" = 'by-value' ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--value not implemented"
-		# TODO:
-		# return
-	fi
-
-	local final_value_type root_object_name querytree final_value
-	# for compat with 'set -u'
-	if [ -n "${args[0]+x}" ]; then
-		final_value_type="${args[0]}"
-	fi
-	if [ -n "${args[1]+x}" ]; then
-		root_object_name="${args[1]}"
-	fi
-	if [ -n "${args[2]+x}" ]; then
-		querytree="${args[2]}"
-	fi
-	if [ -n "${args[3]+x}" ]; then
-		final_value="${args[3]}"
-	fi
-
-	# Ensure correct number of arguments have been passed
-	# Only do this for circumstances in which we know the correct argument amount
-	if [ "$flag_pass_by_what" = 'by-ref' ] && (( ${#args[@]} != 4)); then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '${#args[@]}'"
-		return
-	elif [[ "$flag_pass_by_what" == 'by-value' && "$final_value_type" == 'string' ]] && (( ${#args[@]} != 4 )); then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '4' arguments, but received '${#args[@]}'"
+	if [ "$flag_pass_by_what" = 'by-ref' ]; then
+		if (( ${#args[@]} != 4)); then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "With '--ref', 4 arguments are expected (but received ${#args[@]})"
+			return
+		fi
+	elif [ "$flag_pass_by_what" = 'by-value' ]; then
+		if (( ${#args[@]} != 3)); then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "With '--value', 3 arguments are expected before '--' (but received ${#args[@]})"
+			return
+		fi
+	else
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Unexpected final_value_type '$final_value_type'"
 		return
 	fi
+
+	local final_value_type="${args[0]}"
+	local root_object_name="${args[1]}"
+	local querytree="${args[2]}"
 
 	# Ensure parameters are not empty
 	if [ -z "$final_value_type" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '1' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 1 is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$root_object_name" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 2 is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "$querytree" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 3 is empty. Please check passed parameters"
 		return
 	fi
-	if [[ "$flag_pass_by_what" == 'by-ref' && -z "$final_value" ]]; then
-		# Can only check if passing by ref, since we do not want to error if
-		# an empty string is passed (by value) or an array with empty string at
-		# index 0 is passed (by value)
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '4' is empty. Please check passed parameters"
+
+	# Set final_value after we ensure 'final_value_type' is non-empty
+	local final_value=
+	if [ "$flag_pass_by_what" = 'by-ref' ]; then
+		final_value="${args[3]}"
+
+		if [ -z "$final_value" ]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 4 is empty. Please check passed parameters"
+			return
+		fi
+	elif [ "$flag_pass_by_what" = 'by-value' ]; then
+		if [ "$final_value_type" == object ]; then
+			local -A temp_var_name="__bash_object_${RANDOM}_$RANDOM"
+			local -n temp_var="$temp_var_name"
+			if (( $# & 1 )); then
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "When passing --value with set-object, an even number of values must be passed after the '--'"
+				return
+			fi
+			for ((i=0; i<$#; i+2)); do
+				temp_var["${!i}"]="${!i+1}"
+			done
+		elif [ "$final_value_type" == array ]; then
+			local -a temp_var_name="__bash_object_${RANDOM}_$RANDOM"
+			local -n temp_var="$temp_var_name"
+			if [ "$1" != -- ]; then
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "'--' must be passed"
+				return
+			fi
+			shift
+			temp_var=("$@")
+			final_value="$temp_var_name"
+		elif [ "$final_value_type" == string ]; then
+			local temp_var_name="__bash_object_${RANDOM}_$RANDOM"
+			local -n temp_var="$temp_var_name"
+			if [ "$1" != -- ]; then
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "'--' must be passed"
+				return
+			fi
+			shift
+
+			if (( $# > 1)); then
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "When passing --value with set-string, only one value must be passed after the '--'"
+				return
+			fi
+			temp_var="$1"
+			final_value="$temp_var_name"
+		else
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Unexpected final_value_type '$final_value_type'"
+			return
+		fi
+	else
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Unexpected final_value_type '$final_value_type'"
 		return
 	fi
 
@@ -217,7 +253,8 @@ bash_object.traverse-set() {
 					# shellcheck disable=SC2034
 					global_array=("${array_to_copy_from[@]}")
 				elif [ "$final_value_type" = string ]; then
-					current_object["$key"]="${!final_value}"
+					local -n string_to_copy_from="$final_value"
+					current_object["$key"]="$string_to_copy_from"
 				else
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 					return

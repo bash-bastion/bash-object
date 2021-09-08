@@ -2,14 +2,47 @@
 
 load './util/init.sh'
 
-@test "Correctly gets object" {
-	declare -A inner_object=([cool]='Wolf 359')
-	declare -A OBJ=([stars]=$'\x1C\x1Dtype=object;&inner_object')
+@test "Correctly get-object --value" {
+	declare -A OBJECT=()
+	declare -A obj=([upsilon]=phi [alfa]=beta)
 
-	bobject set-object --value
-	bobject get-object --value 'OBJ' '.stars'
-	assert [ "${REPLY[cool]}" = 'Wolf 359' ]
+	bobject set-object --ref 'OBJECT' '.obj' obj
+	bobject get-object --value 'OBJECT' '.obj'
+	assert [ "${REPLY[upsilon]}" = phi ]
+	assert [ "${REPLY[alfa]}" = beta ]
 
-	bobject get-string --value 'OBJ' '.stars.cool'
-	assert [ "$REPLY" = 'Wolf 359' ]
+	REPLY[upsilon]=omega
+
+	bobject get-object --value 'OBJECT' '.obj'
+	assert [ "${REPLY[upsilon]}" = phi ]
+}
+
+@test "Correctly get-array --value" {
+	declare -A OBJECT=()
+	declare -a arr=(seven eight nine ten)
+
+	bobject set-array --ref 'OBJECT' '.obj' arr
+	bobject get-array --value 'OBJECT' '.obj'
+	assert [ "${REPLY[1]}" = eight ]
+	assert [ "${REPLY[2]}" = nine ]
+
+	REPLY[2]=thousand
+
+	bobject get-array --value 'OBJECT' '.obj'
+	assert [ "${REPLY[2]}" = nine ]
+}
+
+@test "Correctly get-string --value" {
+	declare -A OBJECT=()
+	str='woof'
+
+	bobject set-string --ref 'OBJECT' '.obj' str
+
+	bobject get-string --value 'OBJECT' '.obj'
+	assert [ "$REPLY" = woof ]
+
+	REPLY='meow'
+
+	bobject get-string --value 'OBJECT' '.obj'
+	assert [ "$REPLY" = woof ]
 }

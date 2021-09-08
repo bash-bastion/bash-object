@@ -39,27 +39,23 @@ bash_object.traverse-get() {
 		return
 	fi
 
-	if [ "$flag_as_what" = 'as-ref' ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "--ref not implemented"
-	fi
-
 	# Ensure correct number of arguments have been passed
 	if (( ${#args[@]} != 3)); then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected '3' arguments, but received '${#args[@]}'"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected 3 arguments, but received ${#args[@]}"
 		return
 	fi
 
 	# Ensure parameters are not empty
 	if [ -z "${args[0]}" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '1' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 1 is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "${args[1]}" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '2' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 2 is empty. Please check passed parameters"
 		return
 	fi
 	if [ -z "${args[2]}" ]; then
-		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter '3' is empty. Please check passed parameters"
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Positional parameter 3 is empty. Please check passed parameters"
 		return
 	fi
 
@@ -167,11 +163,20 @@ bash_object.traverse-get() {
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
 						object)
-							declare -gA REPLY=()
-							local key=
-							for key in "${!current_object[@]}"; do
-								REPLY["$key"]="${current_object["$key"]}"
-							done
+							if [ "$flag_as_what" = 'as-value' ]; then
+								declare -gA REPLY=()
+								local key=
+								for key in "${!current_object[@]}"; do
+									REPLY["$key"]="${current_object["$key"]}"
+								done
+							elif [ "$flag_as_what" = 'as-ref' ]; then
+								bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
+								return
+								# declare -gn REPLY="$current_object_name"
+							else
+								bash_object.util.die 'ERROR_INTERNAL' "Unexpected flag_as_what '$flag_as_what'"
+								return
+							fi
 							;;
 						array)
 							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for object, but found existing array'
@@ -189,9 +194,17 @@ bash_object.traverse-get() {
 							return
 							;;
 						array)
-							declare -ga REPLY=()
-							# shellcheck disable=SC2190
-							REPLY=("${current_object[@]}")
+							if [ "$flag_as_what" = 'as-value' ]; then
+								declare -ga REPLY=()
+								# shellcheck disable=SC2190
+								REPLY=("${current_object[@]}")
+							elif [ "$flag_as_what" = 'as-ref' ]; then
+								bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
+								return
+							else
+								bash_object.util.die 'ERROR_INTERNAL' "Unexpected flag_as_what '$flag_as_what'"
+								return
+							fi
 							;;
 						*)
 							bash_object.util.die 'ERROR_VOBJ_INVALID_TYPE' "Unexpected vmd_dtype '$vmd_dtype'"
@@ -235,8 +248,17 @@ bash_object.traverse-get() {
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
-						# shellcheck disable=SC2178
-						REPLY="$value"
+						if [ "$flag_as_what" = 'as-value' ]; then
+							# shellcheck disable=SC2178
+							REPLY="$value"
+						elif [ "$flag_as_what" = 'as-ref' ]; then
+							bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
+							return
+						else
+							bash_object.util.die 'ERROR_INTERNAL' "Unexpected flag_as_what '$flag_as_what'"
+							return
+						fi
+
 					fi
 				fi
 			fi
