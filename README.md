@@ -1,15 +1,14 @@
 # bash-object
 
-The _first_ Bash library for imperatively constructing heterogeneously hierarchical data structures
+The _first_ Bash library for imperatively constructing data of nested and heterogeneous form
 
 This is meant to be a low level API providing primitives for other libraries.
-
-In the coming days, I will release never seen before parsers written in Bash called [bash-toml](https://github.com/hyperupcall/bash-toml) and [bash-json](https://github.com/hyperupcall/bash-json) that use this library
 
 ## Exhibition
 
 ```sh
-# How to represent the following in Bash?
+# Problem: How to represent the following in Bash?
+
 # {
 #   "zulu": {
 #     "yankee": {
@@ -20,6 +19,9 @@ In the coming days, I will release never seen before parsers written in Bash cal
 #     }
 #   }
 # }
+
+
+# Solution: Use bash-object to construct the hierarchy
 
 declare -A root_object=()
 declare -A zulu_object=()
@@ -47,15 +49,7 @@ assert [ "$REPLY" = rho ]
 
 ## Installation
 
-STATUS: BETA
-
 ```sh
-echo "dependencies = [ 'hyperupcall/bash-object' ]" > 'bpm.toml'
-bpm install
+printf '%s\n' "dependencies = [ 'hyperupcall/bash-object' ]" > 'basalt.toml'
+basalt install
 ```
-
-## TODO
-- error if set in array out of bounds?
-- clean up argument parsing?
-- do something with 'is_index_of_array?' (do not allow for using index notation to get keys of objects)
-- set element of the same type that already exists (--overwrite?)
