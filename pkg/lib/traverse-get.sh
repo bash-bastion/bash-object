@@ -177,7 +177,7 @@ bash_object.traverse-get() {
 							fi
 							;;
 						array)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for object, but found existing $vmd_dtype"
 							return
 							;;
 						*)
@@ -188,7 +188,7 @@ bash_object.traverse-get() {
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for array, but found existing $vmd_dtype"
 							return
 							;;
 						array)
