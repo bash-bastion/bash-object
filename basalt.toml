@@ -4,5 +4,8 @@ slug = 'bash_object'
 version = '0.1.0'
 authors = ['Edwin Kofler" <edwin@kofler.dev>']
 
-binDirs = [ 'pkg/bin' ]
+[layout]
+binDirs = [ './pkg/bin' ]
+
+[requirements]
 dependencies = [ 'ztombol/bats-support@v0.3.0', 'ztombol/bats-assert@v0.3.0']

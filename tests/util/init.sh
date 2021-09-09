@@ -3,7 +3,7 @@
 # TODO: test for -u and -o pipefail
 set -e
 
-load '../pkg/load.bash'
+load '../load.bash'
 load './util/test_util.sh'
 
 eval "$(basalt global init bash)"
