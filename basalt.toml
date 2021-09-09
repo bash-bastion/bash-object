@@ -5,4 +5,4 @@ version = '0.1.0'
 authors = ['Edwin Kofler" <edwin@kofler.dev>']
 
 binDirs = [ 'pkg/bin' ]
-dependencies = [ 'ztombol/bats-support@004e707638eedd62e0481e8cdc9223ad471f12ee', 'ztombol/bats-assert@9f88b4207da750093baabc4e3f41bf68f0dd3630']
+dependencies = [ 'ztombol/bats-support@v0.3.0', 'ztombol/bats-assert@v0.3.0']
