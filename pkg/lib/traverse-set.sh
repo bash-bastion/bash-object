@@ -40,12 +40,12 @@ bash_object.traverse-set() {
 
 	if [ "$flag_pass_by_what" = 'by-ref' ]; then
 		if (( ${#args[@]} != 4)); then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "With '--ref', 4 arguments are expected (but received ${#args[@]})"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected 4 arguments (with --ref), but received ${#args[@]}"
 			return
 		fi
 	elif [ "$flag_pass_by_what" = 'by-value' ]; then
 		if (( ${#args[@]} != 3)); then
-			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "With '--value', 3 arguments are expected before '--' (but received ${#args[@]})"
+			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Expected 3 arguments (with --value) before '--', but received ${#args[@]})"
 			return
 		fi
 	else
@@ -84,6 +84,10 @@ bash_object.traverse-set() {
 		if [ "$final_value_type" == object ]; then
 			local -A temp_var_name="__bash_object_${RANDOM}_$RANDOM"
 			local -n temp_var="$temp_var_name"
+			if [ "$1" != -- ]; then
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
+				return
+			fi
 			if (( $# & 1 )); then
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "When passing --value with set-object, an even number of values must be passed after the '--'"
 				return
@@ -95,7 +99,7 @@ bash_object.traverse-set() {
 			local -a temp_var_name="__bash_object_${RANDOM}_$RANDOM"
 			local -n temp_var="$temp_var_name"
 			if [ "$1" != -- ]; then
-				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "'--' must be passed"
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
 				return
 			fi
 			shift
@@ -105,7 +109,7 @@ bash_object.traverse-set() {
 			local temp_var_name="__bash_object_${RANDOM}_$RANDOM"
 			local -n temp_var="$temp_var_name"
 			if [ "$1" != -- ]; then
-				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "'--' must be passed"
+				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
 				return
 			fi
 			shift

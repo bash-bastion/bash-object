@@ -6,6 +6,34 @@
 
 load './util/init.sh'
 
+@test "error on more than correct 'get' arguments" {
+	local subcmds=(get-string get-array get-object)
+
+	for subcmd in "${subcmds[@]}"; do
+		declare -A OBJECT=()
+
+		run bobject "$subcmd" --value 'OBJECT' '.zulu.yankee' 'invalid'
+
+		assert_failure
+		assert_line -p 'ERROR_ARGUMENTS_INVALID'
+		assert_line -p "Expected 3 arguments, but received 4"
+	done
+}
+
+@test "error on less than correct 'get' arguments" {
+	local subcmds=(get-string get-array get-object)
+
+	for subcmd in "${subcmds[@]}"; do
+		declare -A OBJECT=()
+
+		run bobject "$subcmd" --value 'invalid'
+
+		assert_failure
+		assert_line -p 'ERROR_ARGUMENTS_INVALID'
+		assert_line -p "Expected 3 arguments, but received 2"
+	done
+}
+
 # get
 @test "Error on invalid \$1" {
 	run bobject get-blah
@@ -15,35 +43,34 @@ load './util/init.sh'
 	assert_line -p "Subcommand 'get-blah' not recognized"
 }
 
-# TODO: test do this
-# @test "Error with \$# of 2" {
-# 	run bobject get-string --value 'OBJECT'
+@test "Error with \$# of 2" {
+	run bobject get-string --value 'OBJECT'
 
-# 	assert_failure
-# 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-# 	assert_line -p ", but received '2'"
-# }
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Expected 3 arguments, but received 2"
+}
 
-# @test "Error with \$# of 4" {
-# 	run bobject get-string --value 'OBJECT' '.obj' extraneous
+@test "Error with \$# of 4" {
+	run bobject get-string --value 'OBJECT' '.obj' extraneous
 
-# 	assert_failure
-# 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-# 	assert_line -p ", but received '4'"
-# }
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Expected 3 arguments, but received 4"
+}
 
-# @test "Error on empty \$2" {
-# 	run bobject get-string --value "" '.obj'
+@test "Error on empty \$2" {
+	run bobject get-string --value "" '.obj'
 
-# 	assert_failure
-# 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-# 	assert_line -p "'2' is empty"
-# }
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Positional parameter 2 is empty"
+}
 
-# @test "Error on empty \$3" {
-# 	run bobject get-string --value 'OBJECT' ""
+@test "Error on empty \$3" {
+	run bobject get-string --value 'OBJECT' ""
 
-# 	assert_failure
-# 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-# 	assert_line -p "'3' is empty"
-# }
+	assert_failure
+	assert_line -p "ERROR_ARGUMENTS_INVALID"
+	assert_line -p "Positional parameter 3 is empty"
+}

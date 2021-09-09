@@ -5,12 +5,32 @@
 
 load './util/init.sh'
 
-@test "Error if neither '--ref' nor '--value' are passed" {
-	run bash_object.traverse-set
+@test "error on more than correct 'set' arguments" {
+	local subcmds=(set-string set-array set-object)
 
-	assert_failure
-	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "Must pass either the '--ref' or '--value' flag"
+	for subcmd in "${subcmds[@]}"; do
+		declare -A OBJECT=()
+
+		run bobject "$subcmd" --ref 'OBJECT' '.zulu.yankee' 'xray' 'invalid'
+
+		assert_failure
+		assert_line -p 'ERROR_ARGUMENTS_INVALID'
+		assert_line -p "Expected 4 arguments (with --ref), but received 5"
+	done
+}
+
+@test "error on less than correct 'set' arguments" {
+	local subcmds=(set-string set-array set-object)
+
+	for subcmd in "${subcmds[@]}"; do
+		declare -A OBJECT=()
+
+		run bobject "$subcmd" --ref 'OBJECT' '.zulu'
+
+		assert_failure
+		assert_line -p 'ERROR_ARGUMENTS_INVALID'
+		assert_line -p "Expected 4 arguments (with --ref), but received 3"
+	done
 }
 
 @test "Error on invalid \$1" {
@@ -26,7 +46,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 1)"
+	assert_line -p "Expected 4 arguments (with --ref), but received 1"
 }
 
 @test "Error with --ref \$# of 2" {
@@ -34,7 +54,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 2)"
+	assert_line -p "Expected 4 arguments (with --ref), but received 2"
 }
 
 @test "Error with --ref \$# of 3" {
@@ -42,7 +62,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 3)"
+	assert_line -p "Expected 4 arguments (with --ref), but received 3"
 }
 
 @test "Error with --ref \$# of 5" {
@@ -50,7 +70,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 5)"
+	assert_line -p "Expected 4 arguments (with --ref), but received 5"
 }
 
 @test "Error with --value \$# of 1" {
@@ -58,7 +78,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 1)"
+	assert_line -p "Expected 3 arguments (with --value) before '--', but received 1"
 }
 
 @test "Error with --value \$# of 2" {
@@ -66,7 +86,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 2)"
+	assert_line -p "Expected 3 arguments (with --value) before '--', but received 2"
 }
 
 @test "Error with --value \$# of 4" {
@@ -74,7 +94,21 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "(but received 4)"
+	assert_line -p "Expected 3 arguments (with --value) before '--', but received 4"
+}
+
+@test "Error with --value if forget to pass --" {
+	local subcmds=(set-string set-array set-object)
+
+	for subcmd in "${subcmds[@]}"; do
+		declare -A OBJECT=()
+
+		run bobject "$subcmd" --value 'OBJECT' '.zulu'
+
+		assert_failure
+		assert_line -p 'ERROR_ARGUMENTS_INVALID'
+		assert_line -p "Must pass '--' and the value when using --value"
+	done
 }
 
 @test "Error on empty \$2" {
@@ -82,7 +116,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "2 is empty"
+	assert_line -p "Positional parameter 2 is empty"
 }
 
 @test "Error on empty \$3" {
@@ -90,7 +124,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "3 is empty"
+	assert_line -p "Positional parameter 3 is empty"
 }
 
 @test "Error on empty \$4 --ref" {
@@ -98,7 +132,7 @@ load './util/init.sh'
 
 	assert_failure
 	assert_line -p "ERROR_ARGUMENTS_INVALID"
-	assert_line -p "4 is empty"
+	assert_line -p "Positional parameter 4 is empty"
 }
 
 # check for type of arguments for --ref
