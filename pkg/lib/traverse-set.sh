@@ -276,14 +276,7 @@ bash_object.traverse-set() {
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
 				local vmd_dtype="$REPLY2"
-				# shellcheck disable=SC2178
 				local -n current_object="$current_object_name"
-
-				# Ensure no circular references (WET)
-				if [ "$old_current_object_name" = "$current_object_name" ]; then
-					bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
-					return
-				fi
 
 				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
 					# Ensure the 'final_value' is the same type as specified by the user (WET)
@@ -317,6 +310,12 @@ bash_object.traverse-set() {
 						return
 						;;
 					esac
+				fi
+
+				# Ensure no circular references (WET)
+				if [ "$old_current_object_name" = "$current_object_name" ]; then
+					bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
+					return
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
@@ -379,11 +378,12 @@ bash_object.traverse-set() {
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
+					local value="${current_object["$key"]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string"
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string"
+						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
 						local -n string_to_copy_from="$final_value"

@@ -68,7 +68,7 @@ bash_object.traverse-get() {
 	local -n current_object="$root_object_name"
 
 	# A stack of all the evaluated querytree elements
-	local -a querytree_stack=()
+	# local -a querytree_stack=()
 
 	# Parse the querytree, and recurse over their elements
 	case "$querytree" in
@@ -84,7 +84,7 @@ bash_object.traverse-get() {
 			is_index_of_array='yes'
 		fi
 
-		querytree_stack+=("$key")
+		# querytree_stack+=("$key")
 		# bash_object.util.generate_querytree_stack_string
 		# local querytree_stack_string="$REPLY"
 
@@ -108,9 +108,7 @@ bash_object.traverse-get() {
 
 				virtual_item="${key_value#??}"
 				bash_object.parse_virtual_object "$virtual_item"
-				# shellcheck disable=SC2153
 				local current_object_name="$REPLY1"
-				# shellcheck disable=SC2153
 				local vmd_dtype="$REPLY2"
 				local -n current_object="$current_object_name"
 
@@ -179,7 +177,7 @@ bash_object.traverse-get() {
 							fi
 							;;
 						array)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for object, but found existing array'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
 							return
 							;;
 						*)
@@ -190,7 +188,7 @@ bash_object.traverse-get() {
 					elif [ "$final_value_type" = array ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for array, but found existing object'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
 							return
 							;;
 						array)
@@ -214,11 +212,11 @@ bash_object.traverse-get() {
 					elif [ "$final_value_type" = string ]; then
 						case "$vmd_dtype" in
 						object)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for string, but found existing object'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
 							return
 							;;
 						array)
-							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' 'Queried for string, but found existing array'
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for string, but found existing $vmd_dtype"
 							return
 							;;
 						*)

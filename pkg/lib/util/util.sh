@@ -11,7 +11,6 @@ declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_ARGUMENTS_INCORRECT_TYPE]="The type of the final value does not match that of the actual final value (at end of query string)"
 
 	[ERROR_QUERYTREE_INVALID]="The querytree could not be parsed"
-	[ERROR_QUERYTREE_INCORRECT_TYPE]=
 
 	[ERROR_VOBJ_INVALID_TYPE]="The type of the virtual object is neither 'object' nor 'array'"
 	[ERROR_VOBJ_INCORRECT_TYPE]="The type of the virtual object does not match with the type of the variable it references"
