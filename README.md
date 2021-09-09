@@ -49,7 +49,8 @@ assert [ "$REPLY" = rho ]
 
 ## Installation
 
+Use [Basalt](https://github.com/hyperupcall/basalt), a Bash package manager, to add this project as a dependency
+
 ```sh
-printf '%s\n' "dependencies = [ 'hyperupcall/bash-object' ]" > 'basalt.toml'
-basalt install
+basalt add 'hyperupcall/bash-object'
 ```
