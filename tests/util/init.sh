@@ -1,13 +1,9 @@
 # shellcheck shell=bash
+set -o pipefail
 
-# TODO: test for -u and -o pipefail
-set -e
+eval "$(basalt-package-init)"; basalt.package-init
+basalt.package-load
 
-basalt-package-init
-eval "$(basalt-package-init)"; basalt-package.init
-# basalt-package.load_dependencies
-
-load '../load.bash'
 load './util/test_util.sh'
 
 setup() {
