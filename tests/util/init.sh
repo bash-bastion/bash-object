@@ -1,8 +1,9 @@
 # shellcheck shell=bash
-# TODO: add to basalt.oml
+# TODO: add to basalt.toml
 set -o pipefail
 
-eval "$(basalt-package-init)"; basalt.package-init
+eval "$(basalt-package-init)"
+basalt.package-init
 basalt.package-load
 basalt.load 'github.com/hyperupcall/bats-common-utils' 'load.bash'
 
