@@ -223,7 +223,7 @@ bash_object.traverse-set() {
 					fi
 
 					if ! declare -gA "$global_object_name"; then
-						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
+						bash_object.util.die 'ERROR_INTERNAL' "Could not declare variable '$global_object_name'"
 						return
 					fi
 					local -n global_object="$global_object_name"
@@ -245,14 +245,15 @@ bash_object.traverse-set() {
 						return
 					fi
 
-					if ! eval "declare -ga $global_array_name=()" 2>/dev/null; then
-						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
+					if ! declare -ga "$global_array_name"; then
+						bash_object.util.die 'ERROR_INTERNAL' "Could not declare variable $global_object_name"
 						return
 					fi
+					local -n global_array="$global_array_name"
+					global_array=()
 
 					current_object["$key"]=$'\x1C\x1D'"type=array;&$global_array_name"
 
-					local -n global_array="$global_array_name"
 					local -n array_to_copy_from="$final_value"
 
 					# shellcheck disable=SC2034
