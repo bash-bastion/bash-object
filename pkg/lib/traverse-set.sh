@@ -406,5 +406,5 @@ bash_object.traverse-set() {
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 			stdtrace.log 0 "END BLOCK"
 		fi
-	done
+	done; unset i
 }
