@@ -5,7 +5,7 @@ bash_object.ensure.variable_does_exist() {
 	local variable_name="$1"
 
 	if [ -z "$variable_name" ]; then
-		bash_object.util.die "ERROR_INTERNAL" "Parameter to function 'bash_object.ensure.variable_does_exist' was empty"
+		bash_object.util.die 'ERROR_INTERNAL' "Parameter to function 'bash_object.ensure.variable_does_exist' was empty"
 		return
 	fi
 
@@ -20,7 +20,7 @@ bash_object.ensure.variable_does_not_exist() {
 	local variable_name="$1"
 
 	if [ -z "$variable_name" ]; then
-		bash_object.util.die "ERROR_INTERNAL" "Parameter to function 'bash_object.ensure.variable_does_not_exist' was empty"
+		bash_object.util.die 'ERROR_INTERNAL' "Parameter to function 'bash_object.ensure.variable_does_not_exist' was empty"
 		return
 	fi
 

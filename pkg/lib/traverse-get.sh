@@ -65,7 +65,7 @@ bash_object.traverse-get() {
 
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
-	local -n current_object="$root_object_name"
+	local -n __current_object="$root_object_name"
 
 	# A stack of all the evaluated querytree elements
 	# local -a querytree_stack=()
@@ -91,12 +91,12 @@ bash_object.traverse-get() {
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
-		if [ -z "${current_object[$key]+x}" ]; then
+		if [ -z "${__current_object[$key]+x}" ]; then
 			bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
 			return
 		# If 'key' is a member of an object or index of array
 		else
-			local key_value="${current_object[$key]}"
+			local key_value="${__current_object[$key]}"
 
 			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
@@ -110,32 +110,32 @@ bash_object.traverse-get() {
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
 				local vmd_dtype="$REPLY2"
-				local -n current_object="$current_object_name"
+				local -n __current_object="$current_object_name"
 
 				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
 					# Ensure the 'final_value' is the same type as specified by the user (WET)
-					local current_object_type=
-					if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
+					local __current_object_type=
+					if ! __current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
 						bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
 						return
 					fi
-					current_object_type="${current_object_type#declare -}"
-					case "${current_object_type::1}" in
-						A) current_object_type='object' ;;
-						a) current_object_type='array' ;;
-						-) current_object_type='string' ;;
-						*) current_object_type='other' ;;
+					__current_object_type="${__current_object_type#declare -}"
+					case "${__current_object_type::1}" in
+						A) __current_object_type='object' ;;
+						a) __current_object_type='array' ;;
+						-) __current_object_type='string' ;;
+						*) __current_object_type='other' ;;
 					esac
 					case "$vmd_dtype" in
 					object)
-						if [ "$current_object_type" != object ]; then
-							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+						if [ "$__current_object_type" != object ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$__current_object_type' was found"
 							return
 						fi
 						;;
 					array)
-						if [ "$current_object_type" != array ]; then
-							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+						if [ "$__current_object_type" != array ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$__current_object_type' was found"
 							return
 						fi
 						;;
@@ -164,8 +164,8 @@ bash_object.traverse-get() {
 							if [ "$flag_as_what" = 'as-value' ]; then
 								declare -gA REPLY=()
 								local key=
-								for key in "${!current_object[@]}"; do
-									REPLY["$key"]="${current_object[$key]}"
+								for key in "${!__current_object[@]}"; do
+									REPLY["$key"]="${__current_object[$key]}"
 								done
 							elif [ "$flag_as_what" = 'as-ref' ]; then
 								bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
@@ -195,7 +195,7 @@ bash_object.traverse-get() {
 							if [ "$flag_as_what" = 'as-value' ]; then
 								declare -ga REPLY=()
 								# shellcheck disable=SC2190
-								REPLY=("${current_object[@]}")
+								REPLY=("${__current_object[@]}")
 							elif [ "$flag_as_what" = 'as-ref' ]; then
 								bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
 								return
@@ -238,7 +238,7 @@ bash_object.traverse-get() {
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
-					local value="${current_object[$key]}"
+					local value="${__current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"
 						return

@@ -181,7 +181,7 @@ bash_object.traverse-set() {
 
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
-	local -n current_object="$root_object_name"
+	local -n __current_object="$root_object_name"
 
 	# A stack of all the evaluated querytree elements
 	local -a querytree_stack=()
@@ -207,7 +207,7 @@ bash_object.traverse-set() {
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
-		if [ -z "${current_object[$key]+x}" ]; then
+		if [ -z "${__current_object[$key]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
 				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
@@ -229,13 +229,13 @@ bash_object.traverse-set() {
 					local -n global_object="$global_object_name"
 					global_object=()
 
-					current_object["$key"]=$'\x1C\x1D'"type=object;&$global_object_name"
+					__current_object["$key"]=$'\x1C\x1D'"type=object;&$global_object_name"
 
-					local -n object_to_copy_from="$final_value"
+					local -n ___object_to_copy_from="$final_value"
 
-					for key in "${!object_to_copy_from[@]}"; do
+					for key in "${!___object_to_copy_from[@]}"; do
 						# shellcheck disable=SC2034
-						global_object["$key"]="${object_to_copy_from[$key]}"
+						global_object["$key"]="${___object_to_copy_from[$key]}"
 					done
 				elif [ "$final_value_type" = array ]; then
 					bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
@@ -252,15 +252,15 @@ bash_object.traverse-set() {
 					local -n global_array="$global_array_name"
 					global_array=()
 
-					current_object["$key"]=$'\x1C\x1D'"type=array;&$global_array_name"
+					__current_object["$key"]=$'\x1C\x1D'"type=array;&$global_array_name"
 
-					local -n array_to_copy_from="$final_value"
+					local -n ___array_to_copy_from="$final_value"
 
 					# shellcheck disable=SC2034
-					global_array=("${array_to_copy_from[@]}")
+					global_array=("${___array_to_copy_from[@]}")
 				elif [ "$final_value_type" = string ]; then
-					local -n string_to_copy_from="$final_value"
-					current_object["$key"]="$string_to_copy_from"
+					local -n ___string_to_copy_from="$final_value"
+					__current_object["$key"]="$___string_to_copy_from"
 				else
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 					return
@@ -268,7 +268,7 @@ bash_object.traverse-set() {
 			fi
 		# If 'key' is already a member of object or index of array
 		else
-			local key_value="${current_object[$key]}"
+			local key_value="${__current_object[$key]}"
 
 			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
@@ -282,32 +282,32 @@ bash_object.traverse-set() {
 				bash_object.parse_virtual_object "$virtual_item"
 				local current_object_name="$REPLY1"
 				local vmd_dtype="$REPLY2"
-				local -n current_object="$current_object_name"
+				local -n __current_object="$current_object_name"
 
 				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
 					# Ensure the 'final_value' is the same type as specified by the user (WET)
-					local current_object_type=
-					if ! current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
+					local __current_object_type=
+					if ! __current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
 						bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
 						return
 					fi
-					current_object_type="${current_object_type#declare -}"
-					case "${current_object_type::1}" in
-						A) current_object_type='object' ;;
-						a) current_object_type='array' ;;
-						-) current_object_type='string' ;;
-						*) current_object_type='other' ;;
+					__current_object_type="${__current_object_type#declare -}"
+					case "${__current_object_type::1}" in
+						A) __current_object_type='object' ;;
+						a) __current_object_type='array' ;;
+						-) __current_object_type='string' ;;
+						*) __current_object_type='other' ;;
 					esac
 					case "$vmd_dtype" in
 					object)
-						if [ "$current_object_type" != object ]; then
-							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+						if [ "$__current_object_type" != object ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$__current_object_type' was found"
 							return
 						fi
 						;;
 					array)
-						if [ "$current_object_type" != array ]; then
-							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$current_object_type' was found"
+						if [ "$__current_object_type" != array ]; then
+							bash_object.util.die 'ERROR_VOBJ_INCORRECT_TYPE' "Virtual object has a reference of type '$vmd_dtype', but when dereferencing, a variable of type '$__current_object_type' was found"
 							return
 						fi
 						;;
@@ -384,7 +384,7 @@ bash_object.traverse-set() {
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
-					local value="${current_object[$key]}"
+					local value="${__current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
 						return
@@ -392,8 +392,8 @@ bash_object.traverse-set() {
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
 						return
 					elif [ "$final_value_type" = string ]; then
-						local -n string_to_copy_from="$final_value"
-						current_object["$key"]="$string_to_copy_from"
+						local -n ___string_to_copy_from="$final_value"
+						__current_object["$key"]="$___string_to_copy_from"
 					else
 						bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Unexpected final_value_type '$final_value_type'"
 						return
