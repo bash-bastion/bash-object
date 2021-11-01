@@ -54,7 +54,62 @@ bash_object.util.generate_vobject_name() {
 		random_string="${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}_${RANDOM}"
 	fi
 
-	printf -v REPLY '%q' "__bash_object_${root_object_name}_${root_object_query}_${random_string}"
+	printf -v REPLY '%q' "__bash_object_${root_object_name}___${root_object_query}_${random_string}"
+}
+
+# @description Prints the contents of a particular variable
+# or vobject
+bash_object.util.print_hierarchy() {
+	local object_name="$1"
+	local current_indent="$2"
+
+	if object_type="$(declare -p "$object_name" 2>/dev/null)"; then :; else
+		bash_object.util.die 'ERROR_NOT_FOUND' "The variable '$object_name' does not exist"
+		return
+	fi
+	object_type="${object_type#declare -}"
+
+	local -n _object="$object_name"
+	if [ "${object_type::1}" = 'A' ]; then
+		for object_key in "${!_object[@]}"; do
+			local object_value="${_object[$object_key]}"
+			if [ "${object_value::2}" = $'\x1C\x1D' ]; then
+				# object_value is a vobject
+				bash_object.parse_virtual_object "$object_value"
+				local virtual_object_name="$REPLY1"
+				local vmd_dtype="$REPLY2"
+
+				printf '%*s' "$current_indent" ''
+				printf '%s\n' "|__ $object_key ($virtual_object_name)"
+
+				bash_object.util.print_hierarchy "$virtual_object_name" $((current_indent+3))
+			else
+				# object_value is a string
+				printf '%*s' "$current_indent" ''
+				printf '%s\n' "|__ $object_key"
+			fi
+		done; unset object_key
+	elif [ "${object_type::1}" = 'a' ]; then
+		for object_value in "${_object[@]}"; do
+			# object_value is a vobject
+			if [ "${object_value::2}" = $'\x1C\x1D' ]; then
+				bash_object.parse_virtual_object "$object_value"
+				local virtual_object_name="$REPLY1"
+				local vmd_dtype="$REPLY2"
+
+				printf '%*s' "$current_indent" ''
+				printf '%s\n' "|- $object_value ($virtual_object_name)"
+
+				bash_object.util.print_hierarchy "$virtual_object_name" $((current_indent+2))
+			else
+				printf '%*s' "$current_indent" ''
+				printf '%s\n' "|- $object_value"
+			fi
+		done
+	else
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "The type of the named object ($object_name) is neither an array nor an object"
+		return
+	fi
 }
 
 # @description A stringified version of the querytree
