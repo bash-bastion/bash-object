@@ -222,14 +222,15 @@ bash_object.traverse-set() {
 						return
 					fi
 
-					if ! eval "declare -gA $global_object_name=()"; then
+					if ! declare -gA "$global_object_name"; then
 						bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
 						return
 					fi
+					local -n global_object="$global_object_name"
+					global_object=()
 
 					current_object["$key"]=$'\x1C\x1D'"type=object;&$global_object_name"
 
-					local -n global_object="$global_object_name"
 					local -n object_to_copy_from="$final_value"
 
 					for key in "${!object_to_copy_from[@]}"; do
