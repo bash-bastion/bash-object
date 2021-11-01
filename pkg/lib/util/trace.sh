@@ -9,7 +9,7 @@ bash_object.trace_loop() {
 		stdtrace.log 0 "current_object_name: '$current_object_name'"
 		stdtrace.log 0 "current_object=("
 		for debug_key in "${!current_object[@]}"; do
-			stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
+			stdtrace.log 0 "  [$debug_key]='${current_object[$debug_key]}'"
 		done
 		stdtrace.log 0 ")"
 	fi
@@ -21,7 +21,7 @@ bash_object.trace_current_object() {
 		stdtrace.log 0 "current_object_name: '$current_object_name'"
 		stdtrace.log 0 "current_object=("
 		for debug_key in "${!current_object[@]}"; do
-			stdtrace.log 0 "  [$debug_key]='${current_object["$debug_key"]}'"
+			stdtrace.log 0 "  [$debug_key]='${current_object[$debug_key]}'"
 		done
 		stdtrace.log 0 ")"
 	fi

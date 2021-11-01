@@ -91,12 +91,12 @@ bash_object.traverse-get() {
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
-		if [ -z "${current_object["$key"]+x}" ]; then
+		if [ -z "${current_object[$key]+x}" ]; then
 			bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
 			return
 		# If 'key' is a member of an object or index of array
 		else
-			local key_value="${current_object["$key"]}"
+			local key_value="${current_object[$key]}"
 
 			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
@@ -165,7 +165,7 @@ bash_object.traverse-get() {
 								declare -gA REPLY=()
 								local key=
 								for key in "${!current_object[@]}"; do
-									REPLY["$key"]="${current_object["$key"]}"
+									REPLY["$key"]="${current_object[$key]}"
 								done
 							elif [ "$flag_as_what" = 'as-ref' ]; then
 								bash_object.util.die 'ERROR_INTERNAL' "--ref not implemented"
@@ -238,7 +238,7 @@ bash_object.traverse-get() {
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
-					local value="${current_object["$key"]}"
+					local value="${current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"
 						return

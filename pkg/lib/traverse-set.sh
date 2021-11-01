@@ -207,7 +207,7 @@ bash_object.traverse-set() {
 		bash_object.trace_loop
 
 		# If 'key' is not a member of object or index of array, error
-		if [ -z "${current_object["$key"]+x}" ]; then
+		if [ -z "${current_object[$key]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
 				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
@@ -235,7 +235,7 @@ bash_object.traverse-set() {
 
 					for key in "${!object_to_copy_from[@]}"; do
 						# shellcheck disable=SC2034
-						global_object["$key"]="${object_to_copy_from["$key"]}"
+						global_object["$key"]="${object_to_copy_from[$key]}"
 					done
 				elif [ "$final_value_type" = array ]; then
 					bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
@@ -267,7 +267,7 @@ bash_object.traverse-set() {
 			fi
 		# If 'key' is already a member of object or index of array
 		else
-			local key_value="${current_object["$key"]}"
+			local key_value="${current_object[$key]}"
 
 			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
@@ -383,7 +383,7 @@ bash_object.traverse-set() {
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
 				elif ((i+1 == ${#REPLIES[@]})); then
-					local value="${current_object["$key"]}"
+					local value="${current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
 						return

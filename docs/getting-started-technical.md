@@ -79,7 +79,7 @@ local -n current_object="$current_object_name"
 declare -gA REPLY=()
 local key=
 for key in "${!current_object[@]}"; do
-	REPLY["$key"]="${current_object["$key"]}"
+	REPLY["$key"]="${current_object[$key]}"
 done
 ```
 
