@@ -19,7 +19,7 @@ load './util/init.sh'
 	bobject set-array --value 'OBJECT' '.uwu' -- one two three
 
 	bobject get-array --value 'OBJECT' '.uwu'
-	assert [ "${#REPLY[@]}" -eq 3 ]
+	assert [ ${#REPLY[@]} -eq 3 ]
 	assert [ "${REPLY[0]}" = one ]
 	assert [ "${REPLY[1]}" = two ]
 	assert [ "${REPLY[2]}" = three ]

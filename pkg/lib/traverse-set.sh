@@ -121,11 +121,11 @@ bash_object.traverse-set() {
 				return
 			fi
 			shift
-			temp_var=("$@")
-			final_value="$temp_var_name"
-		elif [ "$final_value_type" == string ]; then
-			local temp_var_name="__bash_object_${RANDOM}_$RANDOM"
-			local -n temp_var="$temp_var_name"
+
+			final_value_ref=("$@")
+		elif [ "$final_value_type" = string ]; then
+			local final_value="__bash_object_${RANDOM}_$RANDOM"
+			local -n final_value_ref="$final_value"
 			if [ "$1" != -- ]; then
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
 				return
@@ -136,14 +136,18 @@ bash_object.traverse-set() {
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "When passing --value with set-string, only one value must be passed after the '--'"
 				return
 			fi
-			temp_var="$1"
-			final_value="$temp_var_name"
+			final_value_ref="$1"
 		else
 			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Unexpected final_value_type '$final_value_type'"
 			return
 		fi
 	else
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Unexpected final_value_type '$final_value_type'"
+		return
+	fi
+
+	if [ -z "$final_value" ]; then
+		bash_object.util.die 'ERROR_INTERNAL' "Variable 'final_value' is empty"
 		return
 	fi
 
@@ -175,17 +179,17 @@ bash_object.traverse-set() {
 				*) actual_final_value_type='other' ;;
 			esac
 
-			if [ "$final_value_type" == object ]; then
+			if [ "$final_value_type" = object ]; then
 				if [ "$actual_final_value_type" != object ]; then
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
-			elif [ "$final_value_type" == array ]; then
+			elif [ "$final_value_type" = array ]; then
 				if [ "$actual_final_value_type" != array ]; then
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
 				fi
-			elif [ "$final_value_type" == string ]; then
+			elif [ "$final_value_type" = string ]; then
 				if [ "$actual_final_value_type" != string ]; then
 					bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "Argument 'set-$final_value_type' was specified, but a variable with type '$actual_final_value_type' was passed"
 					return
