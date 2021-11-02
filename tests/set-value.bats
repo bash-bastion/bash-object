@@ -2,6 +2,16 @@
 
 load './util/init.sh'
 
+# object
+@test "Corretly get-object --value" {
+	declare -A OBJECT=()
+
+	bobject set-object --value 'OBJECT' '.uwu' -- keyy valuee
+
+	bobject get-string --value 'OBJECT' '.uwu.keyy'
+	assert [ "$REPLY" = 'valuee' ]
+}
+
 # array
 @test "Correctly set-array --value" {
 	declare -A OBJECT=()

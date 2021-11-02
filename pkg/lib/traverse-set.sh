@@ -81,23 +81,41 @@ bash_object.traverse-set() {
 			return
 		fi
 	elif [ "$flag_pass_by_what" = 'by-value' ]; then
-		if [ "$final_value_type" == object ]; then
-			local -A temp_var_name="__bash_object_${RANDOM}_$RANDOM"
-			local -n temp_var="$temp_var_name"
+		if [ "$final_value_type" = object ]; then
+			final_value="__bash_object_${RANDOM}_$RANDOM"
+			local -A "$final_value"
+			local -n final_value_ref="$final_value"
+			final_value_ref=()
+
 			if [ "$1" != -- ]; then
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
 				return
 			fi
+			shift
+
 			if (( $# & 1 )); then
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "When passing --value with set-object, an even number of values must be passed after the '--'"
 				return
 			fi
-			for ((i=0; i<$#; i+2)); do
-				temp_var["${!i}"]="${!i+1}"
-			done
-		elif [ "$final_value_type" == array ]; then
-			local -a temp_var_name="__bash_object_${RANDOM}_$RANDOM"
-			local -n temp_var="$temp_var_name"
+
+			while (( $# )); do
+				local key="$1"
+				if ! shift; then
+					bash_object.util.die 'ERROR_INTERNAL' 'Shift failed, but was expected to succeed'
+					return
+				fi
+
+				local value="$1"
+				if ! shift; then
+					bash_object.util.die 'ERROR_INTERNAL' 'Shift failed, but was expected to succeed'
+					return
+				fi
+
+				final_value_ref["$key"]="$value"
+			done; unset key value
+		elif [ "$final_value_type" = array ]; then
+			local -a final_value="__bash_object_${RANDOM}_$RANDOM"
+			local -n final_value_ref="$final_value"
 			if [ "$1" != -- ]; then
 				bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass '--' and the value when using --value"
 				return
