@@ -45,6 +45,17 @@ assert [ ${#REPLY[@]} -eq 4 ]
 
 bobject get-string --value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"].[2]'
 assert [ "$REPLY" = rho ]
+
+bobject.print 'root_object'
+# |__ zulu (__bash_object_root_object___zulu_24092_8313_29963_14301_14535)
+#    |__ yankee (__bash_object_root_object___zulu_yankee_15383_14163_12814_23488_13779)
+#       |__ xray (__bash_object_root_object___zulu_yankee_xray_18071_28791_7790_539_19231)
+#          |__ whiskey
+#          |__ foxtrot (__bash_object_root_object___zulu_yankee_xray_foxtrot_26606_15833_10655_7208_16587)
+#             |- omicron
+#             |- pi
+#             |- rho
+#             |- sigma
 ```
 
 ## Installation

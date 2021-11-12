@@ -1,0 +1,20 @@
+[package]
+name = ''
+slug = ''
+version = ''
+authors = []
+description = ''
+
+[run]
+dependencies = ['https://github.com/hyperupcall/bash-object.git@7936badc984fc56c1aa7e2c940e5e382923146d7']
+sourceDirs = []
+builtinDirs = []
+binDirs = []
+completionDirs = []
+manDirs = []
+
+[run.shellEnvironment]
+
+[run.setOptions]
+
+[run.shoptOptions]
