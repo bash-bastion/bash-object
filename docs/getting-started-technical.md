@@ -89,10 +89,12 @@ Another implementation detail is how a new variable is created in the global sco
 local global_object_name=
 printf -v global_object_name '%q' "__bash_object_${root_object_name}_${root_object_query}_${RANDOM}_${RANDOM}"
 
-if ! eval "declare -gA $global_object_name=()"; then
-	bash_object.util.die 'ERROR_INTERNAL' 'Eval declare failed'
+if ! declare -gA "$global_object_name"; then
+	bash_object.util.die 'ERROR_INTERNAL' "Could not declare variable '$global_object_name'"
 	return
 fi
+local -n global_object="$global_object_name"
+global_object=()
 ```
 
-Unfortunately, it must use eval, but the `%q` should properly escape any escape sequences, since `root_object_name` and `root_object_query` are user-defined
+The `%q` probably isn't needed (it was originally there because the implementation previously used `eval`), but it's still there as of this writting
