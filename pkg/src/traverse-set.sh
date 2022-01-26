@@ -9,7 +9,7 @@ bash_object.traverse-set() {
 	local flag_pass_by_what=
 	local -a args=()
 
-	for arg; do case "$arg" in
+	for arg; do case $arg in
 	--ref)
 		if [ -n "$flag_pass_by_what" ]; then
 			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
@@ -31,7 +31,10 @@ bash_object.traverse-set() {
 	*)
 		args+=("$arg")
 		;;
-	esac; shift; done
+	esac; if ! shift; then
+		bash_object.util.die 'ERROR_INTERNAL' 'Shift failed, but was expected to succeed'
+		return
+	fi; done
 
 	if [ -z "$flag_pass_by_what" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--ref' or '--value' flag"

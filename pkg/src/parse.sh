@@ -9,7 +9,7 @@ bash_object.parse_querytree() {
 
 	local flag_parser_type=
 
-	for arg; do case "$arg" in
+	for arg; do case $arg in
 	--simple)
 		flag_parser_type='simple'
 		shift ;;
@@ -51,10 +51,10 @@ bash_object.parse_querytree() {
 			PARSER_COLUMN_NUMBER+=1
 
 			if [ -n "${TRACE_BASH_OBJECT_PARSE+x}" ]; then
-				echo "-- $mode: '$char'" >&3
+				printf '%s\n' "-- $mode: '$char'" >&3
 			fi
 
-			case "$mode" in
+			case $mode in
 			MODE_DEFAULT)
 				if [ "$char" = . ]; then
 					mode='MODE_EXPECTING_BRACKET'
@@ -200,6 +200,6 @@ bash_object.parse_virtual_object() {
 		esac
 	done <<< "$virtual_metadatas"
 
-	REPLY1="$virtual_object_name"
-	REPLY2="$vmd_dtype"
+	REPLY1=$virtual_object_name
+	REPLY2=$vmd_dtype
 }

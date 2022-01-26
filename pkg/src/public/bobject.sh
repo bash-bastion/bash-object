@@ -2,9 +2,12 @@
 
 bobject() {
 	local subcmd="$1"
-	shift
+	if ! shift; then
+		bash_object.util.die 'ERROR_INTERNAL' 'Shift failed, but was expected to succeed'
+		return
+	fi
 
-	case "$subcmd" in
+	case $subcmd in
 		get-string)
 			bash_object.traverse-get string "$@"
 			;;

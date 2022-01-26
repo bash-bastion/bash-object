@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 bash_object.traverse-get() {
-	unset REPLY
+	unset REPLY; REPLY=
 
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		stdtrace.log 0 ''
@@ -11,7 +11,7 @@ bash_object.traverse-get() {
 	local flag_as_what=
 	local -a args=()
 
-	for arg; do case "$arg" in
+	for arg; do case $arg in
 	--ref)
 		if [ -n "$flag_as_what" ]; then
 			bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Flags '--ref' and '--value' are mutually exclusive"
