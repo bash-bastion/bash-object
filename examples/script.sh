@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+lsobj() {
+	local -i count=0
+	while IFS= read -r line || [ -n "$line" ]; do
+		((++count))
+		if [[ $line =~ ^__bash_object ]]; then
+			printf '%s\n' "$line"
+		fi
+
+	done < <(set -o posix; set); unset line
+
+	printf 'COUNT: %d\n' "$count"
+}
+
 # Necessary for Basalt to load dependencies
 eval "$(basalt-package-init)"
 basalt.package-init
 basalt.package-load
 
+lsobj
 
 declare -A root_object=()
 declare -A zulu_object=()
@@ -31,3 +45,7 @@ bobject get-string --value root_object '.["zulu"].["yankee"].["xray"].["foxtrot"
 printf '%s - %s\n' "$REPLY" rho
 
 bobject.print 'root_object'
+
+bobject.unset 'root_object'
+
+lsobj

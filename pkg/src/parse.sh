@@ -9,6 +9,7 @@ bash_object.parse_querytree() {
 
 	local flag_parser_type=
 
+	local arg=
 	for arg; do case $arg in
 	--simple)
 		flag_parser_type='simple'

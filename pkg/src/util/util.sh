@@ -112,6 +112,49 @@ bash_object.util.print_hierarchy() {
 	fi
 }
 
+# @description Prints the contents of a particular variable
+# or vobject
+bash_object.util.unset() {
+	local object_name="$1"
+
+	if object_type="$(declare -p "$object_name" 2>/dev/null)"; then :; else
+		bash_object.util.die 'ERROR_NOT_FOUND' "The variable '$object_name' does not exist"
+		return
+	fi
+	object_type="${object_type#declare -}"
+
+	local -n _object="$object_name"
+	if [ "${object_type::1}" = 'A' ]; then
+		for object_key in "${!_object[@]}"; do
+			local object_value="${_object[$object_key]}"
+			if [ "${object_value::2}" = $'\x1C\x1D' ]; then
+				# object_value is a vobject
+				bash_object.parse_virtual_object "$object_value"
+				local virtual_object_name="$REPLY1"
+				local vmd_dtype="$REPLY2"
+
+				bash_object.util.unset "$virtual_object_name"
+				unset "$virtual_object_name"
+			fi
+		done; unset object_key
+	elif [ "${object_type::1}" = 'a' ]; then
+		for object_value in "${_object[@]}"; do
+			# object_value is a vobject
+			if [ "${object_value::2}" = $'\x1C\x1D' ]; then
+				bash_object.parse_virtual_object "$object_value"
+				local virtual_object_name="$REPLY1"
+				local vmd_dtype="$REPLY2"
+
+				bash_object.util.unset "$virtual_object_name"
+				unset "$virtual_object_name"
+			fi
+		done
+	else
+		bash_object.util.die 'ERROR_ARGUMENTS_INVALID_TYPE' "The type of the named object ($object_name) is neither an array nor an object"
+		return
+	fi
+}
+
 # @description A stringified version of the querytree
 # stack. This is used when generating objects to prevent
 # conflicts
