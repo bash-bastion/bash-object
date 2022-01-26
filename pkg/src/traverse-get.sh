@@ -11,6 +11,7 @@ bash_object.traverse-get() {
 	local flag_as_what=
 	local -a args=()
 
+	local arg=
 	for arg; do case $arg in
 	--ref)
 		if [ -n "$flag_as_what" ]; then
@@ -32,7 +33,7 @@ bash_object.traverse-get() {
 	*)
 		args+=("$arg")
 		;;
-	esac done
+	esac done; unset -v arg
 
 	if [ -z "$flag_as_what" ]; then
 		bash_object.util.die 'ERROR_ARGUMENTS_INVALID' "Must pass either the '--ref' or '--value' flag"
@@ -75,6 +76,7 @@ bash_object.traverse-get() {
 		*']'*) bash_object.parse_querytree --advanced "$querytree" ;;
 		*) bash_object.parse_querytree --simple "$querytree" ;;
 	esac
+	local i=
 	for ((i=0; i<${#REPLIES[@]}; i++)); do
 		local key="${REPLIES[$i]}"
 

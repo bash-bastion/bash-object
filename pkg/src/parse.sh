@@ -17,7 +17,7 @@ bash_object.parse_querytree() {
 	--advanced)
 		flag_parser_type='advanced'
 		shift ;;
-	esac done
+	esac done; unset -v arg
 
 	local querytree="$1"
 
@@ -180,7 +180,7 @@ bash_object.parse_virtual_object() {
 	fi
 
 	# Parse info about the virtual object
-	local vmd_dtype=
+	local vmd= vmd_key= vmd_value= vmd_dtype=
 	while IFS= read -rd \; vmd; do
 		if [ -z "$vmd" ]; then
 			continue
