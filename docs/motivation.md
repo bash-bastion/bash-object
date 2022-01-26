@@ -1,12 +1,8 @@
-# Unmarshaling
+# Motivation
 
-Unmarshaling strings representing highly structured data in Bash in a reliable and easy to use way has historically been impossible - until now
+Unmarshaling strings representing highly structured data in Bash in a reliable and easy to use way has historically been impossible
 
-The following examples will use JSON format, which represents the data that Bash will encode in-memory
-
-## Motivation
-
-Bash allows for simple/flat mapping via an associative array
+Bash only allows for simple/flat mapping via an associative array
 
 ```json
 {
@@ -59,8 +55,8 @@ Let's take a look at the most basic case
 In Bash, it will be stored in memory eventually using declarations similar to the following
 
 ```sh
-declare -A unique_global_variable_xray=([yankee]='zulu')
-declare -A OBJECT=([xray]=$'\x1C\x1Dtype=object;&unique_global_variable_xray')
+declare -A __bash_object_unique_global_variable_xray=([yankee]='zulu')
+declare -A OBJECT=([xray]=$'\x1C\x1Dtype=object;&__bash_object_unique_global_variable_xray')
 ```
 
 You can retrieve the data with
@@ -73,7 +69,7 @@ assert [ "${REPLY[yankee]}" = zulu ]
 The implementation hinges on Bash's `declare -n`. When using `get-object`, this is what would happen behind the scenes at the lowest level
 
 ```sh
-local current_object_name='unique_global_variable_xray'
+local current_object_name='__bash_object_unique_global_variable_xray'
 local -n current_object="$current_object_name"
 
 declare -gA REPLY=()
@@ -83,7 +79,7 @@ for key in "${!current_object[@]}"; do
 done
 ```
 
-Another implementation detail is how a new variable is created in the global scope. This can occur when you are setting an array (indexed array) or object (associative array) at some place in the object hierarchy. In the previous example, `unique_global_variable_xray` is the new variable created in the global scope; in practice, the name looks a lot different, as seen in the example below
+Another implementation detail is how a new variable is created in the global scope. This can occur when you are setting an array (indexed array) or object (associative array) at some place in the object hierarchy. In the previous example, `__bash_object_unique_global_variable_xray` is the new variable created in the global scope; in practice, the name looks a lot different, as seen in the example below
 
 ```sh
 local global_object_name=
@@ -97,4 +93,4 @@ local -n global_object="$global_object_name"
 global_object=()
 ```
 
-The `%q` probably isn't needed (it was originally there because the implementation previously used `eval`), but it's still there as of this writting
+The `%q` probably isn't needed (it was originally there because the implementation previously used `eval`), but it's still there as of this writing
