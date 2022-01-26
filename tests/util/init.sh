@@ -3,9 +3,7 @@
 eval "$(basalt-package-init)"
 basalt.package-init
 basalt.package-load
-basalt.load 'github.com/hyperupcall/bats-common-utils' 'load.bash'
-
-load './util/test_util.sh'
+basalt.load 'github.com/hyperupcall/bats-all' 'load.bash'
 
 setup() {
 	cd "$BATS_TEST_TMPDIR"

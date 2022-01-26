@@ -5,7 +5,7 @@ version = '0.8.0'
 authors = ['Edwin Kofler" <edwin@kofler.dev>']
 
 [run]
-dependencies = ['https://github.com/hyperupcall/bats-common-utils.git@v3.0.0']
+dependencies = ['https://github.com/hyperupcall/bats-all.git@v4.2.0']
 sourceDirs = ['pkg/src', 'pkg/src/public', 'pkg/src/util']
 builtinDirs = []
 binDirs = []
