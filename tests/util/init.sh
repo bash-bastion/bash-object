@@ -1,6 +1,4 @@
 # shellcheck shell=bash
-# TODO: add to basalt.toml
-set -o pipefail
 
 eval "$(basalt-package-init)"
 basalt.package-init
