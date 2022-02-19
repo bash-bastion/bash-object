@@ -1,9 +1,10 @@
 [package]
-name = ''
-slug = ''
-version = ''
-authors = []
-description = ''
+type = 'bash'
+name = 'bash-object-example'
+slug = 'bash_object_example'
+version = '0.1.0'
+authors = ['Edwin Kofler <edwin@kofler.dev>']
+description = 'Example for bash_object'
 
 [run]
 dependencies = ['https://github.com/hyperupcall/bash-object.git@7936badc984fc56c1aa7e2c940e5e382923146d7']

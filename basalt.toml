@@ -1,8 +1,10 @@
 [package]
+type = 'bash'
 name = 'bash-object'
 slug = 'bash_object'
 version = '0.8.0'
 authors = ['Edwin Kofler" <edwin@kofler.dev>']
+description = 'Manipulate heterogenous data hierarchies in Bash'
 
 [run]
 dependencies = ['https://github.com/hyperupcall/bats-all.git@v4.2.0']
