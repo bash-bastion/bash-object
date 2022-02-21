@@ -174,9 +174,9 @@ bash_object.parse_virtual_object() {
 	local virtual_object_name="${virtual_object#*&}" # __bash_object_383028
 
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-		stdtrace.log 2 "virtual_object: '$virtual_object'"
-		stdtrace.log 2 "virtual_metadatas: '$virtual_metadatas'"
-		stdtrace.log 2 "virtual_object_name: '$virtual_object_name'"
+		bash_object.trace_print 2 "virtual_object: '$virtual_object'"
+		bash_object.trace_print 2 "virtual_metadatas: '$virtual_metadatas'"
+		bash_object.trace_print 2 "virtual_object_name: '$virtual_object_name'"
 	fi
 
 	# Parse info about the virtual object
@@ -191,9 +191,9 @@ bash_object.parse_virtual_object() {
 		vmd_value="${vmd#*=}"
 
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			stdtrace.log 2 "vmd: '$vmd'"
-			stdtrace.log 3 "vmd_key: '$vmd_key'"
-			stdtrace.log 3 "vmd_value: '$vmd_value'"
+			bash_object.trace_print 2 "vmd: '$vmd'"
+			bash_object.trace_print 3 "vmd_key: '$vmd_key'"
+			bash_object.trace_print 3 "vmd_value: '$vmd_value'"
 		fi
 
 		case "$vmd_key" in

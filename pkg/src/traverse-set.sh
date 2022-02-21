@@ -2,8 +2,8 @@
 
 bash_object.traverse-set() {
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-		stdtrace.log 0 ''
-		stdtrace.log 0 "CALL: bash_object.traverse-set: $*"
+		bash_object.trace_print 0 ''
+		bash_object.trace_print 0 "CALL: bash_object.traverse-set: $*"
 	fi
 
 	local flag_pass_by_what=
@@ -300,7 +300,7 @@ bash_object.traverse-set() {
 			# If 'key_value' is a virtual object, dereference it
 			if [ "${key_value::2}" = $'\x1C\x1D' ]; then
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					stdtrace.log 2 "BLOCK: OBJECT/ARRAY"
+					bash_object.trace_print 2 "BLOCK: OBJECT/ARRAY"
 				fi
 
 				local old_current_object_name="$current_object_name"
@@ -404,7 +404,7 @@ bash_object.traverse-set() {
 			# Otherwise, 'key_value' is a string
 			else
 				if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-					stdtrace.log 2 "BLOCK: STRING"
+					bash_object.trace_print 2 "BLOCK: STRING"
 				fi
 
 				if ((i+1 < ${#REPLIES[@]})); then
@@ -431,7 +431,7 @@ bash_object.traverse-set() {
 
 		bash_object.trace_current_object
 		if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
-			stdtrace.log 0 "END BLOCK"
+			bash_object.trace_print 0 "END BLOCK"
 		fi
 	done; unset i
 }

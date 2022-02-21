@@ -57,8 +57,7 @@ bash_object.util.generate_vobject_name() {
 	printf -v REPLY '%q' "__bash_object_${root_object_name}___${root_object_query}_${random_string}"
 }
 
-# @description Prints the contents of a particular variable
-# or vobject
+# @description Prints the contents of a particular variable or vobject
 bash_object.util.print_hierarchy() {
 	local object_name="$1"
 	local current_indent="$2"
@@ -112,8 +111,7 @@ bash_object.util.print_hierarchy() {
 	fi
 }
 
-# @description Prints the contents of a particular variable
-# or vobject
+# @description Prints the contents of a particular variable or vobject
 bash_object.util.unset() {
 	local object_name="$1"
 
@@ -155,9 +153,8 @@ bash_object.util.unset() {
 	fi
 }
 
-# @description A stringified version of the querytree
-# stack. This is used when generating objects to prevent
-# conflicts
+# @description A stringified version of the querytree stack. This is used when
+# generating objects to prevent conflicts
 bash_object.util.generate_querytree_stack_string() {
 	unset REPLY; REPLY=
 
@@ -165,20 +162,4 @@ bash_object.util.generate_querytree_stack_string() {
 	IFS='_'
 	REPLY="${querytree_stack[*]}"
 	IFS="$oldIFS"
-}
-
-# TODO
-stdtrace.log() {
-	local level="$1"
-	local message="$2"
-
-	local padding=
-	case "$level" in
-		0) padding= ;;
-		1) padding="  " ;;
-		2) padding="    " ;;
-		3) padding="      " ;;
-	esac
-
-	printf '%s\n' "TRACE $level: $padding| $message" >&3
 }
