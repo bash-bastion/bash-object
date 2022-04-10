@@ -47,3 +47,27 @@ load './util/init.sh'
 	assert_line -p "ERROR_ARGUMENTS_INCORRECT_TYPE"
 	assert_line -p "Cannot index an array with a non-integer"
 }
+
+# misc
+@test "Correctly indexes an object with a number string" {
+	declare -A OBJECT=()
+
+	bobject set-object --value 'OBJECT' '.["2"]' -- keyy valuee a b
+	bobject set-array --value 'OBJECT' '.["3"]' -- one two three
+	bobject set-string --value 'OBJECT' '.["4"]' -- zeta
+
+	bobject get-object --value 'OBJECT' '.["2"]'
+	local keys=("${!REPLY[@]}")
+	assert [ "${#REPLY[@]}" = 2 ]
+	assert [ "${keys[0]}" = 'keyy' ]
+	assert [ "${keys[1]}" = 'a' ]
+
+	bobject get-array --value 'OBJECT' '.["3"]'
+	assert [ ${#REPLY[@]} -eq 3 ]
+
+	bobject get-string --value 'OBJECT' '.["3"].[0]'
+	assert [ "$REPLY" = 'one' ]
+
+	bobject get-string --value 'OBJECT' '.["4"]'
+	assert [ "$REPLY" = 'zeta' ]
+}
