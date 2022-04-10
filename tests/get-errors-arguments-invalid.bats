@@ -6,7 +6,7 @@
 
 load './util/init.sh'
 
-@test "error on more than correct 'get' arguments" {
+@test "Error on more than correct 'get' arguments" {
 	local subcmds=(get-string get-array get-object)
 
 	for subcmd in "${subcmds[@]}"; do
@@ -20,7 +20,7 @@ load './util/init.sh'
 	done
 }
 
-@test "error on less than correct 'get' arguments" {
+@test "Error on less than correct 'get' arguments" {
 	local subcmds=(get-string get-array get-object)
 
 	for subcmd in "${subcmds[@]}"; do

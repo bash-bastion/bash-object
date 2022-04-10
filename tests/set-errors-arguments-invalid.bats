@@ -5,7 +5,7 @@
 
 load './util/init.sh'
 
-@test "error on more than correct 'set' arguments" {
+@test "Error on more than correct 'set' arguments" {
 	local subcmds=(set-string set-array set-object)
 
 	for subcmd in "${subcmds[@]}"; do
@@ -19,7 +19,7 @@ load './util/init.sh'
 	done
 }
 
-@test "error on less than correct 'set' arguments" {
+@test "Error on less than correct 'set' arguments" {
 	local subcmds=(set-string set-array set-object)
 
 	for subcmd in "${subcmds[@]}"; do
