@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 
-# shellcheck disable=SC2192
+# shellcheck disable=SC2192,SC2034
 declare -gA ERRORS_BASH_OBJECT=(
 	[ERROR_NOT_FOUND]=
 	[ERROR_INTERNAL]=
@@ -8,7 +8,7 @@ declare -gA ERRORS_BASH_OBJECT=(
 
 	[ERROR_ARGUMENTS_INVALID]="Wrong number, empty, or missing required arguments to function"
 	[ERROR_ARGUMENTS_INVALID_TYPE]="The type of the final value specified by the user is neither 'object', 'array', nor 'string'"
-	[ERROR_ARGUMENTS_INCORRECT_TYPE]="The type of the final value does not match that of the actual final value (at end of query string)"
+	[ERROR_ARGUMENTS_INCORRECT_TYPE]="The type of the final value does not match that of the actual final value (at end of query string). Or, the type implied by your query string does not match up with the queried object"
 
 	[ERROR_QUERYTREE_INVALID]="The querytree could not be parsed"
 

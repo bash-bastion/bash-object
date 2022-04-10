@@ -208,6 +208,7 @@ bash_object.traverse-set() {
 	# Start traversing at the root object
 	local current_object_name="$root_object_name"
 	local -n __current_object="$root_object_name"
+	local vmd_dtype=
 
 	# A stack of all the evaluated querytree elements
 	local -a querytree_stack=()
@@ -233,8 +234,16 @@ bash_object.traverse-set() {
 
 		bash_object.trace_loop
 
+		# If the past vmd_dtype is an array and 'key' is not a number
+		if [[ $vmd_dtype == 'array' && $key == *[!0-9]* ]]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Cannot index an array with a non-integer ($key)"
+			return
+		# If the past vmd_dtype is an array and 'key' is a number
+		elif [[ $vmd_dtype == 'object' && $key != *[!0-9]* ]]; then
+			bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Cannot index an object with an integer ($key)"
+			return
 		# If 'key' is not a member of object or index of array, error
-		if [ -z "${__current_object[$key]+x}" ]; then
+		elif [ -z "${__current_object[$key]+x}" ]; then
 			# If we are before the last element in the query, then error
 			if ((i+1 < ${#REPLIES[@]})); then
 				bash_object.util.die 'ERROR_NOT_FOUND' "Key or index '$key' (querytree index '$i') does not exist"
@@ -293,7 +302,7 @@ bash_object.traverse-set() {
 					return
 				fi
 			fi
-		# If 'key' is already a member of object or index of array
+		# If 'key' is a valid member of an object or index of array
 		else
 			local key_value="${__current_object[$key]}"
 

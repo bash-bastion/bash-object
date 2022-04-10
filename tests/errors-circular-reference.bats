@@ -26,10 +26,10 @@ load './util/init.sh'
 }
 
 @test "get-array stops on circular reference" {
-	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+	declare -a SUB_ARRAY=($'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	run bobject get-array --value OBJECT '.my_key.nested'
+	run bobject get-array --value OBJECT '.["my_key"].[0]'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -37,10 +37,10 @@ load './util/init.sh'
 }
 
 @test "get-array stops on circular reference 2" {
-	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+	declare -a SUB_ARRAY=($'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 
-	run bobject get-array --value OBJECT '.my_key.nested.nested'
+	run bobject get-array --value OBJECT '.["my_key"].[0].[0]'
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -73,11 +73,11 @@ load './util/init.sh'
 }
 
 @test "set-array stops on circular reference" {
-	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+	declare -a SUB_ARRAY=($'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=()
 
-	run bobject set-array OBJECT --ref '.my_key.nested' arr
+	run bobject set-array OBJECT --ref '.["my_key"].[0]' arr
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
@@ -85,11 +85,11 @@ load './util/init.sh'
 }
 
 @test "set-array stops on circular reference 2" {
-	declare -a SUB_ARRAY=([nested]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
+	declare -a SUB_ARRAY=($'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -A OBJECT=([my_key]=$'\x1C\x1Dtype=array;&SUB_ARRAY')
 	declare -a arr=()
 
-	run bobject set-array OBJECT --ref '.my_key.nested.gone' arr
+	run bobject set-array OBJECT --ref '.["my_key"].[0].[0]' arr
 
 	assert_failure
 	assert_line -p "ERROR_SELF_REFERENCE"
