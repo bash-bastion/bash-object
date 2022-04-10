@@ -1,6 +1,6 @@
 # bash-object
 
-The _first_ Bash library for imperatively constructing data of nested and heterogeneous form
+The _first_ Bash library for manipulating heterogenous data hierarchies
 
 This is meant to be a low level API providing primitives for other libraries.
 
@@ -63,5 +63,5 @@ bobject.print 'root_object'
 Use [Basalt](https://github.com/hyperupcall/basalt), a Bash package manager, to add this project as a dependency
 
 ```sh
-basalt add 'hyperupcall/bash-object'
+basalt add hyperupcall/bash-object
 ```
