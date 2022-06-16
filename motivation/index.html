@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Edwin Kofler" /><link rel="canonical" href="https://hyperupcall.github.io/bash-object.git/motivation/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Motivation - bash-object.git</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Motivation";
+        var mkdocs_page_input_path = "motivation.md";
+        var mkdocs_page_url = "/bash-object.git/motivation/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> bash-object.git
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">bash-object</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../interface/">Interface</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Motivation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#solution">Solution</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../query/">Query</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Internals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/errors/">Errors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/virtual-object/">Virtual Object</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">bash-object.git</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li><li>Motivation</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/hyperupcall/bash-object.git/edit/master/docs/motivation.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="motivation">Motivation</h1>
+<p>Unmarshaling strings representing highly structured data in Bash in a reliable and easy to use way has historically been impossible</p>
+<p>Bash only allows for simple/flat mapping via an associative array</p>
+<pre><code class="language-json">{
+    &quot;atom&quot;: &quot;Hydrogen&quot;
+}
+</code></pre>
+<pre><code class="language-bash">assert [ &quot;${OBJECT[atom]}&quot; = 'Hydrogen' ]
+</code></pre>
+<p>But, when it comes to even the slightest of more complicated structures, Bash cannot cope: associative arrays do not nest inside one another</p>
+<pre><code class="language-json">{
+    &quot;stars&quot;: {
+        &quot;cool&quot;: &quot;Wolf 359&quot;
+    }
+}
+</code></pre>
+<p>Note only that, but indexed arrays cannot nest inside associative arrays</p>
+<pre><code class="language-json">{
+    &quot;nearby&quot;: [
+        &quot;Alpha Centauri A&quot;,
+        &quot;Alpha Centauri B&quot;,
+        &quot;Proxima Centauri&quot;,
+        &quot;Barnard's Star&quot;,
+        &quot;Luhman 16&quot;
+    ]
+}
+</code></pre>
+<h2 id="solution">Solution</h2>
+<p><code>bash-object</code> solves this problem, in the most general case. The repository contains functions for storing and retreiving strings, indexed arrays, and associative arrays in a heterogenous hierarchy</p>
+<p>Let's take a look at the most basic case</p>
+<pre><code class="language-json">{
+    &quot;xray&quot;: {
+        &quot;yankee&quot;: &quot;zulu&quot;
+    }
+}
+</code></pre>
+<p>In Bash, it will be stored in memory eventually using declarations similar to the following</p>
+<pre><code class="language-sh">declare -A __bash_object_unique_global_variable_xray=([yankee]='zulu')
+declare -A OBJECT=([xray]=$'\x1C\x1Dtype=object;&amp;__bash_object_unique_global_variable_xray')
+</code></pre>
+<p>You can retrieve the data with</p>
+<pre><code class="language-sh">bobject get-object --value 'OBJECT' 'xray'
+assert [ &quot;${REPLY[yankee]}&quot; = zulu ]
+</code></pre>
+<p>The implementation hinges on Bash's <code>declare -n</code>. When using <code>get-object</code>, this is what would happen behind the scenes at the lowest level</p>
+<pre><code class="language-sh">local current_object_name='__bash_object_unique_global_variable_xray'
+local -n current_object=&quot;$current_object_name&quot;
+
+declare -gA REPLY=()
+local key=
+for key in &quot;${!current_object[@]}&quot;; do
+    REPLY[&quot;$key&quot;]=&quot;${current_object[$key]}&quot;
+done
+</code></pre>
+<p>Another implementation detail is how a new variable is created in the global scope. This can occur when you are setting an array (indexed array) or object (associative array) at some place in the object hierarchy. In the previous example, <code>__bash_object_unique_global_variable_xray</code> is the new variable created in the global scope; in practice, the name looks a lot different, as seen in the example below</p>
+<pre><code class="language-sh">local global_object_name=
+printf -v global_object_name '%q' &quot;__bash_object_${root_object_name}_${root_object_query}_${RANDOM}_${RANDOM}&quot;
+
+if ! declare -gA &quot;$global_object_name&quot;; then
+    bash_object.util.die 'ERROR_INTERNAL' &quot;Could not declare variable '$global_object_name'&quot;
+    return
+fi
+local -n global_object=&quot;$global_object_name&quot;
+global_object=()
+</code></pre>
+<p>The <code>%q</code> probably isn't needed (it was originally there because the implementation previously used <code>eval</code>), but it's still there as of this writing</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../interface/" class="btn btn-neutral float-left" title="Interface"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../query/" class="btn btn-neutral float-right" title="Query">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>© Edwin Kofler</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/hyperupcall/bash-object.git" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../interface/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../query/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

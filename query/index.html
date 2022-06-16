@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Edwin Kofler" /><link rel="canonical" href="https://hyperupcall.github.io/bash-object.git/query/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Query - bash-object.git</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Query";
+        var mkdocs_page_input_path = "query.md";
+        var mkdocs_page_url = "/bash-object.git/query/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> bash-object.git
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">bash-object</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../interface/">Interface</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../motivation/">Motivation</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Query</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#simple-query">Simple query</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#advanced-query">Advanced query</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#invalid-queries">Invalid queries</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Internals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/errors/">Errors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/virtual-object/">Virtual Object</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">bash-object.git</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li><li>Query</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/hyperupcall/bash-object.git/edit/master/docs/query.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="query">Query</h1>
+<p>Queries are similar to <code>jq</code>'s filter mechanism</p>
+<p>Both quering modes listed below are are mutually exclusive. By default, the 'simple' method is used by default. The parser will automatically switch to 'advanced' mode if your query contains a <code>[</code></p>
+<p>A word of caution, remember there are three different quoting behaviors within Bash itself (<code>"string"</code>, <code>'string'</code>, <code>$'string'</code>), some of which have escape sequences as well. I recommend surrounding queries with <code>''</code> where possible</p>
+<h2 id="simple-query">Simple query</h2>
+<p>This mode is meant to be fast, and simply splits the dot deliminated string into an array, skipping any empty elements</p>
+<pre><code class="language-sh">query='.my_key.sub_key'
+# =&gt; ('my_key' 'sub_key')
+</code></pre>
+<p>Since this is mean to be fast, no checks are made. This means any particular query element could contain any character except <code>.</code> and <code>[</code></p>
+<pre><code class="language-sh">query='..m!y_k@e y.....su\\]b_&quot;ke\y'
+# =&gt; ('m!y_k@e y' 'su\\]b_&quot;ke\y')
+</code></pre>
+<p>Obviously, writing the query in that way is highly undesirable, so like <code>jq</code>, <em>please</em> ensure keys are made up of alphanumeric characters and underscores (without starting with a digit)</p>
+<h2 id="advanced-query">Advanced query</h2>
+<p>In this mode, all query elements are contained within square brackets. You must use this syntax if you wish to obtain a particular index from an array</p>
+<p>The rules follow</p>
+<ul>
+<li>Use quotes for strings (accessing keys in associative arrays)</li>
+<li>Everything inside quotes is literal, excluding three characters that have escape sequences: <code>\\</code>, <code>\"</code>, and <code>\]</code></li>
+<li>The string <em>cannot</em> begin with <code>$'\x1C'</code>, as that is how <code>bash-object</code> differentiates between a string and a number</li>
+<li>Do not use quotes for numbers (accessing indexes in indexed arrays)</li>
+</ul>
+<pre><code class="language-sh">query='.[&quot;my.key&quot;].[&quot;s\\ub\&quot;_key\]&quot;]'
+# =&gt; ('my.key' 's\ub&quot;_key]')
+
+query='.[&quot;my_key&quot;].[3]'
+# =&gt; ('my_key' $'\x1C3')
+</code></pre>
+<h2 id="invalid-queries">Invalid queries</h2>
+<p>The following query is invalid because it mixes the 'simple' and 'advanced' query types within the same query</p>
+<pre><code class="language-sh">query='.my_key.[3]'
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../motivation/" class="btn btn-neutral float-left" title="Motivation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../reference/" class="btn btn-neutral float-right" title="Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>© Edwin Kofler</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/hyperupcall/bash-object.git" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../motivation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../reference/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

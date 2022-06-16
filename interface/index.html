@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Edwin Kofler" /><link rel="canonical" href="https://hyperupcall.github.io/bash-object.git/interface/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Interface - bash-object.git</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Interface";
+        var mkdocs_page_input_path = "interface.md";
+        var mkdocs_page_url = "/bash-object.git/interface/";
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> bash-object.git
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">bash-object</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Interface</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#bobject-get-">bobject get-*</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ref">ref</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#value">value</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bobject-set-">bobject-set-*</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ref_1">ref</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#value_1">value</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../motivation/">Motivation</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../query/">Query</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../reference/">Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Internals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/errors/">Errors</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../internals/virtual-object/">Virtual Object</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">bash-object.git</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li><li>Interface</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/hyperupcall/bash-object.git/edit/master/docs/interface.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="interface">Interface</h1>
+<p>The <code>bobject</code> command generally allows you to 'set' and 'get' different types of variables from some object hierarchy (think JSON object)</p>
+<h2 id="bobject-get-"><code>bobject get-*</code></h2>
+<p>Get operations have two mutually exclusive modes, specified with either <code>--ref</code> or <code>--value</code> as flags. If you are not sure which to use, pass <code>--value</code></p>
+<h3 id="ref">ref</h3>
+<p>In ref mode, <code>REPLY</code> is a string that is set with the value of the global variable that contains the content you queried for. This functionality is not yet implemented</p>
+<h3 id="value">value</h3>
+<p>In value mode, the <code>REPLY</code> contains the actual value you want</p>
+<h2 id="bobject-set-"><code>bobject-set-*</code></h2>
+<p>Set operations have two mutually exclusive modes, specified with either <code>--ref</code> or <code>--value</code> as flags. If you are not sure which to use, pass <code>--ref</code></p>
+<h3 id="ref_1">ref</h3>
+<p>In ref mode, a third argument is passed, which is a string that is set to the name of a variable. When setting a field in the object hierarchy, the contents of that particular variable is copied into the hierarchy</p>
+<h3 id="value_1">value</h3>
+<p>In value mode, there is no third argument. After supplying the first two arguments, add <code>--</code>, then supply whatever value you want to be used when setting a field in the object hierarchy. This works with variable types <code>string</code>, <code>array</code>, and <code>object</code></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="bash-object"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../motivation/" class="btn btn-neutral float-right" title="Motivation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>© Edwin Kofler</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/hyperupcall/bash-object.git" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../motivation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
