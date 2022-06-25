@@ -2,37 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://hyperupcall.github.io/bash-object/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/interface/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/motivation/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/query/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/reference/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/internals/errors/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://hyperupcall.github.io/bash-object/internals/virtual-object/</loc>
-         <lastmod>2022-06-16</lastmod>
+         <lastmod>2022-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
