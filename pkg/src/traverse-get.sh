@@ -78,8 +78,8 @@ bash_object.traverse-get() {
 		*) bash_object.parse_querytree --simple "$querytree" ;;
 	esac
 	local i=
-	for ((i=0; i<${#REPLIES[@]}; i++)); do
-		local key="${REPLIES[$i]}"
+	for ((i=0; i<${#REPLY_QUERYTREE[@]}; i++)); do
+		local key="${REPLY_QUERYTREE[$i]}"
 
 		local is_index_of_array='no'
 		if [ "${key::1}" = $'\x1C' ]; then
@@ -163,11 +163,11 @@ bash_object.traverse-get() {
 					return
 				fi
 
-				if ((i+1 < ${#REPLIES[@]})); then
+				if ((i+1 < ${#REPLY_QUERYTREE[@]})); then
 					# Do nothing, and continue to next element in query. We already check for the
 					# validity of the virtual object above, so no need to do anything here
 					:
-				elif ((i+1 == ${#REPLIES[@]})); then
+				elif ((i+1 == ${#REPLY_QUERYTREE[@]})); then
 					# We are last element of query, return the object
 					if [ "$final_value_type" = object ]; then
 						case "$vmd_dtype" in
@@ -245,10 +245,10 @@ bash_object.traverse-get() {
 					bash_object.trace_print 2 "BLOCK: STRING"
 				fi
 
-				if ((i+1 < ${#REPLIES[@]})); then
+				if ((i+1 < ${#REPLY_QUERYTREE[@]})); then
 					bash_object.util.die 'ERROR_NOT_FOUND' "The passed querytree implies that '$key' accesses an object or array, but a string with a value of '$key_value' was found instead"
 					return
-				elif ((i+1 == ${#REPLIES[@]})); then
+				elif ((i+1 == ${#REPLY_QUERYTREE[@]})); then
 					local value="${__current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
 						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Queried for $final_value_type, but found existing string '$value'"

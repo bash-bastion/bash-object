@@ -103,59 +103,59 @@ load './util/init.sh'
 @test "Correctly parses advanced prop" {
 	bash_object.parse_querytree --advanced '.["one"]'
 
-	assert [ "${#REPLIES[@]}" -eq 1 ]
-	assert [ "${REPLIES[0]}" = 'one' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 1 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = 'one' ]
 }
 
 @test "Correctly parses advanced prop and escape sequence" {
 	bash_object.parse_querytree --advanced '.["esca\\p\"\]e"]'
 
-	assert [ "${#REPLIES[@]}" -eq 1 ]
-	assert [ "${REPLIES[0]}" = 'esca\p"]e' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 1 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = 'esca\p"]e' ]
 }
 
 @test "Correctly parses advanced double prop" {
 	bash_object.parse_querytree --advanced '.["aone"].["a\\two"]'
 
-	assert [ "${#REPLIES[@]}" -eq 2 ]
-	assert [ "${REPLIES[0]}" = 'aone' ]
-	assert [ "${REPLIES[1]}" = 'a\two' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 2 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = 'aone' ]
+	assert [ "${REPLY_QUERYTREE[1]}" = 'a\two' ]
 }
 
 @test "Correctly parses advanced number single" {
 	bash_object.parse_querytree --advanced '.[3]'
 
-	assert [ "${#REPLIES[@]}" -eq 1 ]
-	assert [ "${REPLIES[0]}" = $'\x1C3' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 1 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = $'\x1C3' ]
 }
 
 @test "Correctly parses advanced number" {
 	bash_object.parse_querytree --advanced '.[341]'
 
-	assert [ "${#REPLIES[@]}" -eq 1 ]
-	assert [ "${REPLIES[0]}" = $'\x1C341' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 1 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = $'\x1C341' ]
 }
 
 @test "Correctly parses advanced number nested" {
 	bash_object.parse_querytree --advanced '.[341].[7]'
 
-	assert [ "${#REPLIES[@]}" -eq 2 ]
-	assert [ "${REPLIES[0]}" = $'\x1C341' ]
-	assert [ "${REPLIES[1]}" = $'\x1C7' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 2 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = $'\x1C341' ]
+	assert [ "${REPLY_QUERYTREE[1]}" = $'\x1C7' ]
 }
 
 @test "Correctly parses advanced number then string" {
 	bash_object.parse_querytree --advanced '.[3].["subprop"]'
 
-	assert [ "${#REPLIES[@]}" -eq 2 ]
-	assert [ "${REPLIES[0]}" = $'\x1C3' ]
-	assert [ "${REPLIES[1]}" = 'subprop' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 2 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = $'\x1C3' ]
+	assert [ "${REPLY_QUERYTREE[1]}" = 'subprop' ]
 }
 
 @test "Correctly parses advanced string then number" {
 	bash_object.parse_querytree --advanced '.["subprop"].[9]'
 
-	assert [ "${#REPLIES[@]}" -eq 2 ]
-	assert [ "${REPLIES[0]}" = 'subprop' ]
-	assert [ "${REPLIES[1]}" = $'\x1C9' ]
+	assert [ "${#REPLY_QUERYTREE[@]}" -eq 2 ]
+	assert [ "${REPLY_QUERYTREE[0]}" = 'subprop' ]
+	assert [ "${REPLY_QUERYTREE[1]}" = $'\x1C9' ]
 }

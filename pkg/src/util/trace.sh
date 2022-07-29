@@ -4,7 +4,7 @@ bash_object.trace_loop() {
 	if [ -n "${TRACE_BASH_OBJECT_TRAVERSE+x}" ]; then
 		bash_object.trace_print 0 "-- START LOOP ITERATION"
 		bash_object.trace_print 0 "i+1: '$((i+1))'"
-		bash_object.trace_print 0 "\${#REPLIES[@]}: ${#REPLIES[@]}"
+		bash_object.trace_print 0 "\${#REPLY_QUERYTREE[@]}: ${#REPLY_QUERYTREE[@]}"
 		bash_object.trace_print 0 "key: '$key'"
 		bash_object.trace_print 0 "current_object_name: '$current_object_name'"
 		bash_object.trace_print 0 "current_object=("

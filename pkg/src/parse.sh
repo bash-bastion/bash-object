@@ -5,7 +5,7 @@
 # @exitcode 1 Miscellaneous error
 # @exitcode 2 Parsing error
 bash_object.parse_querytree() {
-	declare -ga REPLIES=()
+	declare -ga REPLY_QUERYTREE=()
 
 	local flag_parser_type=
 
@@ -33,7 +33,7 @@ bash_object.parse_querytree() {
 				continue
 			fi
 
-			REPLIES+=("$key")
+			REPLY_QUERYTREE+=("$key")
 		done
 		IFS="$old_ifs"
 	elif [ "$flag_parser_type" = 'advanced' ]; then
@@ -112,7 +112,7 @@ bash_object.parse_querytree() {
 						return
 					fi
 
-					REPLIES+=("$reply")
+					REPLY_QUERYTREE+=("$reply")
 					mode='MODE_EXPECTING_CLOSING_BRACKET'
 				elif [ "$char" = $'\n' ]; then
 					bash_object.util.die 'ERROR_QUERYTREE_INVALID' 'Querytree is not complete'
@@ -135,7 +135,7 @@ bash_object.parse_querytree() {
 				;;
 			MODE_EXPECTING_READ_NUMBER)
 				if [ "$char" = ']' ]; then
-					REPLIES+=("$reply")
+					REPLY_QUERYTREE+=("$reply")
 					mode='MODE_BEFORE_DOT'
 				else
 					case "$char" in
