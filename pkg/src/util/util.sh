@@ -85,7 +85,7 @@ bash_object.util.print_hierarchy() {
 			else
 				# object_value is a string
 				printf '%*s' "$current_indent" ''
-				printf '%s\n' "|__ $object_key"
+				printf '%s\n' "|__ $object_key: $object_value"
 			fi
 		done; unset object_key
 	elif [ "${object_type::1}" = 'a' ]; then
