@@ -124,7 +124,7 @@ bash_object.traverse-get() {
 				local -n __current_object="$current_object_name"
 
 				if [ -n "${VERIFY_BASH_OBJECT+x}" ]; then
-					# Ensure the 'final_value' is the same type as specified by the user (WET)
+					# Ensure the 'final_value' is the same type as specified by the user (DUPLICATED)
 					local __current_object_type=
 					if ! __current_object_type="$(declare -p "$current_object_name" 2>/dev/null)"; then
 						bash_object.util.die 'ERROR_INTERNAL' "The variable '$current_object_name' does not exist"
@@ -157,7 +157,7 @@ bash_object.traverse-get() {
 					esac
 				fi
 
-				# Ensure no circular references (WET)
+				# Ensure no circular references (DUPLICATED)
 				if [ "$old_current_object_name" = "$current_object_name" ]; then
 					bash_object.util.die 'ERROR_SELF_REFERENCE' "Virtual object '$current_object_name' cannot reference itself"
 					return
