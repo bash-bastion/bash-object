@@ -97,7 +97,7 @@ bash_object.util.print_hierarchy() {
 				local vmd_dtype="$REPLY2"
 
 				printf '%*s' "$current_indent" ''
-				printf '%s\n' "|- $object_value ($virtual_object_name)"
+				printf '%s\n' "|- ($virtual_object_name)"
 
 				bash_object.util.print_hierarchy "$virtual_object_name" $((current_indent+2))
 			else
