@@ -422,11 +422,59 @@ bash_object.traverse-set() {
 				elif ((i+1 == ${#REPLY_QUERYTREE[@]})); then
 					local value="${__current_object[$key]}"
 					if [ "$final_value_type" = object ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
-						return
+						if [ "$BASH_OBJECT_FORCE_SET" = 'yes' ]; then
+							bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
+							local global_object_name="$REPLY"
+
+							if bash_object.ensure.variable_does_not_exist "$global_object_name"; then :; else
+								return
+							fi
+
+							if ! declare -gA "$global_object_name"; then
+								bash_object.util.die 'ERROR_INTERNAL' "Could not declare variable '$global_object_name'"
+								return
+							fi
+							local -n global_object="$global_object_name"
+							global_object=()
+
+							__current_object["$key"]=$'\x1C\x1D'"type=object;&$global_object_name"
+
+							local -n ___object_to_copy_from="$final_value"
+
+							for key in "${!___object_to_copy_from[@]}"; do
+								# shellcheck disable=SC2034
+								global_object["$key"]="${___object_to_copy_from[$key]}"
+							done
+						else
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
+							return
+						fi
 					elif [ "$final_value_type" = array ]; then
-						bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
-						return
+						if [ "$BASH_OBJECT_FORCE_SET" = 'yes' ]; then
+							bash_object.util.generate_vobject_name "$root_object_name" "$querytree_stack_string"
+							local global_array_name="$REPLY"
+
+							if bash_object.ensure.variable_does_not_exist "$global_array_name"; then :; else
+								return
+							fi
+
+							if ! declare -ga "$global_array_name"; then
+								bash_object.util.die 'ERROR_INTERNAL' "Could not declare variable $global_object_name"
+								return
+							fi
+							local -n global_array="$global_array_name"
+							global_array=()
+
+							__current_object["$key"]=$'\x1C\x1D'"type=array;&$global_array_name"
+
+							local -n ___array_to_copy_from="$final_value"
+
+							# shellcheck disable=SC2034
+							global_array=("${___array_to_copy_from[@]}")
+						else
+							bash_object.util.die 'ERROR_ARGUMENTS_INCORRECT_TYPE' "Assigning an $final_value_type, but found existing string '$value'"
+							return
+						fi
 					elif [ "$final_value_type" = string ]; then
 						local -n ___string_to_copy_from="$final_value"
 						__current_object["$key"]="$___string_to_copy_from"
