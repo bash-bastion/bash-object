@@ -30,6 +30,8 @@ jobs:
             .
 
       - name: Run tests
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           time docker run bash-object:bash-version \
             --tap tests
