@@ -3,7 +3,7 @@ type = 'lib'
 lang = 'bash'
 name = 'bash-object'
 slug = 'bash_object'
-version = '0.8.1'
+version = '0.9.0'
 authors = ['Edwin Kofler" <edwin@kofler.dev>']
 description = 'Manipulate heterogenous data hierarchies in Bash'
 
