@@ -1,5 +1,6 @@
 [package]
-type = 'bash'
+type = 'lib'
+lang = 'bash'
 name = 'bash-object'
 slug = 'bash_object'
 version = '0.8.1'
