@@ -30,8 +30,10 @@ jobs:
             .
 
       - name: Run tests
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          time docker run bash-object:bash-version \
+          time docker run --env GITHUB_TOKEN bash-object:bash-version \
             --tap tests
 
 # FIXME
