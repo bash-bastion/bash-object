@@ -1,6 +1,8 @@
 # bash-object
 
-The first and only Bash library for manipulating heterogenous data hierarchies. This is meant to be a low level API providing primitives for other libraries.
+Manipulate heterogenous data hierarchies in Bash.
+
+This is meant to be a low level API providing primitives for other libraries.
 
 ## Exhibition
 
