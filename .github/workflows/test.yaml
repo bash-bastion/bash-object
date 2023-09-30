@@ -1,0 +1,16 @@
+name: 'Test'
+
+on:
+  push:
+    branches-ignore: ['*-no-ci']
+    tags-ignore: ['*']
+
+permissions:
+  contents: 'read'
+  pages: 'write'
+  id-token: 'write'
+
+jobs:
+  bash:
+    name: 'Bash'
+    uses: 'fox-land/hyperupcall-action/.github/workflows/bash-test.yml@main'
