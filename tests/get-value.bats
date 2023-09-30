@@ -39,10 +39,12 @@ load './util/init.sh'
 	bobject set-string --ref 'OBJECT' '.obj' str
 
 	bobject get-string --value 'OBJECT' '.obj'
+	# shellcheck disable=SC2128
 	assert [ "$REPLY" = woof ]
 
 	REPLY='meow'
 
 	bobject get-string --value 'OBJECT' '.obj'
+	# shellcheck disable=SC2128
 	assert [ "$REPLY" = woof ]
 }

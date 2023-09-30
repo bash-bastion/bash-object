@@ -1,82 +1,16 @@
-name: 'ci'
+name: 'Test'
 
 on:
   push:
-    branches: [main, dev, ci/*]
-  pull_request:
-    branches: [main, dev, ci/*]
+    branches-ignore: ['*-no-ci']
+    tags-ignore: ['*']
 
-permissions: read-all
+permissions:
+  contents: 'read'
+  pages: 'write'
+  id-token: 'write'
 
 jobs:
-  test-linux:
-    name: 'Linux Test'
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ['ubuntu-20.04'] # ubuntu-18.04, ubuntu-20.04, ubuntu-latest
-        # bash-version: ['4.3', '4.4', '5.0', 'latest']
-
-    runs-on: '${{ matrix.os }}'
-
-    steps:
-      - name: Checkout repository
-        uses: 'actions/checkout@v2'
-
-      - name: Build image
-        run: |
-          docker build \
-            --tag bash-object:bash-version \
-            .
-
-      - name: Run tests
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          time docker run --env GITHUB_TOKEN bash-object:bash-version \
-            --tap tests
-
-# FIXME
-# test-mac:
-#   name: 'MacOS Test'
-#   strategy:
-#     fail-fast: false
-#     matrix:
-#       os: ['macos-10.15'] # macos-10.15, macos-11, macos-latest
-
-#   runs-on: '${{ matrix.os }}'
-
-#   steps:
-#     - uses: 'actions/checkout@v2'
-#       with:
-#         submodules: true
-#         path: 'source'
-
-#     - name: Install Prerequisites
-#       run: |
-#         # gnu-tar is only for the 'Install Bats' step
-#         brew install bash coreutils curl gnu-tar
-
-#     - name: Install Bats
-#       run: |
-#         subdir='.workflow-data'
-#         bats_version='1.4.1'
-
-#         cd source
-
-#         curl -LsSo "$subdir/bats-core.tar.gz" --create-dirs \
-#           https://github.com/bats-core/bats-core/archive/v$bats_version.tar.gz
-#         gtar --extract --transform "s,bats-core-$bats_version,bats-core," -C "$subdir" -f "$subdir/bats-core.tar.gz"
-
-#     - name: Run tests
-#       run: |
-#         subdir='.workflow-data'
-
-#         cd source
-
-#         bash --version
-#         git config --global user.email "user@example.com"
-#         git config --global user.name "User Name"
-#         printf "%s\n" "---"
-
-#         time "./$subdir/bats-core/bin/bats" --tap tests
+  bash:
+    name: 'Bash'
+    uses: 'fox-land/hyperupcall-action/.github/workflows/bash-test.yml@main'
