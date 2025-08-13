@@ -60,8 +60,8 @@ bobject.print 'root_object'
 
 ## Installation
 
-Use [Basalt](https://github.com/hyperupcall/basalt), a Bash package manager, to add this project as a dependency
+Use [Basalt](https://github.com/bash-bastion/basalt), a Bash package manager, to add this project as a dependency
 
 ```sh
-basalt add hyperupcall/bash-object
+basalt add bash-bastion/bash-object
 ```
